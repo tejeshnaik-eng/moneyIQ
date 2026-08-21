@@ -1,30 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BookOpen, 
-  Clock, 
-  BarChart2, 
   ArrowRight,
   TrendingUp,
   PieChart,
   Calculator,
-  Activity,
   ArrowLeft,
   CheckCircle2,
   CheckCircle,
-  XCircle,
-  Award
+  Star,
+  Activity,
+  BookOpen,
+  BarChart2
 } from 'lucide-react';
 import { allLearningConcepts } from '../../data/learningConcepts';
 import { LearningConcept } from '../../types/learning';
 
+const ChartThumbnail = () => (
+  <div className="bg-white dark:bg-[var(--app-surface)] p-3 rounded-xl border border-[var(--app-border)] shadow-sm w-full h-full flex flex-col">
+    <div className="text-[8px] font-bold text-center mb-2 text-[var(--app-text)] tracking-wider">SUPPORT AND RESISTANCE LEVELS</div>
+    <div className="flex-1 relative border-l border-b border-[var(--app-border)]">
+      {/* Grid lines */}
+      <div className="absolute inset-0 flex flex-col justify-between">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="w-full border-b border-[var(--app-border)] border-dashed opacity-50 flex-1"></div>
+        ))}
+      </div>
+      {/* Candles */}
+      <div className="absolute inset-0 flex items-end justify-around px-2 pb-2">
+         <div className="w-1.5 h-8 bg-gray-800 dark:bg-gray-200 mb-6"></div>
+         <div className="w-1.5 h-12 bg-gray-800 dark:bg-gray-200 mb-8"></div>
+         <div className="w-1.5 h-6 bg-gray-800 dark:bg-gray-200 mb-5"></div>
+         <div className="w-1.5 h-10 bg-[var(--primary)] mb-5"></div>
+         <div className="w-1.5 h-14 bg-[var(--primary)] mb-7"></div>
+         <div className="w-1.5 h-16 bg-[var(--primary)] mb-10"></div>
+         <div className="w-1.5 h-12 bg-[var(--primary)] mb-14"></div>
+         <div className="w-1.5 h-10 bg-gray-800 dark:bg-gray-200 mb-14"></div>
+      </div>
+      {/* Trendline */}
+      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+         <line x1="10%" y1="70%" x2="90%" y2="20%" stroke="var(--secondary)" strokeWidth="1.5" strokeDasharray="3" />
+      </svg>
+    </div>
+  </div>
+);
+
 export const LearningModule: React.FC = () => {
-  const [view, setView] = useState<'home' | 'lesson' | 'quiz' | 'challenge' | 'lab'>('home');
+  const [view, setView] = useState<'home' | 'lesson' | 'quiz'>('home');
   const [activeConceptId, setActiveConceptId] = useState<string | null>(null);
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null);
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
   
-  // Load progress
   useEffect(() => {
     const saved = localStorage.getItem('finsight_learning_progress');
     if (saved) {
@@ -46,7 +72,6 @@ export const LearningModule: React.FC = () => {
   const activeConcept = allLearningConcepts.find(c => c.id === activeConceptId);
 
   // --- SUBVIEWS --- //
-
   if (view === 'lesson' && activeConcept && activeConcept.lessonContent) {
     return (
       <div className="w-full max-w-[900px] mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -54,7 +79,7 @@ export const LearningModule: React.FC = () => {
           onClick={() => { setView('home'); setActiveConceptId(null); }}
           className="flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] mb-6 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Learning Home
+          <ArrowLeft className="w-4 h-4" /> Back to Learning Curriculum
         </button>
         
         <header className="mb-8">
@@ -63,7 +88,7 @@ export const LearningModule: React.FC = () => {
             <span className="text-xs font-bold text-[var(--app-text-muted)] tracking-wider">LESSON</span>
           </div>
           <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-            <div className="bg-[var(--primary)] h-full" style={{ width: completedTopics.includes(activeConcept.id) ? '100%' : '50%' }}></div>
+            <div className="bg-[var(--secondary)] h-full" style={{ width: completedTopics.includes(activeConcept.id) ? '100%' : '50%' }}></div>
           </div>
         </header>
 
@@ -81,7 +106,6 @@ export const LearningModule: React.FC = () => {
         </div>
 
         <div className="bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-2xl h-[400px] mb-8 relative flex flex-col items-center justify-center overflow-hidden">
-           {/* Mock Interactive Chart Area based on type */}
            <div className="absolute inset-0 opacity-20 dark:opacity-10" style={{ backgroundImage: 'linear-gradient(var(--app-border) 1px, transparent 1px), linear-gradient(90deg, var(--app-border) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
            
            {activeConcept.lessonContent.chartType === 'support_resistance' ? (
@@ -116,7 +140,7 @@ export const LearningModule: React.FC = () => {
               setView('home');
               setActiveConceptId(null);
             }}
-            className="btn-primary text-base px-8 py-3 shadow-md"
+            className="flex items-center gap-2 bg-[var(--secondary)] hover:bg-[var(--secondary-dim)] text-white font-heading font-bold px-8 py-3 rounded-lg shadow-md transition-colors"
           >
             I Understand
             <CheckCircle2 className="w-5 h-5 ml-1" />
@@ -172,7 +196,7 @@ export const LearningModule: React.FC = () => {
                   isSuccess ? 'border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--app-text)]' : 
                   isFail ? 'border-[#ba1a1a] bg-[#ba1a1a]/10 text-[var(--app-text)]' : 
                   selectedQuizOption ? 'border-[var(--app-border)] bg-[var(--app-surface)] opacity-50' :
-                  'border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--secondary)] hover:bg-[var(--app-surface-hover)] text-[var(--app-text)]'
+                  'border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--secondary)] hover:bg-[var(--secondary-soft)] text-[var(--app-text)]'
                 }`}
               >
                 <span className="font-bold mr-3 text-[var(--app-text-muted)]">{letter}.</span>
@@ -188,9 +212,9 @@ export const LearningModule: React.FC = () => {
             <div className="mt-6 flex justify-end">
                <button 
                 onClick={() => { setView('home'); setActiveConceptId(null); setSelectedQuizOption(null); setQuizFeedback(null); }}
-                className="btn-primary"
+                className="flex items-center gap-2 bg-[var(--secondary)] hover:bg-[var(--secondary-dim)] text-white font-heading font-bold px-6 py-2 rounded-lg transition-colors"
                >
-                 Back to Home
+                 Back to Curriculum
                </button>
             </div>
           </div>
@@ -199,161 +223,142 @@ export const LearningModule: React.FC = () => {
     );
   }
 
-
   // --- HOME VIEW --- //
-  
   const technicalConcepts = allLearningConcepts.filter(c => c.category === 'Technical Analysis');
   const fundamentalConcepts = allLearningConcepts.filter(c => c.category === 'Fundamental Analysis');
   const portfolioConcepts = allLearningConcepts.filter(c => c.category === 'Portfolio Strategy');
 
-  const renderConceptCard = (concept: LearningConcept, IconComponent: any, hoverColor: string) => (
-    <button 
-      key={concept.id}
-      onClick={() => {
-        setActiveConceptId(concept.id);
-        setView(concept.type);
-      }} 
-      className={`text-left bg-[var(--app-surface)] p-5 rounded-2xl border border-[var(--app-border)] transition-all duration-200 group cursor-pointer block relative shadow-sm hover:shadow-md hover:border-[${hoverColor}]`}
-    >
-      <div className="flex justify-between items-start mb-3">
-        <div className={`w-10 h-10 rounded-full bg-[var(--app-surface-hover)] flex items-center justify-center transition-colors`} style={{ color: hoverColor }}>
-          <IconComponent className="w-5 h-5" />
+  const renderHorizontalCard = (concept: LearningConcept, index: number, isFeatured: boolean = false) => {
+    const isCompleted = completedTopics.includes(concept.id);
+    return (
+      <div key={concept.id} className="bg-[var(--secondary-soft)] rounded-[20px] p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 mb-6 shadow-sm border border-[var(--app-border)]/50">
+        <div className="flex-1">
+          {isFeatured && (
+            <div className="inline-flex items-center gap-1.5 bg-white dark:bg-[var(--app-surface)] text-[var(--secondary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 shadow-sm border border-[var(--app-border)]">
+              <Star className="w-3.5 h-3.5" fill="currentColor" /> Featured
+            </div>
+          )}
+          {!isFeatured && isCompleted && (
+            <div className="inline-flex items-center gap-1.5 bg-[var(--primary-soft)] text-[var(--primary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 shadow-sm border border-[var(--primary)]/20">
+              <CheckCircle className="w-3.5 h-3.5" /> Completed
+            </div>
+          )}
+          <h2 className="text-2xl md:text-3xl font-heading font-bold text-[var(--app-text)] mb-3">
+            {concept.title}
+          </h2>
+          <p className="text-base text-[var(--app-text-muted)] mb-8 max-w-xl leading-relaxed">
+            {concept.description}
+          </p>
+          <button 
+            onClick={() => {
+              setActiveConceptId(concept.id);
+              setView(concept.type);
+            }}
+            className="flex items-center gap-2 bg-[var(--secondary)] hover:bg-[var(--secondary-dim)] text-white font-heading font-semibold px-6 py-3 rounded-xl transition-all shadow-md hover:shadow-lg"
+          >
+            {isCompleted ? 'Review Topic' : 'Continue Learning'} <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-        {completedTopics.includes(concept.id) ? (
-          <CheckCircle className="w-5 h-5" style={{ color: hoverColor }} />
-        ) : (
-          <span className="text-[10px] font-bold text-[var(--app-text-muted)] bg-[var(--app-surface-alt)] px-2 py-0.5 rounded uppercase">{concept.difficulty}</span>
-        )}
+        <div className="w-full md:w-[280px] h-[180px] shrink-0 hidden sm:block">
+          <ChartThumbnail />
+        </div>
       </div>
-      <h4 className="text-base font-heading font-bold text-[var(--app-text)] mb-1 transition-colors group-hover:text-[var(--primary)]">
-        {concept.title}
-      </h4>
-      <p className="text-sm text-[var(--app-text-muted)] line-clamp-2 mb-4">
-        {concept.description}
-      </p>
-      <div className="flex items-center justify-between text-xs font-medium text-[var(--app-text-muted)] mt-auto pt-3 border-t border-[var(--app-border)]">
-        <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {concept.durationMinutes} min</span>
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-bold" style={{ color: hoverColor }}>
-          Start <ArrowRight className="w-3.5 h-3.5" />
-        </span>
-      </div>
-    </button>
-  );
+    );
+  };
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
+    <div className="w-full max-w-[1000px] mx-auto p-6 md:p-12 space-y-12 animate-in fade-in duration-300">
       
       {/* Header Section */}
-      <header className="max-w-3xl mb-8">
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-[var(--app-text)] leading-tight mb-4">
-          Learn investing.<br/>Understand the market.
+      <header className="mb-12">
+        <h1 className="text-5xl md:text-6xl font-heading font-bold text-[var(--app-text)] leading-tight mb-2 tracking-tight">
+          Learn investing.
         </h1>
-        <p className="text-lg text-[var(--app-text-muted)] max-w-2xl">
-          Build your market knowledge by learning with real charts and interactive examples.
+        <p className="text-3xl md:text-4xl font-heading text-[var(--app-text-muted)] font-normal tracking-tight">
+          Understand the market.
         </p>
       </header>
 
-      {/* Progress & Continue Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+      {/* Hero Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
         
-        {/* Overall Progress (Spans 4) */}
-        <div className="lg:col-span-4 bg-[var(--app-surface)] rounded-2xl p-6 border border-[var(--app-border)] relative overflow-hidden flex flex-col justify-between min-h-[160px] shadow-sm">
+        {/* Progress Card (Spans 4) */}
+        <div className="lg:col-span-4 bg-[var(--app-surface)] rounded-[20px] p-8 border border-[var(--app-border)] shadow-sm flex flex-col justify-between min-h-[220px]">
           <div>
-            <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] mb-2 uppercase tracking-wider flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              Your Learning Progress
+            <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] mb-4 uppercase tracking-widest">
+              Your Progress
             </h3>
-            <div className="text-2xl font-heading font-bold text-[var(--app-text)]">
-              {completedTopics.length} of {totalConcepts} concepts completed
+            <div className="flex items-baseline gap-2">
+              <span className="text-6xl font-heading font-bold text-[var(--app-text)]">{completedTopics.length}</span>
+              <span className="text-lg font-heading font-medium text-[var(--app-text-muted)]">of {totalConcepts} completed</span>
             </div>
           </div>
-          <div className="mt-8 relative">
-            <div className="flex justify-between text-xs font-bold text-[var(--app-text-muted)] mb-2">
-              <span>{progressPercent}% Total</span>
-            </div>
-            <div className="w-full h-1.5 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
+          <div className="mt-8">
+            <div className="w-full h-1.5 bg-[var(--app-surface-hover)] rounded-full relative">
               <div 
-                className="h-full bg-[var(--primary)] rounded-full transition-all duration-1000 ease-out" 
+                className="absolute top-0 left-0 h-full bg-[var(--primary)] rounded-full transition-all duration-1000 ease-out" 
                 style={{ width: `${progressPercent}%` }}
               ></div>
+              <div 
+                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--primary)] rounded-full border-2 border-white dark:border-[var(--app-surface)] shadow-sm transition-all duration-1000 ease-out"
+                style={{ left: `calc(${progressPercent}% - 6px)` }}
+              ></div>
+            </div>
+            <div className="mt-3 text-right text-xs font-bold text-[var(--app-text-muted)]">
+              Keep going!
             </div>
           </div>
         </div>
 
-        {/* Continue Learning Hero Card (Spans 8) */}
-        <div className="lg:col-span-8 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl overflow-hidden relative group hover:border-[var(--primary)] transition-all duration-300 flex flex-col sm:flex-row shadow-sm">
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--app-surface-hover)] flex">
-            <div className="h-full bg-[var(--primary)] transition-all duration-1000" style={{ width: '100%' }}></div>
-          </div>
-          
-          <div className="p-6 md:p-8 flex-1 flex flex-col justify-between z-10 bg-[var(--app-surface)]">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] tracking-wide uppercase">
-                  Featured
-                </span>
-              </div>
-              <h2 className="text-2xl font-heading font-bold text-[var(--app-text)] mb-2">
-                Keep exploring financial markets!
-              </h2>
-              <div className="flex items-center gap-4 text-sm text-[var(--app-text-muted)] font-medium">
-                Pick a lesson or quiz below to increase your knowledge.
-              </div>
-            </div>
-          </div>
-          
-          <div className="w-full sm:w-2/5 h-48 sm:h-auto bg-[var(--app-surface-alt)] relative overflow-hidden hidden sm:block border-l border-[var(--app-border)]">
-            <div className="absolute inset-0 opacity-20 dark:opacity-10" style={{ backgroundImage: 'linear-gradient(var(--app-border) 1px, transparent 1px), linear-gradient(90deg, var(--app-border) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-            <svg className="absolute inset-0 w-full h-full text-[var(--app-text-muted)] opacity-30 group-hover:opacity-50 transition-opacity duration-500" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path d="M0 80 Q 20 60, 40 70 T 80 40 T 100 30" fill="none" stroke="currentColor" strokeWidth="2"></path>
-              <line stroke="var(--primary)" strokeDasharray="4" strokeWidth="2" x1="0" x2="100" y1="75" y2="75"></line>
-              <line stroke="#ba1a1a" strokeDasharray="4" strokeWidth="2" x1="0" x2="100" y1="35" y2="35"></line>
-            </svg>
-          </div>
+        {/* Featured Card (Spans 8) */}
+        <div className="lg:col-span-8">
+          {technicalConcepts.length > 0 && renderHorizontalCard(technicalConcepts[0], 0, true)}
         </div>
       </div>
 
-      {/* Categories Section */}
-      <section>
-        <h2 className="text-2xl font-heading font-bold text-[var(--app-text)] mb-6">Explore Topics</h2>
+      {/* Curriculum Sections */}
+      <div className="space-y-16">
         
-        {allLearningConcepts.length === 0 ? (
-          <div className="py-20 text-center text-[var(--app-text-muted)]">
-            Loading interactive curriculum...
+        {/* Technical Analysis */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-[var(--app-text)]">Technical Analysis</h2>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Technical Analysis Column */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Technical Analysis
-              </h3>
-              {technicalConcepts.map(c => renderConceptCard(c, Activity, 'var(--primary)'))}
-            </div>
-
-            {/* Fundamental Analysis Column */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-                <BookOpen className="w-4 h-4" />
-                Fundamental Analysis
-              </h3>
-              {fundamentalConcepts.map(c => renderConceptCard(c, Calculator, 'var(--primary)'))}
-            </div>
-
-            {/* Portfolio & Risk Column */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-                <PieChart className="w-4 h-4" />
-                Portfolio Strategy
-              </h3>
-              {portfolioConcepts.map(c => renderConceptCard(c, PieChart, 'var(--secondary)'))}
-            </div>
-
+          <div className="space-y-6">
+            {technicalConcepts.slice(1, 4).map((c, i) => renderHorizontalCard(c, i + 1))}
           </div>
-        )}
-      </section>
+        </section>
+
+        {/* Fundamental Analysis */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-[var(--app-text)]">Fundamental Analysis</h2>
+          </div>
+          <div className="space-y-6">
+            {fundamentalConcepts.slice(0, 3).map((c, i) => renderHorizontalCard(c, i))}
+          </div>
+        </section>
+
+        {/* Portfolio Strategy */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+              <PieChart className="w-5 h-5" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-[var(--app-text)]">Portfolio Strategy</h2>
+          </div>
+          <div className="space-y-6">
+            {portfolioConcepts.slice(0, 3).map((c, i) => renderHorizontalCard(c, i))}
+          </div>
+        </section>
+
+      </div>
       
     </div>
   );
