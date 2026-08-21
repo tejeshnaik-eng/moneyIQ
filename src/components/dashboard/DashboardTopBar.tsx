@@ -1,17 +1,19 @@
 import React from 'react';
-import { Bell, ShieldCheck, Plus } from 'lucide-react';
+import { Bell, ShieldCheck, Plus, LogOut } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 
 interface DashboardTopBarProps {
   activeModule: ModuleId;
   user: UserProfile;
   onNewAction?: () => void;
+  onLogout?: () => void;
 }
 
 export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   activeModule,
   user,
   onNewAction,
+  onLogout,
 }) => {
   const getModuleMeta = (mod: ModuleId): { title: string; desc: string } => {
     switch (mod) {
@@ -79,6 +81,16 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
             >
               <Plus className="w-4 h-4" />
               <span>Create / Add</span>
+            </button>
+          )}
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              title="Sign out"
+              className="p-2 rounded-lg text-[#565e74] hover:bg-[#ffdad6] hover:text-[#ba1a1a] border border-[#E2E8F0] transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
             </button>
           )}
         </div>

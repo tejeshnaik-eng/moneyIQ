@@ -36,7 +36,7 @@ export class YahooFinanceService {
     // For equity ETFs, route through our backend
     if (!symbol.startsWith('^')) {
       try {
-        const res = await fetch(`/api/stock/${encodeURIComponent(symbol)}`);
+        const res = await fetch(`/api/stock/${encodeURIComponent(symbol)}`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           return {
@@ -94,7 +94,7 @@ export class YahooFinanceService {
    */
   static async getCovidCrashTimeline(): Promise<CrisisHistoryData | null> {
     try {
-      const res = await fetch('/api/historical/%5ENSEI/2020-02-01/2020-11-30');
+      const res = await fetch('/api/historical/%5ENSEI/2020-02-01/2020-11-30', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         if (data.data && data.data.length > 0) {
@@ -149,7 +149,8 @@ export class YahooFinanceService {
   ): Promise<IndexPricePoint[] | null> {
     try {
       const res = await fetch(
-        `/api/historical/${encodeURIComponent(symbol)}/${startDate}/${endDate}`
+        `/api/historical/${encodeURIComponent(symbol)}/${startDate}/${endDate}`,
+        { credentials: 'include' }
       );
       if (res.ok) {
         const data = await res.json();

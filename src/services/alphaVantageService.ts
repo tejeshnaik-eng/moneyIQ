@@ -41,7 +41,7 @@ export class AlphaVantageService {
     }
 
     try {
-      const res = await fetch(`/api/stock/${encodeURIComponent(sym)}`);
+      const res = await fetch(`/api/stock/${encodeURIComponent(sym)}`, { credentials: 'include' });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.warn(`[StockQuoteService] ${res.status} for ${sym}:`, err.error || 'Unknown error');
