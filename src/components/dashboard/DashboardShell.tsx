@@ -56,6 +56,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         user={user}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onLogout={onLogout}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen">

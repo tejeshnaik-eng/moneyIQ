@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Shield, 
@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
+import { SettingsModal } from '../modules/SettingsModal';
 
 interface DashboardSidebarProps {
   activeModule: ModuleId;
@@ -20,6 +21,7 @@ interface DashboardSidebarProps {
   user: UserProfile;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onLogout?: () => void;
 }
 
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
@@ -28,7 +30,10 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   user,
   collapsed,
   onToggleCollapse,
+  onLogout,
 }) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   const navItems: Array<{
     id: ModuleId;
     label: string;
@@ -116,8 +121,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       </div>
 
       <div className="p-4 border-t border-[#E2E8F0] flex items-center justify-between bg-[#f7f9fb]">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-full bg-[#00b090] text-white flex items-center justify-center font-bold text-xs shrink-0">
+        <div 
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+          title="Open Settings"
+        >
+          <div className="w-9 h-9 rounded-full bg-[#00b090] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
             {user.name.charAt(0)}
           </div>
           {!collapsed && (
@@ -127,10 +136,25 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             </div>
           )}
         </div>
+
         {!collapsed && (
-          <Settings className="w-4 h-4 text-[#565e74] hover:text-[#006b57] cursor-pointer" />
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-1.5 rounded-lg text-[#565e74] hover:text-[#006b57] hover:bg-[#eceef0] transition-colors"
+            title="Ledger Settings"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
         )}
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        user={user}
+        onLogout={onLogout}
+      />
     </aside>
   );
 };
