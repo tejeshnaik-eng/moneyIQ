@@ -90,6 +90,7 @@ export const App: React.FC = () => {
               setCurrentView(view);
             }
           }}
+          onStartModule={handleStartFromLanding}
         />
       )}
 

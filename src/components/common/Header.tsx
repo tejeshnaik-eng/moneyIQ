@@ -1,6 +1,6 @@
 import React from 'react';
 import { Landmark, Search, ShieldCheck } from 'lucide-react';
-import { UserProfile } from '../../types';
+import { UserProfile, ModuleId } from '../../types';
 
 interface HeaderProps {
   user: UserProfile | null;
@@ -8,6 +8,7 @@ interface HeaderProps {
   onLogout: () => void;
   currentView: 'landing' | 'dashboard';
   onNavigate: (view: 'landing' | 'dashboard') => void;
+  onStartModule?: (module: ModuleId) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   currentView,
   onNavigate,
+  onStartModule,
 }) => {
   return (
     <header className="bg-[#f2f4f6] border-b border-[#E2E8F0] sticky top-0 z-30">
@@ -35,12 +37,41 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden md:flex h-full items-center gap-6 text-sm font-heading font-medium text-[#565e74]">
             <button
               onClick={() => onNavigate('dashboard')}
-              className={`h-full flex items-center pt-0.5 hover:text-[#006b57] transition-colors ${
-                currentView === 'dashboard' ? 'text-[#006b57] border-b-2 border-[#006b57] font-bold' : ''
+              className={`h-full flex items-center pt-0.5 hover:text-[#0F9D65] transition-colors ${
+                currentView === 'dashboard' ? 'text-[#0F9D65] border-b-2 border-[#0F9D65] font-bold' : ''
               }`}
             >
               Dashboard
             </button>
+            {currentView === 'landing' && onStartModule && (
+              <>
+                <span className="text-[#E2E8F0]">|</span>
+                <button 
+                  onClick={() => onStartModule('portfolio')} 
+                  className="hover:text-[#0F9D65] hover:underline decoration-2 underline-offset-4 transition-all"
+                >
+                  Portfolio Blueprint
+                </button>
+                <button 
+                  onClick={() => onStartModule('marketsim')} 
+                  className="hover:text-[#0F9D65] hover:underline decoration-2 underline-offset-4 transition-all"
+                >
+                  Market Simulator
+                </button>
+                <button 
+                  onClick={() => onStartModule('risk')} 
+                  className="hover:text-[#0F9D65] hover:underline decoration-2 underline-offset-4 transition-all"
+                >
+                  Risk Profiling
+                </button>
+                <button 
+                  onClick={() => onStartModule('hypedetector')} 
+                  className="hover:text-[#0F9D65] hover:underline decoration-2 underline-offset-4 transition-all"
+                >
+                  Hype Detector
+                </button>
+              </>
+            )}
           </nav>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ModuleId } from '../../types';
 
 interface LandingPageProps {
@@ -6,8 +6,6 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <>
       <style>{`
@@ -15,9 +13,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             --bg-color: #0B0E14;
             --text-color: #F5F1E8;
             --muted-color: #B8AF9E;
-            --blue-color: #5068fe;
-            --blue-dim: #4054db;
-            --blue-pale: #8a9bff;
+            --primary: #0F9D65;
+            --primary-dim: #0C7D51;
+            --primary-soft: rgba(15, 157, 101, 0.12);
         }
 
         body, html {
@@ -32,8 +30,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
         .stitch-page {
             position: relative;
-            height: 100vh;
-            width: 100vw;
+            height: calc(100vh - 64px);
+            width: 100%;
             display: flex;
             flex-direction: column;
         }
@@ -66,64 +64,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             z-index: 1;
         }
 
-        /* Header / Nav */
-        .stitch-header {
-            position: relative;
-            z-index: 10;
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            padding: 24px 40px;
-            gap: 40px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 20px;
-            text-decoration: none;
-            color: var(--text-color);
-            opacity: 0;
-            animation: fadeUp 0.6s ease-out 0.05s forwards;
-            cursor: pointer;
-        }
-
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            background-color: var(--blue-color);
-            color: #ffffff;
-            font-weight: 500;
-            font-size: 14px;
-            opacity: 0;
-            padding: 8px 16px;
-            border-radius: 9999px;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .nav-link:hover {
-            background-color: var(--blue-dim);
-        }
-
-        .nav-link:nth-child(1) { animation: fadeUp 0.6s ease-out 0.1s forwards; }
-        .nav-link:nth-child(2) { animation: fadeUp 0.6s ease-out 0.16s forwards; }
-        .nav-link:nth-child(3) { animation: fadeUp 0.6s ease-out 0.22s forwards; }
-        .nav-link:nth-child(4) { animation: fadeUp 0.6s ease-out 0.28s forwards; }
-
-        .header-cta {
-            opacity: 0;
-            animation: fadeUp 0.6s ease-out 0.34s forwards;
-        }
-
         /* Buttons */
         .stitch-btn {
             font-family: 'Outfit', sans-serif;
@@ -141,20 +81,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         }
 
         .stitch-btn--solid {
-            background-color: var(--blue-color);
-            color: var(--bg-color);
+            background-color: var(--primary);
+            color: #ffffff;
         }
         .stitch-btn--solid:hover {
-            background-color: var(--text-color);
+            background-color: var(--primary-dim);
         }
 
         .stitch-btn--outline {
             background-color: transparent;
             color: var(--text-color);
-            border: 1.5px solid var(--blue-color);
+            border: 1.5px solid var(--primary);
         }
         .stitch-btn--outline:hover {
-            background-color: rgba(80, 104, 254, 0.1);
+            background-color: rgba(15, 157, 101, 0.1);
         }
 
         /* Hero Section */
@@ -174,7 +114,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             font-weight: 600;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: var(--blue-color);
+            color: var(--primary);
             margin-bottom: 24px;
             display: inline-block;
             opacity: 0;
@@ -220,7 +160,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             position: absolute;
             left: 0;
             top: 0;
-            color: var(--blue-pale);
+            color: var(--primary-soft);
             width: 0%;
             overflow: hidden;
             white-space: nowrap;
@@ -232,7 +172,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             position: absolute;
             left: 0;
             top: 0;
-            color: var(--blue-color);
+            color: var(--primary);
             width: 0%;
             overflow: hidden;
             white-space: nowrap;
@@ -266,53 +206,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             animation: fadeUp 0.6s ease-out 1.1s forwards;
         }
 
-        /* Mobile Nav & Burger */
-        .burger {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 100;
-        }
-
-        .burger span {
-            width: 24px;
-            height: 2px;
-            background-color: var(--text-color);
-            transition: 0.3s;
-        }
-
-        .mobile-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(11, 14, 20, 0.98);
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-nav.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .mobile-nav .nav-link {
-            font-size: 24px;
-            opacity: 1;
-            animation: none;
-        }
-
         /* Keyframes */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -336,17 +229,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             }
             .stitch-page {
                 height: auto;
-                min-height: 100vh;
-            }
-            .stitch-header {
-                grid-template-columns: 1fr auto;
-                padding: 20px;
-            }
-            .nav-links, .header-cta {
-                display: none;
-            }
-            .burger {
-                display: flex;
+                min-height: calc(100vh - 64px);
             }
             .stitch-hero {
                 padding: 40px 20px 60px 20px;
@@ -377,39 +260,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           <div className="scrim"></div>
         </div>
 
-        {/* Header / Nav */}
-        <header className="stitch-header">
-          <button aria-label="FinSight" className="logo" onClick={() => onStart('overview')}>
-            <svg fill="none" height="26" viewBox="0 0 26 26" width="26" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 18L13 9L22 18" stroke="var(--blue-color)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-              <path d="M4 11L13 2L22 11" opacity="0.6" stroke="var(--blue-color)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-            </svg>
-            <span>FinSight</span>
-          </button>
-          
-          <nav aria-label="Primary" className="nav-links">
-            <button className="nav-link" onClick={() => onStart('portfolio')}>Portfolio Blueprint</button>
-            <button className="nav-link" onClick={() => onStart('marketsim')}>Market Simulator</button>
-            <button className="nav-link" onClick={() => onStart('risk')}>Risk Profiling</button>
-            <button className="nav-link" onClick={() => onStart('hypedetector')}>Hype Detector</button>
-          </nav>
-          
-          <div className="header-cta">
-            <button className="stitch-btn stitch-btn--solid" onClick={() => onStart('overview')}>Get Started</button>
-          </div>
-          
-          <button 
-            aria-label="Menu" 
-            className="burger" 
-            id="burger-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <span style={{ transform: mobileMenuOpen ? 'translateY(8px) rotate(45deg)' : 'none' }}></span>
-            <span style={{ opacity: mobileMenuOpen ? '0' : '1' }}></span>
-            <span style={{ transform: mobileMenuOpen ? 'translateY(-8px) rotate(-45deg)' : 'none' }}></span>
-          </button>
-        </header>
-
         {/* Hero Section */}
         <main className="stitch-hero" id="top">
           <span className="badge">Confidence Layer for Indian Investors</span>
@@ -432,15 +282,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             FinSight reads your real portfolio, risk profile, and goals — not social media hype — and turns them into a plan you can actually trust. Practice with virtual money before you commit real capital.
           </p>
         </main>
-
-        {/* Mobile Nav Overlay */}
-        <div className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`} id="mobile-nav">
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('portfolio'); }}>Portfolio Blueprint</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('marketsim'); }}>Market Simulator</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('risk'); }}>Risk Profiling</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('hypedetector'); }}>Hype Detector</button>
-          <button className="stitch-btn stitch-btn--solid" style={{ marginTop: '20px', width: 'calc(100% - 40px)' }} onClick={() => onStart('overview')}>Get Started</button>
-        </div>
       </div>
     </>
   );
