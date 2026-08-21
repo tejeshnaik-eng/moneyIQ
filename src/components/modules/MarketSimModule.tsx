@@ -171,39 +171,6 @@ export const MarketSimModule: React.FC = () => {
                     <span className="text-xl font-mono font-bold text-on-surface">₹{currentStep.financials.eps}</span>
                   </div>
                 </div>
-                {/* 52W Range */}
-                {(liveQuote.fiftyTwoWeekHigh || liveQuote.fiftyTwoWeekLow) && (
-                  <div className="text-[11px] text-[#565e74]">
-                    52W: ₹{liveQuote.fiftyTwoWeekLow?.toFixed(2)} – ₹{liveQuote.fiftyTwoWeekHigh?.toFixed(2)}
-                  </div>
-                )}
-                {/* Fundamentals row */}
-                {(liveQuote.trailingPE || liveQuote.marketCap || liveQuote.returnOnEquity) && (
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#E2E8F0]">
-                    {liveQuote.trailingPE != null && (
-                      <div>
-                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">P/E Ratio</div>
-                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">{liveQuote.trailingPE.toFixed(1)}x</div>
-                      </div>
-                    )}
-                    {liveQuote.marketCap != null && (
-                      <div>
-                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">Mkt Cap</div>
-                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">
-                          ₹{(liveQuote.marketCap / 1e12).toFixed(2)}T
-                        </div>
-                      </div>
-                    )}
-                    {liveQuote.returnOnEquity != null && (
-                      <div>
-                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">ROE</div>
-                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">
-                          {(liveQuote.returnOnEquity * 100).toFixed(1)}%
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
             
