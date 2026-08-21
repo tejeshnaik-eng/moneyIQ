@@ -3,7 +3,7 @@ import { HypeClaim } from '../types';
 export const mockHypeClaims: HypeClaim[] = [
   {
     id: 'fno-quick-wealth',
-    title: 'Option Buying & Zero-Hero Intraday Guarantees 20% Weekly Returns',
+    title: 'Option Buying & Zero-Hero Intraday',
     sourceType: 'Finfluencer Course',
     quote: 'Trade Nifty & Bank Nifty expiry day options with ₹10,000 capital and double it weekly using 1-minute chart setup.',
     verdict: 'High Risk / Statistically Unfavorable',
@@ -13,7 +13,7 @@ export const mockHypeClaims: HypeClaim[] = [
   },
   {
     id: 'real-estate-supreme',
-    title: 'Real Estate Always Yields 20%+ IRR and Never Loses Money',
+    title: 'Real Estate Always Yields 20%+ IRR',
     sourceType: 'Social Media / Reel',
     quote: 'Indian residential real estate is the only safe asset class. Buy an apartment on EMI because land values never decline.',
     verdict: 'Misleading Assumption',
@@ -23,7 +23,7 @@ export const mockHypeClaims: HypeClaim[] = [
   },
   {
     id: 'crypto-100x-gem',
-    title: 'New Meme / Alt-Token Guaranteed 100x Before Next Bull Run',
+    title: 'New Meme / Alt-Token Guaranteed 100x...',
     sourceType: 'Crypto Channel',
     quote: 'Buy this low-cap token before tier-1 exchange listing. Guaranteed 50x to 100x return in 60 days.',
     verdict: 'Factually Flawed',
@@ -32,3 +32,4 @@ export const mockHypeClaims: HypeClaim[] = [
     recommendedAction: 'Never allocate goal-critical capital (emergency funds, home down payment) to unregulated speculative tokens. Keep speculative allocations under 3% of net worth.',
   },
 ];
+

@@ -122,7 +122,7 @@ export default function AllocationDecision() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="year" axisLine={false} tickLine={false} />
                 <YAxis 
-                  tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value: number) => `₹${(value / 1000).toFixed(0)}k`}
                   axisLine={false} 
                   tickLine={false} 
                 />
