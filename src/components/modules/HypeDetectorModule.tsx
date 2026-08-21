@@ -97,11 +97,16 @@ export const HypeDetectorModule: React.FC = () => {
       try {
         const response = await fetch('/api/audit-claim', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ claim: trimmed }),
         });
 
         const data = await response.json();
+
+        if (response.status === 401) {
+          throw new Error('Please log in to use the AI Auditor. Your session may have expired.');
+        }
 
         if (!response.ok) {
           throw new Error(data.error || `Server error: ${response.status}`);

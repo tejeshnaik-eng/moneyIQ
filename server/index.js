@@ -5,18 +5,41 @@ import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import YahooFinance from 'yahoo-finance2';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_change_me';
+const USERS_FILE = join(__dirname, 'users.json');
+const SALT_ROUNDS = 10;
+
+// --- JSON File User Store ---
+const loadUsers = () => {
+  if (!existsSync(USERS_FILE)) return {};
+  try { return JSON.parse(readFileSync(USERS_FILE, 'utf8')); } catch { return {}; }
+};
+const saveUsers = (users) => {
+  writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+};
 
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey', 'ripHistorical'] });
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 // --- Strict JSON Schema for Gemini Structured Outputs ---
 const auditSchema = {
@@ -92,8 +115,112 @@ const auditSchema = {
 const SYSTEM_PROMPT =
   'You are a strict SEBI/RBI empirical financial auditor. Analyze the provided financial claim for risk, friction, and historical reality.';
 
-// --- API Route ---
-app.post('/api/audit-claim', async (req, res) => {
+// --- Authentication Middleware ---
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.finsight_token;
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required. Please log in.' });
+  }
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Session expired or invalid. Please log in again.' });
+  }
+};
+
+// --- Auth Routes ---
+
+// POST /api/auth/register
+app.post('/api/auth/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: 'Name, email, and password are required.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  }
+
+  const users = loadUsers();
+  const emailKey = email.toLowerCase().trim();
+  if (users[emailKey]) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const userId = `u_${Date.now()}`;
+    users[emailKey] = { id: userId, name: name.trim(), email: emailKey, passwordHash };
+    saveUsers(users);
+
+    const payload = { id: userId, name: name.trim(), email: emailKey };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+    res.cookie('finsight_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return res.status(201).json({ user: payload });
+  } catch (err) {
+    console.error('[Auth Register Error]:', err.message);
+    return res.status(500).json({ error: 'Registration failed. Please try again.' });
+  }
+});
+
+// POST /api/auth/login
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required.' });
+  }
+
+  const users = loadUsers();
+  const emailKey = email.toLowerCase().trim();
+  const user = users[emailKey];
+
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  }
+
+  try {
+    const match = await bcrypt.compare(password, user.passwordHash);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    const payload = { id: user.id, name: user.name, email: user.email };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+    res.cookie('finsight_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ user: payload });
+  } catch (err) {
+    console.error('[Auth Login Error]:', err.message);
+    return res.status(500).json({ error: 'Login failed. Please try again.' });
+  }
+});
+
+// POST /api/auth/logout
+app.post('/api/auth/logout', (_req, res) => {
+  res.clearCookie('finsight_token', { httpOnly: true, sameSite: 'strict' });
+  return res.json({ ok: true });
+});
+
+// GET /api/auth/me — returns the current user from the JWT cookie
+app.get('/api/auth/me', verifyToken, (req, res) => {
+  return res.json({ user: req.user });
+});
+
+// --- API Route (PROTECTED) ---
+app.post('/api/audit-claim', verifyToken, async (req, res) => {
   const { claim } = req.body;
 
   if (!claim || typeof claim !== 'string' || claim.trim().length === 0) {
@@ -268,5 +395,6 @@ app.use(vite.middlewares);
 
 app.listen(PORT, () => {
   console.log(`\n🟢 FinSight Unified Server running at http://localhost:${PORT}`);
-  console.log(`   GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Loaded' : '✗ Missing!'}\n`);
+  console.log(`   GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Loaded' : '✗ Missing!'}`);
+  console.log(`   JWT_SECRET:     ${process.env.JWT_SECRET ? '✓ Loaded' : '✗ Missing (using fallback)!'}\n`);
 });
