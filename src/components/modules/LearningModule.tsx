@@ -272,63 +272,8 @@ export const LearningModule: React.FC = () => {
       
       <div className="flex flex-col lg:flex-row gap-12 xl:gap-16">
         
-        {/* Left Side: Header + Course Content (Main Content) */}
-        <div className="flex-1 order-2 lg:order-1 space-y-16">
-          <header className="hidden lg:block">
-            <h1 className="text-5xl md:text-6xl font-heading font-bold text-[var(--app-text)] leading-tight mb-2 tracking-tight">
-              Learn investing.
-            </h1>
-            <p className="text-3xl md:text-4xl font-heading text-[var(--app-text-muted)] font-normal tracking-tight">
-              Understand the market.
-            </p>
-          </header>
-
-          <div className="space-y-16">
-            
-            {/* Technical Analysis */}
-            <section>
-              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Technical Analysis</h2>
-              </div>
-              <div className="space-y-6">
-                {technicalConcepts.slice(1, 4).map(c => renderHorizontalCard(c))}
-              </div>
-            </section>
-
-            {/* Fundamental Analysis */}
-            <section>
-              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
-                  <BookOpen className="w-6 h-6" />
-                </div>
-                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Fundamental Analysis</h2>
-              </div>
-              <div className="space-y-6">
-                {fundamentalConcepts.slice(0, 3).map(c => renderHorizontalCard(c))}
-              </div>
-            </section>
-
-            {/* Portfolio Strategy */}
-            <section>
-              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
-                  <PieChart className="w-6 h-6" />
-                </div>
-                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Portfolio Strategy</h2>
-              </div>
-              <div className="space-y-6">
-                {portfolioConcepts.slice(0, 3).map(c => renderHorizontalCard(c))}
-              </div>
-            </section>
-
-          </div>
-        </div>
-
-        {/* Right Side: Hero Section (Progress + Featured) */}
-        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 order-1 lg:order-2 space-y-8 lg:sticky lg:top-8 self-start">
+        {/* Left Side: Hero Section (Progress + Featured) - Fixed to Left */}
+        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 order-1 space-y-8 lg:sticky lg:top-8 self-start">
            
            <header className="lg:hidden mb-8">
              <h1 className="text-4xl font-heading font-bold text-[var(--app-text)] leading-tight mb-2 tracking-tight">
@@ -399,6 +344,62 @@ export const LearningModule: React.FC = () => {
              </div>
            )}
         </div>
+
+        {/* Right Side: Header + Course Content (Main Content) */}
+        <div className="flex-1 order-2 space-y-16">
+          <header className="hidden lg:block">
+            <h1 className="text-5xl md:text-6xl font-heading font-bold text-[var(--app-text)] leading-tight mb-2 tracking-tight">
+              Learn investing.
+            </h1>
+            <p className="text-3xl md:text-4xl font-heading text-[var(--app-text-muted)] font-normal tracking-tight">
+              Understand the market.
+            </p>
+          </header>
+
+          <div className="space-y-16">
+            
+            {/* Technical Analysis */}
+            <section>
+              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
+                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Technical Analysis</h2>
+              </div>
+              <div className="space-y-6">
+                {technicalConcepts.slice(1, 4).map(c => renderHorizontalCard(c))}
+              </div>
+            </section>
+
+            {/* Fundamental Analysis */}
+            <section>
+              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
+                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Fundamental Analysis</h2>
+              </div>
+              <div className="space-y-6">
+                {fundamentalConcepts.slice(0, 3).map(c => renderHorizontalCard(c))}
+              </div>
+            </section>
+
+            {/* Portfolio Strategy */}
+            <section>
+              <div className="flex items-center gap-3 mb-8 border-b border-[var(--app-border)] pb-4">
+                <div className="w-12 h-12 rounded-xl bg-[var(--secondary-soft)] text-[var(--secondary)] flex items-center justify-center">
+                  <PieChart className="w-6 h-6" />
+                </div>
+                <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] tracking-tight">Portfolio Strategy</h2>
+              </div>
+              <div className="space-y-6">
+                {portfolioConcepts.slice(0, 3).map(c => renderHorizontalCard(c))}
+              </div>
+            </section>
+
+          </div>
+        </div>
+
       </div>
       
     </div>
