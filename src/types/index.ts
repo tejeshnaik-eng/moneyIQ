@@ -5,7 +5,7 @@ export type ModuleId =
   | 'goals'
   | 'spend'
   | 'marketsim'
-  | 'decisionsim'
+  | 'learning'
   | 'hypedetector';
 
 export interface UserProfile {

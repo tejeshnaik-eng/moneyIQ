@@ -29,8 +29,8 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
         return { title: 'Spend Analysis', desc: 'Expense leakage detection and systematic SIP reallocation.' };
       case 'marketsim':
         return { title: 'Market Simulator', desc: 'Real historical crisis sandbox (Covid 2020, 2008 GFC, 2016 Demonetization).' };
-      case 'decisionsim':
-        return { title: 'Decision Simulator', desc: 'High-stakes Opportunity Cost Matrix and What-If scenario engine.' };
+      case 'learning':
+        return { title: 'Learning', desc: 'Build your market knowledge by learning with real charts and interactive examples.' };
       case 'hypedetector':
         return { title: 'Hype Detector', desc: 'Official SEBI & RBI empirical fact-checker and claim verification.' };
       default:

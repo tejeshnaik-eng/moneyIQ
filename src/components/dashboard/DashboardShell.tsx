@@ -7,7 +7,7 @@ import { PortfolioModule } from '../modules/PortfolioModule';
 import { GoalsModule } from '../modules/GoalsModule';
 import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
-import { DecisionSimModule } from '../modules/DecisionSimModule';
+import { LearningModule } from '../modules/LearningModule';
 import { HypeDetectorModule } from '../modules/HypeDetectorModule';
 import { ModuleId, UserProfile } from '../../types';
 
@@ -39,8 +39,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         return <SpendAnalysisModule />;
       case 'marketsim':
         return <MarketSimModule />;
-      case 'decisionsim':
-        return <DecisionSimModule />;
+      case 'learning':
+        return <LearningModule />;
       case 'hypedetector':
         return <HypeDetectorModule />;
       default:

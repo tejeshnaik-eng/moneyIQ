@@ -10,7 +10,8 @@ import {
   Flame, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  GraduationCap
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 
@@ -41,7 +42,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     { id: 'goals', label: 'Goals', icon: <Flag className="w-5 h-5" /> },
     { id: 'spend', label: 'Spend Analysis', icon: <Receipt className="w-5 h-5" /> },
     { id: 'marketsim', label: 'Market Simulator', icon: <Activity className="w-5 h-5" /> },
-    { id: 'decisionsim', label: 'Decision Simulator', icon: <GitFork className="w-5 h-5" /> },
+    { id: 'learning', label: 'Learning', icon: <GraduationCap className="w-5 h-5" /> },
     { id: 'hypedetector', label: 'Hype Detector', icon: <Flame className="w-5 h-5" /> },
   ];
 
