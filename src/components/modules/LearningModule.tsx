@@ -273,9 +273,9 @@ export const LearningModule: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-12 xl:gap-16">
         
         {/* Left Side: Hero Section (Progress + Featured) - Fixed to Left */}
-        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 order-1 space-y-8 lg:sticky lg:top-8 self-start">
+        <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 order-1 flex flex-col gap-6 lg:h-[calc(100vh-6rem)] lg:sticky lg:top-8">
            
-           <header className="lg:hidden mb-8">
+           <header className="lg:hidden shrink-0 mb-2">
              <h1 className="text-4xl font-heading font-bold text-[var(--app-text)] leading-tight mb-2 tracking-tight">
                Learn investing.
              </h1>
@@ -285,17 +285,17 @@ export const LearningModule: React.FC = () => {
            </header>
 
            {/* Progress Card */}
-           <div className="bg-[var(--app-surface)] rounded-[24px] p-8 md:p-10 border border-[var(--app-border)] shadow-sm flex flex-col justify-between min-h-[260px]">
+           <div className="bg-[var(--app-surface)] rounded-[24px] p-6 md:p-8 border border-[var(--app-border)] shadow-sm flex flex-col justify-between shrink-0">
              <div>
-               <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] mb-6 uppercase tracking-widest">
+               <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] mb-4 uppercase tracking-widest">
                  Your Progress
                </h3>
                <div className="flex items-baseline gap-2">
-                 <span className="text-7xl font-heading font-bold text-[var(--app-text)]">{completedTopics.length}</span>
-                 <span className="text-xl font-heading font-medium text-[var(--app-text-muted)]">of {totalConcepts} completed</span>
+                 <span className="text-6xl md:text-7xl font-heading font-bold text-[var(--app-text)] leading-none">{completedTopics.length}</span>
+                 <span className="text-lg font-heading font-medium text-[var(--app-text-muted)]">of {totalConcepts} completed</span>
                </div>
              </div>
-             <div className="mt-10">
+             <div className="mt-6 md:mt-8">
                <div className="w-full h-1.5 bg-[var(--app-surface-hover)] rounded-full relative">
                  <div 
                    className="absolute top-0 left-0 h-full bg-[var(--primary)] rounded-full transition-all duration-1000 ease-out" 
@@ -314,20 +314,20 @@ export const LearningModule: React.FC = () => {
            
            {/* Featured Vertical Card */}
            {featuredConcept && (
-             <div className="bg-[var(--secondary-soft)] rounded-[24px] p-8 border border-[var(--app-border)]/50 shadow-sm flex flex-col gap-6">
-                <div className="inline-flex items-center gap-1.5 bg-white dark:bg-[var(--app-surface)] text-[var(--secondary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit">
+             <div className="bg-[var(--secondary-soft)] rounded-[24px] p-6 md:p-8 border border-[var(--app-border)]/50 shadow-sm flex flex-col flex-1 overflow-hidden">
+                <div className="inline-flex items-center gap-1.5 bg-white dark:bg-[var(--app-surface)] text-[var(--secondary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit shrink-0 mb-4 md:mb-6">
                   <Star className="w-3.5 h-3.5" fill="currentColor" /> Featured
                 </div>
                 
-                <div>
-                  <h2 className="text-3xl font-heading font-bold text-[var(--app-text)] mb-4">
+                <div className="flex flex-col flex-1 min-h-0">
+                  <h2 className="text-2xl md:text-3xl font-heading font-bold text-[var(--app-text)] mb-2 md:mb-3 shrink-0">
                     {featuredConcept.title}
                   </h2>
-                  <p className="text-base text-[var(--app-text-muted)] mb-8 leading-relaxed">
+                  <p className="text-sm text-[var(--app-text-muted)] mb-4 md:mb-6 leading-relaxed line-clamp-2 md:line-clamp-3 shrink-0">
                     {featuredConcept.description}
                   </p>
                   
-                  <div className="w-full h-[200px] mb-8">
+                  <div className="w-full flex-1 min-h-[100px] mb-6 shrink min-h-0 rounded-xl overflow-hidden">
                     <ChartThumbnail />
                   </div>
 
@@ -336,7 +336,7 @@ export const LearningModule: React.FC = () => {
                       setActiveConceptId(featuredConcept.id);
                       setView(featuredConcept.type);
                     }}
-                    className="w-full flex items-center justify-center gap-2 bg-[var(--secondary)] hover:bg-[var(--secondary-dim)] text-white font-heading font-bold px-6 py-4 rounded-xl shadow-md transition-all hover:-translate-y-0.5"
+                    className="w-full flex items-center justify-center gap-2 bg-[var(--secondary)] hover:bg-[var(--secondary-dim)] text-white font-heading font-bold px-6 py-3.5 md:py-4 rounded-xl shadow-md transition-all hover:-translate-y-0.5 shrink-0 mt-auto"
                   >
                     Continue Learning <ArrowRight className="w-4 h-4" />
                   </button>
