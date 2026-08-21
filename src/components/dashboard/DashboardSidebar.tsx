@@ -47,28 +47,28 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`bg-white border-r border-[#E2E8F0] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 ${
+      className={`bg-[var(--app-surface)] border-r border-[var(--app-border)] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
       <div>
-        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between">
+        <div className="p-6 border-b border-[var(--app-border)] flex items-center justify-between">
           {!collapsed ? (
             <div>
-              <h1 className="font-heading font-bold text-xl text-[#006b57]">FinSight</h1>
-              <p className="font-heading font-semibold text-[10px] text-[#565e74] uppercase tracking-wider mt-0.5">
+              <h1 className="font-heading font-bold text-xl text-[var(--primary-dim)]">FinSight</h1>
+              <p className="font-heading font-semibold text-[10px] text-[var(--app-text-muted)] uppercase tracking-wider mt-0.5">
                 Institutional Ledger
               </p>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-[#00b090] text-white flex items-center justify-center font-bold text-sm mx-auto">
+            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center font-bold text-sm mx-auto">
               F
             </div>
           )}
 
           <button
             onClick={onToggleCollapse}
-            className="p-1 rounded-lg text-[#565e74] hover:bg-[#f2f4f6] hover:text-[#191c1e] transition-colors"
+            className="p-1 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-alt)] hover:text-[var(--app-text)] transition-colors"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -84,12 +84,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 onClick={() => onSelectModule(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-heading transition-all ${
                   isActive
-                    ? 'bg-[#00b090]/10 text-[#006b57] font-bold border-r-4 border-[#006b57]'
-                    : 'text-[#565e74] hover:bg-[#f2f4f6] hover:text-[#191c1e] font-medium'
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary-dim)] font-bold border-r-4 border-[var(--primary-dim)]'
+                    : 'text-[var(--app-text-muted)] hover:bg-[var(--app-surface-alt)] hover:text-[var(--app-text)] font-medium'
                 }`}
                 title={collapsed ? item.label : undefined}
               >
-                <div className={`shrink-0 ${isActive ? 'text-[#006b57]' : 'text-[#565e74]'}`}>
+                <div className={`shrink-0 ${isActive ? 'text-[var(--primary-dim)]' : 'text-[var(--app-text-muted)]'}`}>
                   {item.icon}
                 </div>
 
@@ -101,7 +101,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                         className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                           item.badge.includes('Alert') || item.badge.includes('Leak')
                             ? 'bg-[#ffdad6] text-[#ba1a1a]'
-                            : 'bg-[#dae2fd] text-[#006b57]'
+                            : 'bg-[#dae2fd] text-[var(--primary-dim)]'
                         }`}
                       >
                         {item.badge}
@@ -115,20 +115,20 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </nav>
       </div>
 
-      <div className="p-4 border-t border-[#E2E8F0] flex items-center justify-between bg-[#f7f9fb]">
+      <div className="p-4 border-t border-[var(--app-border)] flex items-center justify-between bg-[var(--app-surface-alt)]">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-full bg-[#00b090] text-white flex items-center justify-center font-bold text-xs shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs shrink-0">
             {user.name.charAt(0)}
           </div>
           {!collapsed && (
             <div className="truncate">
-              <p className="font-heading font-bold text-xs text-[#191c1e] truncate">{user.name}</p>
-              <p className="text-[11px] text-[#565e74] truncate">{user.riskCategory}</p>
+              <p className="font-heading font-bold text-xs text-[var(--app-text)] truncate">{user.name}</p>
+              <p className="text-[11px] text-[var(--app-text-muted)] truncate">{user.riskCategory}</p>
             </div>
           )}
         </div>
         {!collapsed && (
-          <Settings className="w-4 h-4 text-[#565e74] hover:text-[#006b57] cursor-pointer" />
+          <Settings className="w-4 h-4 text-[var(--app-text-muted)] hover:text-[var(--primary-dim)] cursor-pointer" />
         )}
       </div>
     </aside>

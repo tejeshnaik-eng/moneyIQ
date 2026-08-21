@@ -34,7 +34,7 @@ export default function LiquidityDecision() {
   const fvInvestment = calculateLumpSum(proposedInvestment, rate * 100, years);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4">
+    <div className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Invest More vs Keep Cash</h3>
         <p className="text-sm text-gray-500">Evaluate redirecting available savings into investments.</p>
@@ -42,19 +42,19 @@ export default function LiquidityDecision() {
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Current Cash Balance</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Current Cash Balance</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={cashBalance} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCashBalance(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Monthly Expenses</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Monthly Expenses</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={monthlyExpenses} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMonthlyExpenses(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Proposed Investment Amount</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Proposed Investment Amount</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={proposedInvestment} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProposedInvestment(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Expected Return (%)</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Expected Return (%)</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={rate * 100} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(Number(e.target.value) / 100)} />
           </div>
         </div>

@@ -93,12 +93,12 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
       )}
 
       {/* Header */}
-      <div className="border-b border-[#E2E8F0] pb-4 mb-4 shrink-0">
-        <span className="text-xs font-mono text-[#006b57] font-bold uppercase tracking-widest block">
+      <div className="border-b border-[var(--app-border)] pb-4 mb-4 shrink-0">
+        <span className="text-xs font-mono text-[var(--primary-dim)] font-bold uppercase tracking-widest block">
           REGULATORY FACT VERIFICATION LAYER
         </span>
-        <h3 className="text-2xl font-heading font-extrabold text-[#191c1e] mt-1.5 flex items-center gap-2">
-          <ShieldAlert className="w-6 h-6 text-[#006b57]" />
+        <h3 className="text-2xl font-heading font-extrabold text-[var(--app-text)] mt-1.5 flex items-center gap-2">
+          <ShieldAlert className="w-6 h-6 text-[var(--primary-dim)]" />
           FinSight Hype Auditor
         </h3>
       </div>
@@ -110,22 +110,22 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
             <div 
               className={`max-w-[85%] rounded-2xl p-5 ${
                 msg.role === 'user' 
-                  ? 'bg-[#006b57] text-white rounded-br-none' 
-                  : 'bg-white border border-[#E2E8F0] text-[#191c1e] rounded-bl-none shadow-sm'
+                  ? 'bg-[var(--primary-dim)] text-white rounded-br-none' 
+                  : 'bg-[var(--app-surface)] border border-[var(--app-border)] text-[var(--app-text)] rounded-bl-none shadow-sm'
               }`}
             >
               {msg.role === 'ai' && (
-                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-[#E2E8F0]">
-                  <div className="w-6 h-6 rounded-full bg-[#006b57]/10 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-[#006b57]" />
+                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-[var(--app-border)]">
+                  <div className="w-6 h-6 rounded-full bg-[var(--primary-dim)]/10 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--primary-dim)]" />
                   </div>
-                  <span className="text-[10px] font-heading font-bold text-[#565e74] uppercase tracking-widest">
+                  <span className="text-[10px] font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-widest">
                     Auditor AI
                   </span>
                 </div>
               )}
               
-              <div className={`text-sm leading-relaxed prose prose-sm max-w-none ${msg.role === 'user' ? 'text-white' : 'text-[#191c1e]'}`}>
+              <div className={`text-sm leading-relaxed prose prose-sm max-w-none ${msg.role === 'user' ? 'text-white' : 'text-[var(--app-text)]'}`}>
                 {msg.role === 'ai' ? (
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                 ) : (
@@ -137,9 +137,9 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
         ))}
         {isAuditing && (
           <div className="flex justify-start">
-            <div className="bg-white border border-[#E2E8F0] rounded-2xl rounded-bl-none p-5 flex items-center gap-3 shadow-sm">
-              <Loader2 className="w-5 h-5 text-[#00b090] animate-spin" />
-              <span className="text-xs font-medium text-[#565e74]">Analyzing regulatory records...</span>
+            <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl rounded-bl-none p-5 flex items-center gap-3 shadow-sm">
+              <Loader2 className="w-5 h-5 text-[var(--primary)] animate-spin" />
+              <span className="text-xs font-medium text-[var(--app-text-muted)]">Analyzing regulatory records...</span>
             </div>
           </div>
         )}
@@ -149,7 +149,7 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
       {/* Input Area */}
       <div className="pt-4 mt-auto shrink-0">
         <div className="flex flex-wrap gap-2 mb-3">
-          <span className="text-[10px] font-heading font-bold text-[#565e74] uppercase tracking-wider block w-full">
+          <span className="text-[10px] font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider block w-full">
             Quick Tests:
           </span>
           {mockHypeClaims.slice(0, 3).map((claim) => (
@@ -157,7 +157,7 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
               key={claim.id}
               type="button"
               onClick={() => handleSend(claim.quote)}
-              className="text-[11px] px-3 py-1.5 rounded-full border border-[#E2E8F0] bg-white text-[#565e74] hover:bg-[#f7f9fb] hover:border-[#bbcac3] transition-colors whitespace-nowrap"
+              className="text-[11px] px-3 py-1.5 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text-muted)] hover:bg-[var(--app-surface-alt)] hover:border-[#bbcac3] transition-colors whitespace-nowrap"
             >
               {claim.title}
             </button>
@@ -174,12 +174,12 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isAuditing}
             placeholder="Paste a viral claim, finfluencer tip, or trading strategy..."
-            className="w-full pl-5 pr-14 py-4 bg-white border border-[#E2E8F0] rounded-xl text-sm text-[#191c1e] placeholder-[#565e74]/50 focus:border-[#00b090] focus:ring-1 focus:ring-[#00b090] outline-none transition-all shadow-sm disabled:opacity-50"
+            className="w-full pl-5 pr-14 py-4 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-xl text-sm text-[var(--app-text)] placeholder-[#565e74]/50 focus:border-[var(--primary)] focus:ring-1 focus:ring-[#00b090] outline-none transition-all shadow-sm disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isAuditing || !inputValue.trim()}
-            className="absolute right-2 p-2 bg-[#006b57] text-white rounded-lg hover:bg-[#005a49] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 p-2 bg-[var(--primary-dim)] text-white rounded-lg hover:bg-[#005a49] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="w-4 h-4" />
           </button>

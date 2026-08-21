@@ -54,7 +54,7 @@ export default function SpendingRedirectDecision() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border p-4">
+      <div className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4">
         <div className="mb-4">
           <h3 className="font-heading text-2xl text-purple-900">Redirect Spending to Goals</h3>
         </div>
@@ -103,7 +103,7 @@ export default function SpendingRedirectDecision() {
               If you invest ₹{redirectAmount.toLocaleString()} every month instead of spending it, 
               in 5 years (at 8% expected return) you will have:
             </p>
-            <div className="w-48 h-48 rounded-full bg-white shadow-xl flex items-center justify-center border-4 border-purple-200">
+            <div className="w-48 h-48 rounded-full bg-[var(--app-surface)] shadow-xl flex items-center justify-center border-4 border-purple-200">
               <div className="text-center">
                 <p className="text-sm text-gray-500 mb-1">Future Value</p>
                 <p className="font-heading text-3xl font-bold text-purple-700">

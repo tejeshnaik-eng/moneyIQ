@@ -27,26 +27,26 @@ export default function SipDecision() {
   const difference = fvProposed - fvCurrent;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4">
+    <div className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Increase SIP vs Keep Current SIP</h3>
       </div>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Current Monthly SIP</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Current Monthly SIP</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={currentSip} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentSip(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Proposed Increase</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Proposed Increase</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={proposedIncrease} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProposedIncrease(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Expected Annual Return (%)</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Expected Annual Return (%)</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={rate * 100} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(Number(e.target.value) / 100)} />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#565e74]">Time Horizon (Years)</label>
+            <label className="text-xs font-bold text-[var(--app-text-muted)]">Time Horizon (Years)</label>
             <input className="input-field text-sm w-full p-2 border rounded" type="number" value={years} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setYears(Number(e.target.value))} />
           </div>
         </div>

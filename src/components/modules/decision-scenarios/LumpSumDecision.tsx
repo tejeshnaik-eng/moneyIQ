@@ -34,7 +34,7 @@ export default function LumpSumDecision() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border p-4">
+      <div className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4">
         <div className="mb-4">
           <h3 className="font-heading text-2xl text-emerald-900">Invest Lump Sum vs Low-Risk Option</h3>
         </div>

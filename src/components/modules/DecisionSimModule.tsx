@@ -37,7 +37,7 @@ export function DecisionSimModule() {
           {decisions.map(d => (
             <div 
               key={d.id} 
-              className="bg-white rounded-xl shadow-sm border p-4 transition-colors cursor-pointer hover:border-blue-500" 
+              className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4 transition-colors cursor-pointer hover:border-blue-500" 
               onClick={() => setSelectedDecision(d.id)}
             >
               <div className="mb-2">

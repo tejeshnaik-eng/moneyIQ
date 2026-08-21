@@ -80,23 +80,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] max-w-md w-full p-8 space-y-6 shadow-2xl relative">
+      <div className="bg-[var(--app-surface)] rounded-2xl border border-[var(--app-border)] max-w-md w-full p-8 space-y-6 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute right-6 top-6 text-[#565e74] hover:text-[#191c1e] transition-colors"
+          className="absolute right-6 top-6 text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
           disabled={isLoading}
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#00b090] text-white flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center">
             <Landmark className="w-5 h-5" />
           </div>
-          <h3 className="text-2xl font-heading font-extrabold text-[#191c1e]">
+          <h3 className="text-2xl font-heading font-extrabold text-[var(--app-text)]">
             {mode === 'login' ? 'Welcome Back' : 'Create Investor Ledger'}
           </h3>
-          <p className="text-xs text-[#565e74]">
+          <p className="text-xs text-[var(--app-text-muted)]">
             {mode === 'login'
               ? 'Access your consolidated financial dashboard.'
               : 'Architect your financial freedom with institutional precision.'}
@@ -114,7 +114,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {mode === 'signup' && (
             <div>
-              <label className="block font-heading font-bold text-[#191c1e] mb-1">Full Name</label>
+              <label className="block font-heading font-bold text-[var(--app-text)] mb-1">Full Name</label>
               <input
                 type="text"
                 required
@@ -122,13 +122,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onChange={(e) => { setName(e.target.value); setError(null); }}
                 placeholder="e.g. Rahul Sharma"
                 disabled={isLoading}
-                className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090] disabled:opacity-50"
+                className="w-full px-3.5 py-2.5 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-[var(--app-text)] outline-none focus:border-[var(--primary)] disabled:opacity-50"
               />
             </div>
           )}
 
           <div>
-            <label className="block font-heading font-bold text-[#191c1e] mb-1">Email Address</label>
+            <label className="block font-heading font-bold text-[var(--app-text)] mb-1">Email Address</label>
             <input
               type="email"
               required
@@ -136,12 +136,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onChange={(e) => { setEmail(e.target.value); setError(null); }}
               placeholder="you@example.com"
               disabled={isLoading}
-              className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090] disabled:opacity-50"
+              className="w-full px-3.5 py-2.5 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-[var(--app-text)] outline-none focus:border-[var(--primary)] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="block font-heading font-bold text-[#191c1e] mb-1">Password</label>
+            <label className="block font-heading font-bold text-[var(--app-text)] mb-1">Password</label>
             <input
               type="password"
               required
@@ -149,7 +149,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onChange={(e) => { setPassword(e.target.value); setError(null); }}
               placeholder={mode === 'signup' ? 'Min. 6 characters' : '••••••••'}
               disabled={isLoading}
-              className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090] disabled:opacity-50"
+              className="w-full px-3.5 py-2.5 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-[var(--app-text)] outline-none focus:border-[var(--primary)] disabled:opacity-50"
             />
           </div>
 
@@ -173,8 +173,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </form>
 
         <div className="relative flex items-center justify-center">
-          <div className="w-full border-t border-[#E2E8F0]"></div>
-          <span className="bg-white px-3 text-[10px] uppercase font-mono text-[#565e74] absolute">
+          <div className="w-full border-t border-[var(--app-border)]"></div>
+          <span className="bg-[var(--app-surface)] px-3 text-[10px] uppercase font-mono text-[var(--app-text-muted)] absolute">
             Or Quick Access
           </span>
         </div>
@@ -184,18 +184,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           disabled={isLoading}
           className="btn-secondary text-xs py-2.5 w-full justify-center disabled:opacity-60"
         >
-          <UserCheck className="w-4 h-4 text-[#00b090]" />
+          <UserCheck className="w-4 h-4 text-[var(--primary)]" />
           <span>Continue as Guest (Instant Preview)</span>
         </button>
 
-        <div className="text-center text-xs text-[#565e74]">
+        <div className="text-center text-xs text-[var(--app-text-muted)]">
           {mode === 'login' ? (
             <span>
               Don't have a ledger yet?{' '}
               <button
                 onClick={() => handleModeSwitch('signup')}
                 disabled={isLoading}
-                className="font-heading font-bold text-[#006b57] hover:underline"
+                className="font-heading font-bold text-[var(--primary-dim)] hover:underline"
               >
                 Sign up
               </button>
@@ -206,7 +206,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 onClick={() => handleModeSwitch('login')}
                 disabled={isLoading}
-                className="font-heading font-bold text-[#006b57] hover:underline"
+                className="font-heading font-bold text-[var(--primary-dim)] hover:underline"
               >
                 Sign in
               </button>

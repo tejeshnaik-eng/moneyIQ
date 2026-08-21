@@ -65,17 +65,17 @@ export const App: React.FC = () => {
   // Show a minimal splash while we check the session cookie
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--app-bg)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#00b090] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono text-[#565e74]">Restoring session…</span>
+          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-[var(--app-text-muted)]">Restoring session…</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#191c1e]">
+    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-text)]">
       {currentView === 'landing' && (
         <Header
           user={userProfile}

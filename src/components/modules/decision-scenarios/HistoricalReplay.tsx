@@ -56,7 +56,7 @@ export default function HistoricalReplay({ initialInstrument = 'BSE:SENSEX' }: H
   const growthPercent = startValue > 0 ? ((endValue - startValue) / startValue * 100).toFixed(2) : 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4">
+    <div className="bg-[var(--app-surface)] rounded-xl shadow-sm border p-4">
       <div className="mb-4">
         <h3 className="font-heading text-2xl text-slate-800">Historical Replay</h3>
       </div>
