@@ -1013,9 +1013,9 @@ export const RiskProfilingModule: React.FC = () => {
             </div>
 
             {/* Behavioral Caution */}
-            <div className="p-4 rounded-xl bg-[#ffdad6]/20 border border-[#ba1a1a]/30 flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#ba1a1a] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#191c1e]">
+            <div className="p-4 rounded-xl bg-[#ffdad6] border-none flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-[#410002] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#410002]">
                 <strong className="font-heading text-[#ba1a1a] block mb-0.5">Behavioral Caution</strong>
                 {result.behavioralWarning}
               </div>

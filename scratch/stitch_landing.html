@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
-import { ModuleId } from '../../types';
+<!DOCTYPE html>
 
-interface LandingPageProps {
-  onStart: (module?: ModuleId) => void;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  return (
-    <>
-      <style>{`
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinSight — Confidence Layer for Indian Investors</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Hedvig+Letters+Sans&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
         :root {
             --bg-color: #0B0E14;
             --text-color: #F5F1E8;
@@ -30,7 +28,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             font-family: 'Outfit', sans-serif;
         }
 
-        .stitch-page {
+        .page {
             position: relative;
             height: 100vh;
             width: 100vw;
@@ -67,7 +65,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         }
 
         /* Header / Nav */
-        .stitch-header {
+        .header {
             position: relative;
             z-index: 10;
             display: grid;
@@ -87,7 +85,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             color: var(--text-color);
             opacity: 0;
             animation: fadeUp 0.6s ease-out 0.05s forwards;
-            cursor: pointer;
         }
 
         .nav-links {
@@ -98,20 +95,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
         .nav-link {
             text-decoration: none;
-            background-color: var(--blue-color);
-            color: #ffffff;
+            color: var(--text-color);
             font-weight: 500;
-            font-size: 14px;
+            font-size: 15px;
             opacity: 0;
-            padding: 8px 16px;
-            border-radius: 9999px;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            border: none;
+            transition: color 0.2s;
         }
         
         .nav-link:hover {
-            background-color: var(--blue-dim);
+            color: var(--blue-color);
         }
 
         .nav-link:nth-child(1) { animation: fadeUp 0.6s ease-out 0.1s forwards; }
@@ -125,7 +117,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         }
 
         /* Buttons */
-        .stitch-btn {
+        .btn {
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
             font-size: 15px;
@@ -140,25 +132,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             border: none;
         }
 
-        .stitch-btn--solid {
+        .btn--solid {
             background-color: var(--blue-color);
             color: var(--bg-color);
         }
-        .stitch-btn--solid:hover {
+        .btn--solid:hover {
             background-color: var(--text-color);
         }
 
-        .stitch-btn--outline {
+        .btn--outline {
             background-color: transparent;
             color: var(--text-color);
             border: 1.5px solid var(--blue-color);
         }
-        .stitch-btn--outline:hover {
+        .btn--outline:hover {
             background-color: rgba(80, 104, 254, 0.1);
         }
 
+        .btn--text {
+            background: none;
+            color: var(--text-color);
+            padding: 12px 16px;
+            position: relative;
+        }
+        .btn--text::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 16px;
+            right: 16px;
+            height: 1px;
+            background-color: var(--blue-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .btn--text:hover::after {
+            transform: scaleX(1);
+        }
+
+
         /* Hero Section */
-        .stitch-hero {
+        .hero {
             position: relative;
             z-index: 10;
             display: flex;
@@ -187,7 +202,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             font-weight: 700;
             margin: 0 0 32px 0;
             letter-spacing: -0.02em;
-            color: #ffffff;
         }
 
         .headline-mask {
@@ -245,12 +259,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             margin-bottom: 40px;
         }
         
-        .hero-actions .stitch-btn:nth-child(1) {
+        .hero-actions .btn:nth-child(1) {
             opacity: 0;
             animation: fadeUp 0.6s ease-out 0.85s forwards;
         }
         
-        .hero-actions .stitch-btn:nth-child(2) {
+        .hero-actions .btn:nth-child(2) {
             opacity: 0;
             animation: fadeUp 0.6s ease-out 0.95s forwards;
         }
@@ -334,11 +348,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             body, html {
                 overflow: auto;
             }
-            .stitch-page {
+            .page {
                 height: auto;
                 min-height: 100vh;
             }
-            .stitch-header {
+            .header {
                 grid-template-columns: 1fr auto;
                 padding: 20px;
             }
@@ -348,7 +362,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             .burger {
                 display: flex;
             }
-            .stitch-hero {
+            .hero {
                 padding: 40px 20px 60px 20px;
             }
             .headline {
@@ -357,91 +371,107 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             .hero-actions {
                 flex-direction: column;
             }
-            .hero-actions .stitch-btn {
+            .hero-actions .btn {
                 width: 100%;
             }
             .bg-container {
                 position: fixed;
             }
         }
-      `}</style>
-      
-      <div className="stitch-page">
-        {/* Background Asset */}
-        <div className="bg-container">
-          <img 
-            alt="Mumbai skyline at first light" 
-            className="bg-image" 
-            src="https://lh3.googleusercontent.com/aida/AEtjO1Xx6ViZZ_8zEx0_9PCxSYf0fn_QmlF3SH8-6Rz6U28WQxxHGcx02xhMNvbjHWXn1h4JbqQGu5Gy3hEWESzOSGhnNnGX84pUxq_pXLnRgAhY0b2UrtpYs0_widJMbn-hxYAU52EVgvSWUlqoYCqpJm_b7YV96_-cJsoisLHuFAOxbrZT05UVyUW3Ndmt38teL-k1i8CWt1FInd9yJJwLftbMUT0nVF7zA2ZqhHySMoVkNMesQ3caxWEX2qi6" 
-          />
-          <div className="scrim"></div>
-        </div>
-
-        {/* Header / Nav */}
-        <header className="stitch-header">
-          <button aria-label="FinSight" className="logo" onClick={() => onStart('overview')}>
-            <svg fill="none" height="26" viewBox="0 0 26 26" width="26" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 18L13 9L22 18" stroke="var(--blue-color)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-              <path d="M4 11L13 2L22 11" opacity="0.6" stroke="var(--blue-color)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-            </svg>
-            <span>FinSight</span>
-          </button>
-          
-          <nav aria-label="Primary" className="nav-links">
-            <button className="nav-link" onClick={() => onStart('portfolio')}>Portfolio Blueprint</button>
-            <button className="nav-link" onClick={() => onStart('marketsim')}>Market Simulator</button>
-            <button className="nav-link" onClick={() => onStart('risk')}>Risk Profiling</button>
-            <button className="nav-link" onClick={() => onStart('hypedetector')}>Hype Detector</button>
-          </nav>
-          
-          <div className="header-cta">
-            <button className="stitch-btn stitch-btn--solid" onClick={() => onStart('overview')}>Get Started</button>
-          </div>
-          
-          <button 
-            aria-label="Menu" 
-            className="burger" 
-            id="burger-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <span style={{ transform: mobileMenuOpen ? 'translateY(8px) rotate(45deg)' : 'none' }}></span>
-            <span style={{ opacity: mobileMenuOpen ? '0' : '1' }}></span>
-            <span style={{ transform: mobileMenuOpen ? 'translateY(-8px) rotate(-45deg)' : 'none' }}></span>
-          </button>
-        </header>
-
-        {/* Hero Section */}
-        <main className="stitch-hero" id="top">
-          <span className="badge">Confidence Layer for Indian Investors</span>
-          <h1 className="headline">
-            <span className="headline-mask">
-              <span className="headline-text">Stop guessing with your money.</span>
-            </span>
-            <span className="headline-mask">
-              <span className="headline-text">
-                <span>It's time for </span>
-                <span className="accent" data-text="confidence.">confidence.</span>
-              </span>
-            </span>
-          </h1>
-          <div className="hero-actions">
-            <button className="stitch-btn stitch-btn--solid" onClick={() => onStart('overview')}>Start Free</button>
-            <button className="stitch-btn stitch-btn--outline" onClick={() => onStart('marketsim')}>Try the Simulator</button>
-          </div>
-          <p className="lede">
-            FinSight reads your real portfolio, risk profile, and goals — not social media hype — and turns them into a plan you can actually trust. Practice with virtual money before you commit real capital.
-          </p>
-        </main>
-
-        {/* Mobile Nav Overlay */}
-        <div className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`} id="mobile-nav">
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('portfolio'); }}>Portfolio Blueprint</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('marketsim'); }}>Market Simulator</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('risk'); }}>Risk Profiling</button>
-          <button className="nav-link" onClick={() => { setMobileMenuOpen(false); onStart('hypedetector'); }}>Hype Detector</button>
-          <button className="stitch-btn stitch-btn--solid" style={{ marginTop: '20px', width: 'calc(100% - 40px)' }} onClick={() => onStart('overview')}>Get Started</button>
-        </div>
-      </div>
-    </>
-  );
-};
+    </style>
+</head>
+<body>
+<div class="page">
+<!-- Background Asset -->
+<div class="bg-container">
+<img alt="Mumbai skyline at first light" class="bg-image" src="https://lh3.googleusercontent.com/aida/AEtjO1Xx6ViZZ_8zEx0_9PCxSYf0fn_QmlF3SH8-6Rz6U28WQxxHGcx02xhMNvbjHWXn1h4JbqQGu5Gy3hEWESzOSGhnNnGX84pUxq_pXLnRgAhY0b2UrtpYs0_widJMbn-hxYAU52EVgvSWUlqoYCqpJm_b7YV96_-cJsoisLHuFAOxbrZT05UVyUW3Ndmt38teL-k1i8CWt1FInd9yJJwLftbMUT0nVF7zA2ZqhHySMoVkNMesQ3caxWEX2qi6"/>
+<div class="scrim"></div>
+</div>
+<!-- Header / Nav -->
+<header class="header">
+<a aria-label="FinSight" class="logo" href="#top">
+<svg fill="none" height="26" viewbox="0 0 26 26" width="26" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 18L13 9L22 18" stroke="var(--blue-color)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M4 11L13 2L22 11" opacity="0.6" stroke="var(--blue-color)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span>FinSight</span>
+</a>
+<nav aria-label="Primary" class="nav-links">
+<a class="nav-link" href="#modules">Modules</a>
+<a class="nav-link" href="#how-it-works">How It Works</a>
+<a class="nav-link" href="#simulator">Simulator</a>
+<a class="nav-link" href="#pricing">Pricing</a>
+</nav>
+<div class="header-cta">
+<button class="btn btn--solid">Get Started</button>
+</div>
+<button aria-label="Menu" class="burger" id="burger-btn">
+<span></span>
+<span></span>
+<span></span>
+</button>
+</header>
+<!-- Hero Section -->
+<main class="hero" id="top">
+<span class="badge">Confidence Layer for Indian Investors</span>
+<h1 class="headline">
+<span class="headline-mask">
+<span class="headline-text">Stop guessing with your money.</span>
+</span>
+<span class="headline-mask">
+<span class="headline-text">
+<span>It's time for </span>
+<span class="accent" data-text="confidence.">confidence.</span>
+</span>
+</span>
+</h1>
+<div class="hero-actions">
+<button class="btn btn--solid">Start Free</button>
+<button class="btn btn--outline">Try the Simulator</button>
+</div>
+<p class="lede">
+                FinSight reads your real portfolio, risk profile, and goals — not social media hype — and turns them into a plan you can actually trust. Practice with virtual money before you commit real capital.
+            </p>
+</main>
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav" id="mobile-nav">
+<a class="nav-link" href="#modules">Modules</a>
+<a class="nav-link" href="#how-it-works">How It Works</a>
+<a class="nav-link" href="#simulator">Simulator</a>
+<a class="nav-link" href="#pricing">Pricing</a>
+<button class="btn btn--solid" style="margin-top: 20px; width: calc(100% - 40px);">Get Started</button>
+</div>
+</div>
+<script>
+        const burgerBtn = document.getElementById('burger-btn');
+        const mobileNav = document.getElementById('mobile-nav');
+        
+        if (burgerBtn && mobileNav) {
+            burgerBtn.addEventListener('click', () => {
+                const isActive = mobileNav.classList.contains('active');
+                if (isActive) {
+                    mobileNav.classList.remove('active');
+                    burgerBtn.children[0].style.transform = 'none';
+                    burgerBtn.children[1].style.opacity = '1';
+                    burgerBtn.children[2].style.transform = 'none';
+                } else {
+                    mobileNav.classList.add('active');
+                    burgerBtn.children[0].style.transform = 'translateY(8px) rotate(45deg)';
+                    burgerBtn.children[1].style.opacity = '0';
+                    burgerBtn.children[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+                }
+            });
+            
+            // Close mobile nav when a link is clicked
+            const mobileLinks = mobileNav.querySelectorAll('.nav-link');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileNav.classList.remove('active');
+                    burgerBtn.children[0].style.transform = 'none';
+                    burgerBtn.children[1].style.opacity = '1';
+                    burgerBtn.children[2].style.transform = 'none';
+                });
+            });
+        }
+    </script>
+</body></html>

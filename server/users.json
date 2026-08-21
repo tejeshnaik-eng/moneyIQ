@@ -4,5 +4,11 @@
     "name": "Test Investor",
     "email": "test@finsight.com",
     "passwordHash": "$2b$10$R30aX96WIpSu3.nw8zGare7gUGZhYehBgTpKUK4DZROnZ.7tjqw.q"
+  },
+  "x@gmail.com": {
+    "id": "u_1787341829133",
+    "name": "11",
+    "email": "x@gmail.com",
+    "passwordHash": "$2b$10$7Y.ySDAKhShUDvs.TDmyf.XKibYNPiMCrcITrenIYG9lzKVz/vijS"
   }
 }

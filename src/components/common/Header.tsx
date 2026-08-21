@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
 }) => {
   return (
-    <header className="bg-white border-b border-[#E2E8F0] sticky top-0 z-30">
+    <header className="bg-[#f2f4f6] border-b border-[#E2E8F0] sticky top-0 z-30">
       <div className="flex items-center justify-between px-6 max-w-[1280px] mx-auto w-full h-16">
         {/* Brand & Market Categories */}
         <div className="flex items-center gap-8 h-full">
@@ -41,12 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Dashboard
             </button>
-            <span className="text-[#E2E8F0]">|</span>
-            <span className="hover:text-[#006b57] cursor-pointer transition-colors">Stocks</span>
-            <span className="hover:text-[#006b57] cursor-pointer transition-colors">F&O</span>
-            <span className="hover:text-[#006b57] cursor-pointer transition-colors">Mutual Funds</span>
-            <span className="hover:text-[#006b57] cursor-pointer transition-colors">ETFs</span>
-            <span className="hover:text-[#006b57] cursor-pointer transition-colors">Gold</span>
           </nav>
         </div>
 
