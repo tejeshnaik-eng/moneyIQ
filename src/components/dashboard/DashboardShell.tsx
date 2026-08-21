@@ -14,11 +14,13 @@ import { ModuleId, UserProfile } from '../../types';
 interface DashboardShellProps {
   user: UserProfile;
   initialModule?: ModuleId;
+  onLogout?: () => void;
 }
 
 export const DashboardShell: React.FC<DashboardShellProps> = ({
   user,
   initialModule = 'overview',
+  onLogout,
 }) => {
   const [activeModule, setActiveModule] = useState<ModuleId>(initialModule);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -61,6 +63,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           activeModule={activeModule}
           user={user}
           onNewAction={activeModule === 'goals' ? () => setActiveModule('goals') : undefined}
+          onLogout={onLogout}
         />
 
         <main className="flex-1 p-6 sm:p-8 max-w-[1280px] w-full mx-auto">

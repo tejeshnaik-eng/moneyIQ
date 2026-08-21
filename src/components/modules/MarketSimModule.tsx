@@ -165,7 +165,7 @@ export const MarketSimModule: React.FC = () => {
             {/* Asset Search */}
             <div className="space-y-2">
               <label className="block text-xs font-heading font-bold text-[#191c1e]">
-                Search Indian Equity / ETF Symbol (Alpha Vantage Feed):
+                Search NSE Equity / ETF Symbol (yahoo-finance2 Live Feed):
               </label>
               <div className="flex gap-2">
                 <div className="flex-1 relative">
@@ -191,27 +191,62 @@ export const MarketSimModule: React.FC = () => {
 
             {/* Live Quote Card */}
             {liveQuote && (
-              <div className="p-4 rounded-xl bg-[#f7f9fb] border border-[#E2E8F0] flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-heading font-bold text-sm text-[#191c1e]">{liveQuote.symbol}</span>
-                    <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
-                      liveQuote.change >= 0 ? 'bg-[#00b090]/10 text-[#006b57]' : 'bg-[#ffdad6] text-[#ba1a1a]'
-                    }`}>
-                      {liveQuote.change >= 0 ? '+' : ''}{liveQuote.changePercent}
-                    </span>
+              <div className="p-4 rounded-xl bg-[#f7f9fb] border border-[#E2E8F0] space-y-3">
+                {/* Header row */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-heading font-bold text-sm text-[#191c1e]">{liveQuote.symbol}</span>
+                      <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                        liveQuote.change >= 0 ? 'bg-[#00b090]/10 text-[#006b57]' : 'bg-[#ffdad6] text-[#ba1a1a]'
+                      }`}>
+                        {liveQuote.change >= 0 ? '+' : ''}{liveQuote.changePercent}
+                      </span>
+                    </div>
+                    {liveQuote.name && liveQuote.name !== liveQuote.symbol && (
+                      <span className="text-[11px] text-[#565e74] block mt-0.5">{liveQuote.name}</span>
+                    )}
                   </div>
-                  <span className="text-[11px] text-[#565e74] block mt-0.5">
-                    Day High: ₹{liveQuote.high} • Day Low: ₹{liveQuote.low} • Vol: {liveQuote.volume.toLocaleString('en-IN')}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-xl font-heading font-extrabold text-[#191c1e] font-mono block">
+                      ₹{liveQuote.price.toFixed(2)}
+                    </span>
+                    <span className="text-[10px] text-[#565e74] font-mono">NSE Live • yahoo-finance2</span>
+                  </div>
                 </div>
-
-                <div className="text-right">
-                  <span className="text-xl font-heading font-extrabold text-[#191c1e] font-mono block">
-                    ₹{liveQuote.price.toFixed(2)}
-                  </span>
-                  <span className="text-[10px] text-[#565e74] font-mono">Alpha Vantage Real-Time</span>
-                </div>
+                {/* 52W Range */}
+                {(liveQuote.fiftyTwoWeekHigh || liveQuote.fiftyTwoWeekLow) && (
+                  <div className="text-[11px] text-[#565e74]">
+                    52W: ₹{liveQuote.fiftyTwoWeekLow?.toFixed(2)} – ₹{liveQuote.fiftyTwoWeekHigh?.toFixed(2)}
+                  </div>
+                )}
+                {/* Fundamentals row */}
+                {(liveQuote.trailingPE || liveQuote.marketCap || liveQuote.returnOnEquity) && (
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#E2E8F0]">
+                    {liveQuote.trailingPE != null && (
+                      <div>
+                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">P/E Ratio</div>
+                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">{liveQuote.trailingPE.toFixed(1)}x</div>
+                      </div>
+                    )}
+                    {liveQuote.marketCap != null && (
+                      <div>
+                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">Mkt Cap</div>
+                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">
+                          ₹{(liveQuote.marketCap / 1e12).toFixed(2)}T
+                        </div>
+                      </div>
+                    )}
+                    {liveQuote.returnOnEquity != null && (
+                      <div>
+                        <div className="text-[10px] text-[#565e74] uppercase tracking-wider">ROE</div>
+                        <div className="text-xs font-heading font-bold text-[#191c1e] font-mono">
+                          {(liveQuote.returnOnEquity * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

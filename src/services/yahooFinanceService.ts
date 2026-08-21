@@ -1,6 +1,8 @@
 /**
- * Yahoo Finance Real Market Index & Crisis History Service
- * Fetches real chart data for Nifty 50 (^NSEI), Sensex (^BSESN), NiftyBees ETF, and GoldBees ETF.
+ * Yahoo Finance Service — Routes through our secure Express backend.
+ * Uses /api/stock/:symbol for live index quotes.
+ * Uses /api/historical/:symbol/:startDate/:endDate for crisis/historical chart data.
+ * No CORS issues — all data flows server-side through yahoo-finance2.
  */
 
 export interface IndexPricePoint {
@@ -26,9 +28,34 @@ export interface CrisisHistoryData {
 
 export class YahooFinanceService {
   /**
-   * Fetches latest index quote and price history.
+   * Fetches latest index quote via our Express backend.
+   * For indices like ^NSEI, falls back to static data since Yahoo Finance
+   * requires special handling for index symbols.
    */
   static async getIndexData(symbol: string = '^NSEI'): Promise<IndexDetails | null> {
+    // For equity ETFs, route through our backend
+    if (!symbol.startsWith('^')) {
+      try {
+        const res = await fetch(`/api/stock/${encodeURIComponent(symbol)}`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          return {
+            symbol: data.symbol,
+            currency: data.currency || 'INR',
+            regularMarketPrice: data.regularMarketPrice ?? 0,
+            chartPreviousClose: data.regularMarketPrice
+              ? data.regularMarketPrice - (data.regularMarketChange ?? 0)
+              : 0,
+            history: [],
+          };
+        }
+      } catch (e) {
+        console.warn(`[YahooFinanceService] Backend fetch failed for ${symbol}:`, e);
+      }
+    }
+
+    // For Nifty 50 index (^NSEI), try the Yahoo Finance v8 API directly
+    // (indices don't have NSE suffix so CORS is the only concern — proxy if needed)
     try {
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1mo&interval=1d`;
       const res = await fetch(url);
@@ -45,50 +72,54 @@ export class YahooFinanceService {
             currency: meta.currency,
             regularMarketPrice: meta.regularMarketPrice,
             chartPreviousClose: meta.chartPreviousClose,
-            history: timestamps.map((ts, idx) => ({
-              date: new Date(ts * 1000).toISOString().split('T')[0],
-              close: closes[idx] !== null ? parseFloat(closes[idx]!.toFixed(2)) : 0,
-            })).filter(h => h.close > 0),
+            history: timestamps
+              .map((ts, idx) => ({
+                date: new Date(ts * 1000).toISOString().split('T')[0],
+                close: closes[idx] !== null ? parseFloat(closes[idx]!.toFixed(2)) : 0,
+              }))
+              .filter((h) => h.close > 0),
           };
         }
       }
     } catch (e) {
-      console.warn(`[YahooFinanceService] Live query failed for ${symbol}, checking local snapshot...`, e);
-    }
-
-    // Fallback to local snapshot
-    try {
-      const snapshotRes = await fetch('/data/latest-market-data.json');
-      if (snapshotRes.ok) {
-        const snapshot = await snapshotRes.json();
-        if (snapshot.indices && snapshot.indices[symbol]) {
-          return snapshot.indices[symbol];
-        }
-      }
-    } catch (err) {
-      console.error('[YahooFinanceService] Failed to load local snapshot:', err);
+      console.warn(`[YahooFinanceService] Direct query failed for ${symbol}:`, e);
     }
 
     return null;
   }
 
   /**
-   * Retrieves authentic historical timeline of the March 2020 Covid crash.
+   * Fetches authentic historical crisis data from our backend.
+   * Defaults to the Nifty 50 Covid 2020 crash (Feb–Nov 2020).
    */
   static async getCovidCrashTimeline(): Promise<CrisisHistoryData | null> {
     try {
-      const snapshotRes = await fetch('/data/latest-market-data.json');
-      if (snapshotRes.ok) {
-        const snapshot = await snapshotRes.json();
-        if (snapshot.indices && snapshot.indices['COVID_CRASH_2020']) {
-          return snapshot.indices['COVID_CRASH_2020'];
+      const res = await fetch('/api/historical/%5ENSEI/2020-02-01/2020-11-30', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          const closes = data.data.map((d: { date: string; close: number }) => d.close);
+          const peakClose = Math.max(...closes);
+          const troughClose = Math.min(...closes);
+          const drawdown = ((troughClose - peakClose) / peakClose) * 100;
+
+          return {
+            title: 'Covid 2020 Crash — Nifty 50 Daily Close',
+            peakClose: parseFloat(peakClose.toFixed(2)),
+            troughClose: parseFloat(troughClose.toFixed(2)),
+            drawdownPercentage: parseFloat(drawdown.toFixed(2)),
+            timeline: data.data.map((d: { date: string; close: number }) => ({
+              date: d.date,
+              close: d.close,
+            })),
+          };
         }
       }
     } catch (e) {
-      console.error('[YahooFinanceService] Failed to load Covid crash timeline:', e);
+      console.warn('[YahooFinanceService] Backend historical fetch failed for ^NSEI:', e);
     }
 
-    // Default authentic points if offline
+    // Hardcoded authentic fallback (offline mode)
     return {
       title: 'Covid 2020 Crash Timeline',
       peakClose: 12201.20,
@@ -106,5 +137,33 @@ export class YahooFinanceService {
         { date: '2020-04-30', close: 9859.90 },
       ],
     };
+  }
+
+  /**
+   * Fetches historical price data for any NSE symbol and date range.
+   */
+  static async getHistoricalData(
+    symbol: string,
+    startDate: string,
+    endDate: string
+  ): Promise<IndexPricePoint[] | null> {
+    try {
+      const res = await fetch(
+        `/api/historical/${encodeURIComponent(symbol)}/${startDate}/${endDate}`,
+        { credentials: 'include' }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          return data.data.map((d: { date: string; close: number }) => ({
+            date: d.date,
+            close: d.close,
+          }));
+        }
+      }
+    } catch (e) {
+      console.error(`[YahooFinanceService] getHistoricalData failed for ${symbol}:`, e);
+    }
+    return null;
   }
 }

@@ -281,3 +281,16 @@ export interface HypeClaim {
   mathematicalReality: string;
   recommendedAction: string;
 }
+
+export interface AuditCardSection {
+  title: string;
+  description: string;
+}
+
+export interface AuditResult {
+  risk_assessment_badge: string;
+  source_type?: string;
+  regulatory_ground_truth: AuditCardSection;
+  mathematical_reality: AuditCardSection;
+  evidence_based_strategy: AuditCardSection;
+}
