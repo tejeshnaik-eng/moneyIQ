@@ -11,8 +11,8 @@ import {
   AlertTriangle,
   X,
 } from 'lucide-react';
-import { mockHypeClaims } from '../../mock/hypeDetectorData';
-import { HypeClaim } from '../../types';
+import { mockHypeClaims } from '../../data/hypeClaimsReference';
+import { HypeClaim, AuditResult } from '../../types';
 
 // ─── Loading Stage Messages (cycling during API call) ───────────────────────
 const LOADING_STAGES = [

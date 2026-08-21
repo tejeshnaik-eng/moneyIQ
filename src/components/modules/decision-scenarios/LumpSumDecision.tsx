@@ -85,7 +85,7 @@ export default function LumpSumDecision() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="year" axisLine={false} tickLine={false} />
                 <YAxis 
-                  tickFormatter={(value) => `₹${(value / 100000).toFixed(1)}L`}
+                  tickFormatter={(value: number) => `₹${(value / 100000).toFixed(1)}L`}
                   axisLine={false} 
                   tickLine={false} 
                 />
