@@ -6,7 +6,7 @@ import {
   CheckCircle, 
   Scale
 } from 'lucide-react';
-import { mockHypeClaims } from '../../mock/hypeDetectorData';
+import { mockHypeClaims } from '../../data/hypeClaimsReference';
 import { HypeClaim } from '../../types';
 
 export const HypeDetectorModule: React.FC = () => {

@@ -37,12 +37,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   }> = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'risk', label: 'Risk Profiling', icon: <Shield className="w-5 h-5" /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <PieChart className="w-5 h-5" />, badge: '41% Alert' },
+    { id: 'portfolio', label: 'Portfolio', icon: <PieChart className="w-5 h-5" /> },
     { id: 'goals', label: 'Goals', icon: <Flag className="w-5 h-5" /> },
-    { id: 'spend', label: 'Spend Analysis', icon: <Receipt className="w-5 h-5" />, badge: '₹4.8k Leak' },
+    { id: 'spend', label: 'Spend Analysis', icon: <Receipt className="w-5 h-5" /> },
     { id: 'marketsim', label: 'Market Simulator', icon: <Activity className="w-5 h-5" /> },
     { id: 'decisionsim', label: 'Decision Simulator', icon: <GitFork className="w-5 h-5" /> },
-    { id: 'hypedetector', label: 'Hype Detector', icon: <Flame className="w-5 h-5" />, badge: 'SEBI' },
+    { id: 'hypedetector', label: 'Hype Detector', icon: <Flame className="w-5 h-5" /> },
   ];
 
   return (

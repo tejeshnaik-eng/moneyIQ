@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Landmark, X, ArrowRight, UserCheck } from 'lucide-react';
 import { UserProfile } from '../../types';
-import { mockUserProfile } from '../../mock/userData';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -17,9 +16,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialMode = 'login',
 }) => {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
-  const [email, setEmail] = useState('rohan.sharma@example.com');
-  const [password, setPassword] = useState('password123');
-  const [name, setName] = useState('Rohan Sharma');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
   if (!isOpen) return null;
 
@@ -31,15 +30,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSuccess({
-      ...mockUserProfile,
-      name: name || mockUserProfile.name,
-      email: email || mockUserProfile.email,
+      name: name || email.split('@')[0],
+      email: email,
+      age: 30,
+      occupation: 'Professional',
+      city: 'India',
+      monthlyIncome: 0,
+      riskCategory: 'Not Assessed',
+      healthScore: 0,
+      isGuest: false,
     });
     onClose();
   };
 
   const handleGuestLogin = () => {
-    onSuccess(mockUserProfile);
+    onSuccess({
+      name: 'Guest User',
+      age: 25,
+      email: 'guest@finsight.com',
+      occupation: 'Guest',
+      city: 'India',
+      monthlyIncome: 0,
+      riskCategory: 'Not Assessed',
+      healthScore: 0,
+      isGuest: true,
+    });
     onClose();
   };
 
@@ -76,7 +91,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Rohan Sharma"
                 className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090]"
               />
             </div>
@@ -89,7 +103,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="rohan@example.com"
               className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090]"
             />
           </div>
@@ -101,7 +114,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               className="w-full px-3.5 py-2.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-[#191c1e] outline-none focus:border-[#00b090]"
             />
           </div>

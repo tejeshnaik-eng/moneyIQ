@@ -1,17 +1,5 @@
 import { HistoricalCrisisCase } from '../types';
 
-export const mockVirtualPortfolio = {
-  virtualStartingBalance: 100000,
-  currentCashBalance: 24500,
-  investedBalance: 81200,
-  totalCurrentValue: 105700,
-  unrealizedReturnPct: 5.7,
-  holdings: [
-    { symbol: 'NIFTY50_VIRTUAL', name: 'Nifty 50 Index Basket', units: 14, avgBuyPrice: 2420, currentPrice: 2580, pnl: 2240 },
-    { symbol: 'NIFTYMID_VIRTUAL', name: 'Nifty Midcap 150 Basket', units: 28, avgBuyPrice: 1120, currentPrice: 1210, pnl: 2520 },
-    { symbol: 'GOLD_VIRTUAL', name: 'Virtual Sovereign Gold ETF', units: 12, avgBuyPrice: 6200, currentPrice: 6420, pnl: 2640 },
-  ],
-};
 
 export const mockCrisisCases: HistoricalCrisisCase[] = [
   {

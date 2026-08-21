@@ -1,3 +1,4 @@
+import { getStorageKey } from '../../utils';
 import React, { useState, useEffect } from 'react';
 import { 
   Activity, 
@@ -11,7 +12,7 @@ import {
   Landmark,
   Layers
 } from 'lucide-react';
-import { mockCrisisCases } from '../../mock/marketSimData';
+import { mockCrisisCases } from '../../data/historicalCrisisData';
 import { HistoricalCrisisCase } from '../../types';
 import { MarketDataEngine } from '../../services/marketDataEngine';
 import { StockQuote } from '../../services/alphaVantageService';
@@ -22,20 +23,39 @@ export const MarketSimModule: React.FC = () => {
   const [userAction, setUserAction] = useState<'hold' | 'panic_sell' | null>(null);
   const [covidTimeline, setCovidTimeline] = useState<CrisisHistoryData | null>(null);
   
-  // Real-time market sandbox
-  const [assetSymbol, setAssetSymbol] = useState('RELIANCE');
-  const [assetQty, setAssetQty] = useState(5);
+  // Real-time market sandbox — persisted to localStorage
+  const [assetSymbol, setAssetSymbol] = useState('');
+  const [assetQty, setAssetQty] = useState(1);
   const [liveQuote, setLiveQuote] = useState<StockQuote | null>(null);
   const [isSearchingQuote, setIsSearchingQuote] = useState(false);
-  const [cashBalance, setCashBalance] = useState(100000);
+  const [cashBalance, setCashBalance] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem(getStorageKey('finsight_sandbox_cash'));
+      return stored ? Number(stored) : 0;
+    } catch { return 0; }
+  });
+  const [showCashInput, setShowCashInput] = useState(false);
+  const [cashInputValue, setCashInputValue] = useState('');
   
-  const [tradeLogs, setTradeLogs] = useState([
-    { id: '1', asset: 'RELIANCE.BSE', type: 'Buy', qty: 5, price: 1315.55, total: 6577.75, time: '10:15 AM' },
-    { id: '2', asset: 'NIFTYBEES.NS', type: 'Buy', qty: 25, price: 276.76, total: 6919.00, time: '11:30 AM' },
-    { id: '3', asset: 'GOLDBEES.NS', type: 'Buy', qty: 50, price: 131.32, total: 6566.00, time: '01:45 PM' },
-  ]);
+  const [tradeLogs, setTradeLogs] = useState<Array<{
+    id: string; asset: string; type: string; qty: number; price: number; total: number; time: string;
+  }>>(() => {
+    try {
+      const stored = localStorage.getItem(getStorageKey('finsight_sandbox_trades'));
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
 
-  // Fetch initial quote & crisis data
+  // Persist cash and trades to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(getStorageKey('finsight_sandbox_cash'), String(cashBalance));
+  }, [cashBalance]);
+
+  useEffect(() => {
+    localStorage.setItem(getStorageKey('finsight_sandbox_trades'), JSON.stringify(tradeLogs));
+  }, [tradeLogs]);
+
+  // Fetch initial crisis data (no auto-quote since symbol is empty)
   const handleLookupQuote = async (sym: string) => {
     if (!sym.trim()) return;
     setIsSearchingQuote(true);
@@ -50,14 +70,21 @@ export const MarketSimModule: React.FC = () => {
   };
 
   useEffect(() => {
-    handleLookupQuote('RELIANCE');
     MarketDataEngine.getCovidCrisisData().then(data => setCovidTimeline(data));
   }, []);
 
   const handleSimulateTrade = (type: 'Buy' | 'Sell') => {
-    const price = liveQuote ? liveQuote.price : 1315.55;
+    if (!liveQuote) {
+      alert('Search for a stock and get a live price before placing an order.');
+      return;
+    }
+    if (cashBalance <= 0 && type === 'Buy') {
+      alert('Set your virtual cash balance first using the "Set Cash" button.');
+      return;
+    }
+    const price = liveQuote.price;
     const total = parseFloat((price * assetQty).toFixed(2));
-    const sym = liveQuote ? liveQuote.symbol : `${assetSymbol.toUpperCase()}.BSE`;
+    const sym = liveQuote.symbol;
 
     if (type === 'Buy') {
       if (cashBalance < total) {
@@ -97,8 +124,40 @@ export const MarketSimModule: React.FC = () => {
                 Live Market Sandbox
               </h3>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2.5 py-1 rounded">
-              <span>Cash: ₹{cashBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2.5 py-1 rounded">
+                <span>Cash: ₹{cashBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+              {showCashInput ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="10000"
+                    value={cashInputValue}
+                    onChange={(e) => setCashInputValue(e.target.value)}
+                    placeholder="e.g. 500000"
+                    className="w-28 px-2 py-1 text-xs bg-[#f7f9fb] border border-[#E2E8F0] rounded outline-none focus:border-[#00b090] font-mono"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => {
+                      const val = Number(cashInputValue);
+                      if (val > 0) { setCashBalance(val); setShowCashInput(false); setCashInputValue(''); }
+                    }}
+                    className="text-[10px] font-heading font-bold text-[#006b57] hover:underline"
+                  >
+                    Set
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowCashInput(true)}
+                  className="text-[10px] font-heading font-bold text-[#006b57] hover:underline"
+                >
+                  {cashBalance === 0 ? 'Set Cash' : 'Adjust'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -189,9 +248,24 @@ export const MarketSimModule: React.FC = () => {
 
             {/* Trade History */}
             <div className="pt-4 border-t border-[#E2E8F0]">
-              <h4 className="text-xs font-heading font-bold text-[#565e74] uppercase tracking-wider mb-2">
-                Simulated Execution Ledger
-              </h4>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-xs font-heading font-bold text-[#565e74] uppercase tracking-wider">
+                  Simulated Execution Ledger
+                </h4>
+                {tradeLogs.length > 0 && (
+                  <button
+                    onClick={() => { setTradeLogs([]); }}
+                    className="text-[10px] text-[#ba1a1a] font-heading font-bold hover:underline"
+                  >
+                    Clear History
+                  </button>
+                )}
+              </div>
+              {tradeLogs.length === 0 ? (
+                <div className="text-center py-6 text-xs text-[#565e74] border border-[#E2E8F0] rounded-lg bg-[#f7f9fb]">
+                  No trades yet. Search for a stock, set your virtual cash, and execute your first simulated order.
+                </div>
+              ) : (
               <div className="overflow-x-auto border border-[#E2E8F0] rounded-lg max-h-48 overflow-y-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -224,6 +298,7 @@ export const MarketSimModule: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+              )}
             </div>
           </div>
         </section>
