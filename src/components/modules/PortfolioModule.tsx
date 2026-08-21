@@ -1,5 +1,6 @@
 import { getStorageKey } from '../../utils';
 import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { 
   PieChart, 
   AlertTriangle, 
@@ -9,7 +10,8 @@ import {
   RefreshCw,
   Landmark,
   Plus,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { PortfolioHolding } from '../../types';
 import { MarketDataEngine, LiveHoldingValuation } from '../../services/marketDataEngine';
@@ -110,26 +112,124 @@ export const PortfolioModule: React.FC = () => {
     });
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = event.target?.result;
+      if (!data) return;
+      
+      try {
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+        
+        let headerIndex = -1;
+        for (let i = 0; i < rows.length; i++) {
+          if (rows[i] && rows[i][0] === 'Stock Name' && rows[i][1] === 'ISIN') {
+            headerIndex = i;
+            break;
+          }
+        }
+        
+        const newImports: PortfolioHolding[] = [];
+        
+        if (headerIndex !== -1) {
+          for (let i = headerIndex + 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || !row[0] || !row[1]) continue; 
+            
+            const name = row[0];
+            const isin = row[1];
+            const investedValue = parseFloat(row[4]) || 0;
+            const currentValue = parseFloat(row[6]) || 0;
+            
+            newImports.push({
+              id: 'import-' + Date.now() + '-' + i,
+              name: name,
+              ticker: isin,
+              platform: 'Zerodha',
+              category: 'Large Cap',
+              investedValue: investedValue,
+              currentValue: currentValue,
+              returnsPercentage: 0,
+              xirr: 0
+            });
+          }
+        } else {
+          const lines = (data as string).split('\n');
+          if (lines.length > 1) {
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (!line) continue;
+              const parts = line.split(',');
+              newImports.push({
+                id: 'import-' + Date.now() + '-' + i,
+                name: parts[0] || 'Imported Holding',
+                ticker: parts[1] || '',
+                platform: (parts[2] || 'Direct Bank') as any,
+                category: (parts[3] || 'Large Cap') as any,
+                investedValue: parseFloat(parts[4]) || 0,
+                currentValue: parseFloat(parts[5]) || 0,
+                returnsPercentage: 0,
+                xirr: 0
+              });
+            }
+          }
+        }
+        
+        if (newImports.length > 0) {
+          setHoldings(prev => [...prev, ...newImports]);
+        } else {
+          alert('No valid holdings found in the file.');
+        }
+      } catch (err) {
+        console.error("Failed to parse file", err);
+        alert('Error parsing file.');
+      }
+    };
+    
+    if (file.name.endsWith('.csv')) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsBinaryString(file);
+    }
+    
+    e.target.value = '';
+  };
+
   if (holdings.length === 0) {
     return (
       <div className="space-y-8 pb-12">
-        <div className="p-8 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+        <div className="p-8 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-center justify-center text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-[#f7f9fb] flex items-center justify-center">
             <Landmark className="w-8 h-8 text-[#565e74]" />
           </div>
           <div>
-            <h3 className="text-lg font-heading font-bold text-[#191c1e]">No holdings yet</h3>
-            <p className="text-sm text-[#565e74] mt-1 max-w-sm">
-              Add your first investment to see portfolio analytics, live tracking, and insights.
+            <h3 className="text-xl font-heading font-bold text-[#191c1e]">No holdings yet</h3>
+            <p className="text-sm text-[#565e74] mt-2 max-w-md mx-auto">
+              Add your first investment to see portfolio analytics, live tracking, and insights. You can add them one by one or import an entire statement.
             </p>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="btn-primary mt-4 flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Holding
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+            <label className="btn-secondary py-3 px-6 flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center border-[#E2E8F0] bg-[#f7f9fb] hover:bg-[#eceef0] text-[#191c1e]">
+              <input type="file" accept=".csv, .xlsx" className="hidden" onChange={handleFileUpload} />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              Import Statement (XLSX/CSV)
+            </label>
+            <span className="text-[#565e74] text-xs font-bold uppercase tracking-wider">or</span>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="btn-primary py-3 px-6 flex items-center gap-2 w-full sm:w-auto justify-center"
+            >
+              <Plus className="w-4 h-4" />
+              Add Manually
+            </button>
+          </div>
         </div>
         {showAddModal && <AddHoldingModal />}
       </div>
@@ -232,40 +332,113 @@ export const PortfolioModule: React.FC = () => {
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
           <label className="btn-secondary py-3 px-4 flex items-center gap-2 cursor-pointer">
-            <input type="file" accept=".csv" className="hidden" onChange={(e) => {
+            <input type="file" accept=".csv, .xlsx" className="hidden" onChange={(e) => {
               const file = e.target.files?.[0];
               if (!file) return;
+              
               const reader = new FileReader();
               reader.onload = (event) => {
-                const text = event.target?.result as string;
-                if (!text) return;
-                const lines = text.split('\n');
-                if (lines.length < 2) { alert('Invalid CSV format. Please provide headers and data rows.'); return; }
-                const newImports: PortfolioHolding[] = [];
-                for (let i = 1; i < lines.length; i++) {
-                  const line = lines[i].trim();
-                  if (!line) continue;
-                  const parts = line.split(',');
-                  newImports.push({
-                    id: 'import-' + Date.now() + '-' + i,
-                    name: parts[0] || 'Imported Holding',
-                    ticker: parts[1] || '',
-                    platform: (parts[2] || 'Direct Bank') as any,
-                    category: (parts[3] || 'Large Cap') as any,
-                    investedValue: parseFloat(parts[4]) || 0,
-                    currentValue: parseFloat(parts[5]) || 0,
-                    returnsPercentage: 0,
-                    xirr: 0
-                  });
+                const data = event.target?.result;
+                if (!data) return;
+                
+                try {
+                  const workbook = XLSX.read(data, { type: 'binary' });
+                  const sheetName = workbook.SheetNames[0];
+                  const sheet = workbook.Sheets[sheetName];
+                  
+                  // Read as array of arrays
+                  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+                  
+                  // Find header row for holdings
+                  let headerIndex = -1;
+                  for (let i = 0; i < rows.length; i++) {
+                    if (rows[i] && rows[i][0] === 'Stock Name' && rows[i][1] === 'ISIN') {
+                      headerIndex = i;
+                      break;
+                    }
+                  }
+                  
+                  const newImports: PortfolioHolding[] = [];
+                  
+                  if (headerIndex !== -1) {
+                    // This is the broker statement format
+                    for (let i = headerIndex + 1; i < rows.length; i++) {
+                      const row = rows[i];
+                      if (!row || !row[0] || !row[1]) continue; // Skip empty rows
+                      
+                      const name = row[0];
+                      const isin = row[1];
+                      const investedValue = parseFloat(row[4]) || 0;
+                      const currentValue = parseFloat(row[6]) || 0;
+                      
+                      newImports.push({
+                        id: 'import-' + Date.now() + '-' + i,
+                        name: name,
+                        ticker: isin,
+                        platform: 'Zerodha',
+                        category: 'Large Cap', // Default mapping
+                        investedValue: investedValue,
+                        currentValue: currentValue,
+                        returnsPercentage: 0,
+                        xirr: 0
+                      });
+                    }
+                  } else {
+                    // Fallback to simple CSV format if not a known broker statement
+                    const lines = (data as string).split('\n');
+                    if (lines.length > 1) {
+                      for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        const parts = line.split(',');
+                        newImports.push({
+                          id: 'import-' + Date.now() + '-' + i,
+                          name: parts[0] || 'Imported Holding',
+                          ticker: parts[1] || '',
+                          platform: (parts[2] || 'Direct Bank') as any,
+                          category: (parts[3] || 'Large Cap') as any,
+                          investedValue: parseFloat(parts[4]) || 0,
+                          currentValue: parseFloat(parts[5]) || 0,
+                          returnsPercentage: 0,
+                          xirr: 0
+                        });
+                      }
+                    }
+                  }
+                  
+                  if (newImports.length > 0) {
+                    setHoldings(prev => [...prev, ...newImports]);
+                  } else {
+                    alert('No valid holdings found in the file.');
+                  }
+                } catch (err) {
+                  console.error("Failed to parse file", err);
+                  alert('Error parsing file.');
                 }
-                setHoldings(prev => [...prev, ...newImports]);
               };
-              reader.readAsText(file);
+              
+              if (file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+              } else {
+                reader.readAsBinaryString(file);
+              }
+              
               e.target.value = '';
             }} />
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            Import CSV
+            Import Statement
           </label>
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear all your portfolio holdings?')) {
+                setHoldings([]);
+              }
+            }}
+            className="btn-secondary py-3 px-4 flex items-center gap-2 text-[#ba1a1a] border-[#ba1a1a] hover:bg-[#ffdad6]"
+          >
+            <Trash2 className="w-4 h-4" />
+            Clear
+          </button>
           <button
             onClick={() => setShowAddModal(true)}
             className="btn-primary py-3 px-4 flex items-center gap-2"
