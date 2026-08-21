@@ -9,7 +9,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
-import { createServer as createViteServer } from 'vite';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -35,7 +34,8 @@ const saveUsers = (users) => {
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey', 'ripHistorical'] });
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -386,15 +386,28 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'FinSight Audit API', model: 'gemini-3.5-flash-lite' });
 });
 
-// --- Vite Middleware (MUST be after API routes) ---
-const vite = await createViteServer({
-  server: { middlewareMode: true },
-  appType: 'spa',
-});
-app.use(vite.middlewares);
+// --- Static file serving: production vs development ---
+if (IS_PRODUCTION) {
+  // In production (Render), serve the pre-built Vite dist/ directory
+  const distPath = join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  // SPA fallback — all non-API routes serve index.html
+  app.get('*', (_req, res) => {
+    res.sendFile(join(distPath, 'index.html'));
+  });
+} else {
+  // In development, use Vite's HMR middleware
+  const { createServer: createViteServer } = await import('vite');
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    appType: 'spa',
+  });
+  app.use(vite.middlewares);
+}
 
 app.listen(PORT, () => {
   console.log(`\n🟢 FinSight Unified Server running at http://localhost:${PORT}`);
+  console.log(`   Mode:           ${IS_PRODUCTION ? 'production (static dist/)' : 'development (Vite HMR)'}`);
   console.log(`   GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Loaded' : '✗ Missing!'}`);
   console.log(`   JWT_SECRET:     ${process.env.JWT_SECRET ? '✓ Loaded' : '✗ Missing (using fallback)!'}\n`);
 });
