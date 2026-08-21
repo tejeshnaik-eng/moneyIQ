@@ -1,18 +1,52 @@
 import { getStorageKey } from '../../utils';
-import React, { useEffect, useState } from 'react';
-import { 
-  ShieldAlert, 
-  ArrowUpRight, 
-  AlertTriangle, 
-  CheckCircle2, 
-  ChevronRight,
-  TrendingUp,
-  Wallet
-} from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ChevronRight, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { ModuleId } from '../../types';
 
 interface OverviewModuleProps {
   onNavigateModule: (module: ModuleId) => void;
+}
+
+// Lightweight counter hook
+function useCounter(target: number, duration = 1800) {
+  const [val, setVal] = useState(0);
+  const rafRef = useRef<number>();
+  useEffect(() => {
+    if (target === 0) { setVal(0); return; }
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      setVal(Math.round(eased * target));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [target, duration]);
+  return val;
+}
+
+// Animated thin progress bar
+function DimensionBar({ label, pct, delay }: { label: string; pct: number; delay: number }) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(pct), delay);
+    return () => clearTimeout(t);
+  }, [pct, delay]);
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex justify-between items-baseline">
+        <span className="font-heading font-semibold text-[14px] text-[#1D1D1F]">{label}</span>
+        <span className="text-[12px] text-[#6E6E73]">{pct}%</span>
+      </div>
+      <div className="w-full h-[3px] bg-[#E5E5EA] rounded-full overflow-hidden">
+        <div
+          className="h-full bg-[#006D44] rounded-full transition-all duration-[1400ms] ease-out"
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule }) => {
@@ -20,373 +54,288 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
   const [liabilities, setLiabilities] = useState(0);
   const [leakage, setLeakage] = useState(0);
   const [hasProfile, setHasProfile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const holdingsData = localStorage.getItem(getStorageKey('finsight_portfolio_holdings'));
       if (holdingsData) {
         const holdings = JSON.parse(holdingsData);
         if (Array.isArray(holdings)) {
-          const totalAssets = holdings.reduce((sum, h) => sum + (Number(h.currentValue) || 0), 0);
-          setAssets(totalAssets);
+          setAssets(holdings.reduce((s, h) => s + (Number(h.currentValue) || 0), 0));
         }
       }
-
       const profileData = localStorage.getItem(getStorageKey('finsight_investor_profile'));
       if (profileData) {
         const profile = JSON.parse(profileData);
         setLiabilities(Number(profile.outstandingDebt) || 0);
         setHasProfile(true);
       }
-
       const spendData = localStorage.getItem(getStorageKey('finsight_spend_transactions'));
       if (spendData) {
-        const transactions = JSON.parse(spendData);
-        if (Array.isArray(transactions)) {
-          const discretionary = transactions
-            .filter(t => t.category === 'Discretionary')
-            .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-          setLeakage(discretionary);
+        const txns = JSON.parse(spendData);
+        if (Array.isArray(txns)) {
+          setLeakage(txns.filter(t => t.category === 'Discretionary').reduce((s, t) => s + (Number(t.amount) || 0), 0));
         }
       }
-    } catch (e) {
-      console.error('Error parsing overview data', e);
-    }
+    } catch (e) { console.error('Overview data error', e); }
   }, []);
 
   const hasData = hasProfile || assets > 0;
-  
-  // Calculate a basic health score based on inputs
-  const healthScore = hasData ? Math.min(100, Math.max(30, 70 + (assets > 0 ? 10 : 0) - (liabilities > 0 ? 5 : 0) - (leakage > 0 ? 5 : 0))) : 0;
-  const healthBand = hasData ? (healthScore > 75 ? 'Excellent' : healthScore > 50 ? 'Fair' : 'Needs Work') : 'N/A';
+  const healthScore = hasData
+    ? Math.min(100, Math.max(30, 70 + (assets > 0 ? 10 : 0) - (liabilities > 0 ? 5 : 0) - (leakage > 0 ? 5 : 0)))
+    : 0;
+  const healthBand = healthScore > 75 ? 'Excellent' : healthScore > 50 ? 'Fair' : hasData ? 'Needs Work' : 'No Data';
+  const healthBandColor = healthScore > 75 ? '#006D44' : healthScore > 50 ? '#883700' : '#BA1A1A';
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(val);
-  };
+  const displayScore = useCounter(healthScore);
+
+  const fmt = (v: number) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+  // Dimension scores (simple derivations from real data)
+  const assetScore   = assets > 0 ? 100 : 0;
+  const debtScore    = liabilities === 0 ? 100 : Math.max(0, Math.round(100 - (liabilities / Math.max(assets, 1)) * 100));
+  const spendScore   = leakage === 0 ? 100 : Math.max(0, 100 - Math.round((leakage / Math.max(assets / 12, 1)) * 100));
+  const riskScore    = hasProfile ? 100 : 0;
+
+  const moduleTiles = [
+    {
+      id: 'portfolio' as ModuleId,
+      label: 'Portfolio',
+      sub: 'Analyze your asset allocation.',
+      bg: '#E8F0FB',
+      color: '#004E9F',
+    },
+    {
+      id: 'goals' as ModuleId,
+      label: 'Goals',
+      sub: 'Track your financial milestones.',
+      bg: '#E8F5EE',
+      color: '#006D44',
+    },
+    {
+      id: 'marketsim' as ModuleId,
+      label: 'Crash Simulation',
+      sub: 'Stress test your current positions.',
+      bg: '#FDECEA',
+      color: '#BA1A1A',
+    },
+  ];
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Financial Health Score & Asset Summary Ledger Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* Health Score Pillar (8 cols) */}
-        <div className="lg:col-span-8 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-xl p-6 flex flex-col justify-between shadow-sm">
-          <div>
-            <div className="flex items-center justify-between border-b border-[var(--app-border)] pb-3 mb-6">
-              <span className="text-xs font-heading font-bold uppercase tracking-wider text-[var(--app-text-muted)]">
-                Financial Health Score Index
-              </span>
-              <span className="text-xs font-mono text-[var(--primary-dim)] bg-[var(--app-surface-alt)] px-2.5 py-1 rounded">
-                Verified Quantitative Index
-              </span>
-            </div>
+    <div className="w-full max-w-[1280px] mx-auto px-8 py-12 flex flex-col gap-14">
 
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-4 mb-6">
-              <span className="text-6xl font-heading font-extrabold text-[var(--primary)] tracking-tight">
-                {hasData ? healthScore : 'N/A'}
-              </span>
-              {hasData && <span className="text-xl font-heading font-bold text-[var(--app-text-muted)]">/ 100</span>}
-              <span className="text-xs text-[var(--app-text-muted)] sm:ml-auto font-body italic">
-                "{healthBand}"
-              </span>
-            </div>
-            
-            {!hasData && (
-              <p className="text-sm text-[var(--app-text-muted)]">
-                Add your profile and holdings to generate your Health Score.
-              </p>
-            )}
+      {/* ── INTRO ── */}
+      <header
+        className="max-w-3xl flex flex-col gap-2.5"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(18px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        <h1 className="font-heading font-semibold text-[36px] leading-[1.1] tracking-tight text-[#1D1D1F]">
+          Your financial health, at a glance.
+        </h1>
+        <p className="text-[16px] text-[#6E6E73] font-body flex items-center gap-2">
+          <span className="w-[6px] h-[6px] rounded-full bg-[#006D44] inline-block animate-pulse" />
+          Last synced just now. All figures are from your saved data.
+        </p>
+      </header>
 
-            {/* Basic Pillars Progress */}
-            {hasData && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[var(--app-border)]">
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-heading font-bold">
-                    <span className="text-[var(--app-text-muted)]">Assets</span>
-                    <span className="text-[var(--app-text)] font-mono">{assets > 0 ? '100' : '0'}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: `${assets > 0 ? 100 : 0}%` }} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-heading font-bold">
-                    <span className="text-[var(--app-text-muted)]">Debt Control</span>
-                    <span className="text-[var(--app-text)] font-mono">{liabilities === 0 ? '100' : '50'}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: `${liabilities === 0 ? 100 : 50}%` }} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-heading font-bold">
-                    <span className="text-[var(--app-text-muted)]">Spend Control</span>
-                    <span className="text-[var(--app-text)] font-mono">{leakage === 0 ? '100' : '60'}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: `${leakage === 0 ? 100 : 60}%` }} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-heading font-bold">
-                    <span className="text-[var(--app-text-muted)]">Risk Profile</span>
-                    <span className="text-[var(--app-text)] font-mono">{hasProfile ? '100' : '0'}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: `${hasProfile ? 100 : 0}%` }} />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-[var(--app-border)] flex items-center justify-between">
-            <span className="text-xs text-[var(--app-text-muted)]">
-              Next systematic rebalance scheduled in 14 days.
+      {/* ── HERO SCORE SECTION ── */}
+      <section
+        className="bg-[#FFFFFF] rounded-xl p-9 flex flex-col lg:flex-row gap-12 border border-[#E5E5EA]"
+        style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.02), 0 12px 32px rgba(0,0,0,0.04)', opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(18px)', transition: 'opacity 0.7s 0.1s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.1s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        {/* Score pillar */}
+        <div className="flex flex-col lg:w-1/3 shrink-0 gap-4">
+          <span className="text-[12px] font-heading font-semibold text-[#6E6E73] uppercase tracking-widest">Financial Health</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-heading font-bold text-[72px] leading-none tracking-tighter text-[#1D1D1F]">
+              {displayScore}
             </span>
-            <button
-              onClick={() => onNavigateModule('risk')}
-              className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-            >
-              <span>{hasProfile ? 'Retake Risk Assessment' : 'Take Risk Assessment'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            <span className="font-heading text-[28px] text-[#6E6E73] font-normal">/100</span>
           </div>
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full w-max border text-[12px] font-heading font-semibold"
+            style={{ backgroundColor: `${healthBandColor}15`, borderColor: `${healthBandColor}30`, color: healthBandColor }}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            {healthBand}
+          </div>
+          {!hasData && (
+            <p className="text-[13px] text-[#6E6E73] leading-relaxed mt-2 max-w-xs">
+              Add your portfolio holdings and risk profile to calculate your real financial health score.
+            </p>
+          )}
         </div>
 
-        {/* Secondary Asset & Liability Ledger (4 cols) */}
-        <div className="lg:col-span-4 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-xl p-6 flex flex-col justify-between shadow-sm space-y-4">
-          <div className="space-y-4">
-            <span className="text-xs font-heading font-bold uppercase tracking-wider text-[var(--app-text-muted)] block border-b border-[var(--app-border)] pb-3">
-              Balance Sheet Summary
-            </span>
+        {/* Dimension bars */}
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 content-center">
+          <DimensionBar label="Assets"      pct={assetScore} delay={200} />
+          <DimensionBar label="Debt Control" pct={debtScore}  delay={350} />
+          <DimensionBar label="Spend Control" pct={spendScore} delay={500} />
+          <DimensionBar label="Risk Profile"  pct={riskScore}  delay={650} />
+        </div>
+      </section>
 
-            <div>
-              <span className="text-xs text-[var(--app-text-muted)] block font-heading">Total Consolidated Assets</span>
-              <span className="text-2xl font-heading font-bold text-[var(--app-text)] font-mono mt-0.5 block">
-                {formatCurrency(assets)}
-              </span>
+      {/* ── BALANCE SHEET ── */}
+      <section
+        className="flex flex-col gap-4"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(18px)', transition: 'opacity 0.7s 0.2s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.2s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        <h3 className="text-[12px] font-heading font-semibold text-[#6E6E73] uppercase tracking-widest px-0.5">Balance Sheet</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { label: 'Total Assets', value: fmt(assets) },
+            { label: 'Liabilities',  value: fmt(liabilities) },
+            { label: 'Discretionary Leakage', value: assets === 0 && liabilities === 0 && leakage === 0 ? '₹0 / mo' : `${fmt(leakage)} / mo` },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="bg-[#FFFFFF] rounded-xl p-6 flex flex-col gap-1.5 border border-[#E5E5EA] transition-shadow duration-300"
+              style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)')}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.03)')}
+            >
+              <span className="text-[15px] text-[#6E6E73] font-body">{label}</span>
+              <span className="font-heading font-semibold text-[32px] leading-tight tracking-tight text-[#1D1D1F] mt-1">{value}</span>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="w-full h-px bg-[#E2E8F0]"></div>
-
-            <div>
-              <span className="text-xs text-[var(--app-text-muted)] block font-heading">Total Liabilities (Credit/Loans)</span>
-              <span className="text-xl font-heading font-bold text-[var(--app-text-muted)] font-mono mt-0.5 block">
-                {formatCurrency(liabilities)}
-              </span>
+      {/* ── RECOMMENDED NEXT STEPS ── */}
+      <section
+        className="flex flex-col gap-4"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(18px)', transition: 'opacity 0.7s 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.3s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        <h3 className="text-[12px] font-heading font-semibold text-[#6E6E73] uppercase tracking-widest px-0.5">Recommended next steps</h3>
+        <div className="flex flex-col gap-3">
+          {/* Portfolio step */}
+          <button
+            onClick={() => onNavigateModule('portfolio')}
+            className="bg-[#FFFFFF] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#E5E5EA] hover:bg-[#FAFAFC] transition-colors duration-200 group text-left"
+            style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[#004E9F]/10 flex items-center justify-center shrink-0">
+                {assets > 0
+                  ? <CheckCircle2 className="w-5 h-5 text-[#006D44]" />
+                  : <AlertTriangle className="w-5 h-5 text-[#BA1A1A]" />
+                }
+              </div>
+              <div>
+                <div className="font-heading font-semibold text-[16px] text-[#1D1D1F]">
+                  {assets > 0 ? 'Portfolio setup complete' : 'Add your holdings'}
+                </div>
+                <div className="text-[14px] text-[#6E6E73] font-body mt-0.5">
+                  {assets > 0 ? 'Your portfolio and risk profile are complete.' : 'Record your investments to unlock portfolio analysis.'}
+                </div>
+              </div>
             </div>
-
-            <div className="w-full h-px bg-[#E2E8F0]"></div>
-
-            <div>
-              <span className="text-xs text-[var(--app-text-muted)] block font-heading">Monthly Discretionary Leakage</span>
-              <span className="text-lg font-heading font-bold text-[#ba1a1a] font-mono mt-0.5 block">
-                {formatCurrency(leakage)} / mo
-              </span>
+            <div className="flex items-center gap-1 text-[14px] font-heading font-semibold text-[#004E9F] group-hover:translate-x-1 transition-transform duration-200 shrink-0">
+              {assets > 0 ? 'View portfolio' : 'Add holdings'}
+              <ChevronRight className="w-4 h-4" />
             </div>
-          </div>
+          </button>
 
+          {/* Spend step */}
           <button
             onClick={() => onNavigateModule('spend')}
-            className="btn-outline text-xs py-2 w-full justify-center"
+            className="bg-[#FFFFFF] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#E5E5EA] hover:bg-[#FAFAFC] transition-colors duration-200 group text-left"
+            style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
           >
-            <span>Audit Spending Leaks</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[#006D44]/10 flex items-center justify-center shrink-0">
+                {leakage > 0
+                  ? <AlertTriangle className="w-5 h-5 text-[#883700]" />
+                  : <CheckCircle2 className="w-5 h-5 text-[#006D44]" />
+                }
+              </div>
+              <div>
+                <div className="font-heading font-semibold text-[16px] text-[#1D1D1F]">
+                  {leakage > 0 ? `Review ${fmt(leakage)} discretionary spend` : 'Spending'}
+                </div>
+                <div className="text-[14px] text-[#6E6E73] font-body mt-0.5">
+                  {leakage > 0 ? 'Consider reallocating towards your financial goals.' : 'No significant discretionary leakage detected.'}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-[14px] font-heading font-semibold text-[#004E9F] group-hover:translate-x-1 transition-transform duration-200 shrink-0">
+              {leakage > 0 ? 'Review spending' : 'View transactions'}
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
+
+          {/* Goals step */}
+          <button
+            onClick={() => onNavigateModule('goals')}
+            className="bg-[#FFFFFF] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#E5E5EA] hover:bg-[#FAFAFC] transition-colors duration-200 group text-left"
+            style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[#883700]/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-[#883700]" />
+              </div>
+              <div>
+                <div className="font-heading font-semibold text-[16px] text-[#1D1D1F]">Goals</div>
+                <div className="text-[14px] text-[#6E6E73] font-body mt-0.5">Track your emergency fund, home, and financial independence milestones.</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-[14px] font-heading font-semibold text-[#004E9F] group-hover:translate-x-1 transition-transform duration-200 shrink-0">
+              View goals <ChevronRight className="w-4 h-4" />
+            </div>
           </button>
         </div>
+      </section>
 
-      </div>
+      {/* ── FEATURE TILES ── */}
+      <section
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(18px)', transition: 'opacity 0.7s 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.4s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        {moduleTiles.map(({ id, label, sub, bg, color }) => (
+          <button
+            key={id}
+            onClick={() => onNavigateModule(id)}
+            className="relative overflow-hidden rounded-[20px] p-7 flex flex-col h-[220px] text-left transition-all duration-500 group border border-[#E5E5EA] hover:-translate-y-1"
+            style={{ backgroundColor: bg, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.07)')}
+            onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)')}
+          >
+            {/* Background SVG chart decoration */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-[0.06] group-hover:opacity-[0.10] transition-opacity duration-500 pointer-events-none"
+              viewBox="0 0 300 200"
+              preserveAspectRatio="none"
+            >
+              <polyline
+                points="0,160 30,140 60,150 90,100 120,120 150,80 180,90 210,60 240,70 270,40 300,50"
+                fill="none"
+                stroke={color}
+                strokeWidth="3"
+              />
+              <polyline
+                points="0,180 30,170 60,175 90,140 120,155 150,120 180,130 210,100 240,110 270,80 300,90"
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+              />
+            </svg>
 
-      {/* Priority Action Alerts */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-heading font-bold text-[var(--app-text)] uppercase tracking-wider">
-          Priority Ledger Action Items
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          {/* Alert 1 */}
-          {!hasProfile ? (
-            <div className="p-5 rounded-xl border bg-[var(--app-surface)] border-[#ba1a1a]/30 flex flex-col justify-between space-y-3">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-[#ba1a1a] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-heading font-bold text-[var(--app-text)]">
-                    Complete your Risk Profile
-                  </h4>
-                  <p className="text-xs text-[var(--app-text-muted)] mt-1 leading-relaxed">
-                    We need your risk profile to accurately assess your portfolio suitability.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-[var(--app-border)]">
-                <span className="text-[11px] font-mono text-[var(--app-text-muted)]">
-                  Impact: Unknown Risk
-                </span>
-                <button
-                  onClick={() => onNavigateModule('risk')}
-                  className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-                >
-                  <span>Resolve in Risk</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <div className="relative z-10 mt-auto flex flex-col gap-1.5">
+              <span
+                className="font-heading font-semibold text-[28px] tracking-tight text-[#1D1D1F] group-hover:text-current transition-colors duration-300"
+                style={{ '--tw-text-opacity': 1 } as React.CSSProperties}
+              >
+                {label}
+              </span>
+              <span className="text-[15px] text-[#6E6E73] font-body">{sub}</span>
             </div>
-          ) : assets === 0 ? (
-            <div className="p-5 rounded-xl border bg-[var(--app-surface)] border-[#ba1a1a]/30 flex flex-col justify-between space-y-3">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-[#ba1a1a] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-heading font-bold text-[var(--app-text)]">
-                    Add a Holding
-                  </h4>
-                  <p className="text-xs text-[var(--app-text-muted)] mt-1 leading-relaxed">
-                    You have no assets recorded. Add holdings to see your portfolio analysis.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-[var(--app-border)]">
-                <span className="text-[11px] font-mono text-[var(--app-text-muted)]">
-                  Impact: No Analysis
-                </span>
-                <button
-                  onClick={() => onNavigateModule('portfolio')}
-                  className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-                >
-                  <span>Add Holdings</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="p-5 rounded-xl border bg-[var(--app-surface)] border-[var(--primary)]/30 flex flex-col justify-between space-y-3">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-heading font-bold text-[var(--app-text)]">
-                    Portfolio Setup Complete
-                  </h4>
-                  <p className="text-xs text-[var(--app-text-muted)] mt-1 leading-relaxed">
-                    You have assets recorded and a complete risk profile.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-[var(--app-border)]">
-                <span className="text-[11px] font-mono text-[var(--app-text-muted)]">
-                  Impact: Full Analysis Available
-                </span>
-                <button
-                  onClick={() => onNavigateModule('portfolio')}
-                  className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-                >
-                  <span>View Portfolio</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          )}
+          </button>
+        ))}
+      </section>
 
-          {/* Alert 2 */}
-          {leakage > 0 ? (
-            <div className="p-5 rounded-xl border bg-[var(--app-surface)] border-[var(--primary)]/30 flex flex-col justify-between space-y-3">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-heading font-bold text-[var(--app-text)]">
-                    Review {formatCurrency(leakage)} Discretionary Spend
-                  </h4>
-                  <p className="text-xs text-[var(--app-text-muted)] mt-1 leading-relaxed">
-                    Consider reallocating your discretionary spending towards your financial goals.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-[var(--app-border)]">
-                <span className="text-[11px] font-mono text-[var(--app-text-muted)]">
-                  Impact: Optimize Cashflow
-                </span>
-                <button
-                  onClick={() => onNavigateModule('spend')}
-                  className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-                >
-                  <span>Resolve in Spend Analysis</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="p-5 rounded-xl border bg-[var(--app-surface)] border-[var(--primary)]/30 flex flex-col justify-between space-y-3">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-heading font-bold text-[var(--app-text)]">
-                    No Discretionary Leakage
-                  </h4>
-                  <p className="text-xs text-[var(--app-text-muted)] mt-1 leading-relaxed">
-                    Great job keeping your discretionary expenses low!
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-[var(--app-border)]">
-                <span className="text-[11px] font-mono text-[var(--app-text-muted)]">
-                  Impact: Optimal Cashflow
-                </span>
-                <button
-                  onClick={() => onNavigateModule('spend')}
-                  className="text-xs font-heading font-bold text-[var(--primary-dim)] hover:underline flex items-center gap-1"
-                >
-                  <span>View Spend Analysis</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Module Shortcuts */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <button
-          onClick={() => onNavigateModule('portfolio')}
-          className="p-4 rounded-xl bg-[var(--app-surface)] border border-[var(--app-border)] hover:border-[var(--primary)] text-left transition-colors group"
-        >
-          <div className="flex items-center justify-between">
-            <Wallet className="w-5 h-5 text-[var(--primary)]" />
-            <ArrowUpRight className="w-4 h-4 text-[var(--app-text-muted)] group-hover:text-[var(--primary-dim)]" />
-          </div>
-          <h4 className="text-sm font-heading font-bold text-[var(--app-text)] mt-3">Portfolio Overview</h4>
-          <p className="text-xs text-[var(--app-text-muted)] mt-0.5">Audit your current holdings.</p>
-        </button>
-
-        <button
-          onClick={() => onNavigateModule('goals')}
-          className="p-4 rounded-xl bg-[var(--app-surface)] border border-[var(--app-border)] hover:border-[var(--primary)] text-left transition-colors group"
-        >
-          <div className="flex items-center justify-between">
-            <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
-            <ArrowUpRight className="w-4 h-4 text-[var(--app-text-muted)] group-hover:text-[var(--primary-dim)]" />
-          </div>
-          <h4 className="text-sm font-heading font-bold text-[var(--app-text)] mt-3">Goal Progress</h4>
-          <p className="text-xs text-[var(--app-text-muted)] mt-0.5">Track emergency, home, and FI milestones.</p>
-        </button>
-
-        <button
-          onClick={() => onNavigateModule('marketsim')}
-          className="p-4 rounded-xl bg-[var(--app-surface)] border border-[var(--app-border)] hover:border-[var(--primary)] text-left transition-colors group"
-        >
-          <div className="flex items-center justify-between">
-            <ShieldAlert className="w-5 h-5 text-[var(--primary)]" />
-            <ArrowUpRight className="w-4 h-4 text-[var(--app-text-muted)] group-hover:text-[var(--primary-dim)]" />
-          </div>
-          <h4 className="text-sm font-heading font-bold text-[var(--app-text)] mt-3">Crash Simulation</h4>
-          <p className="text-xs text-[var(--app-text-muted)] mt-0.5">Replay Covid 2020 & 2008 drawdowns.</p>
-        </button>
-      </div>
     </div>
   );
 };
