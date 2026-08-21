@@ -5,7 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import YahooFinance from 'yahoo-finance2';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
