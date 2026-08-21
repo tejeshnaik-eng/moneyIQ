@@ -14,10 +14,15 @@ import {
   XCircle,
   Award
 } from 'lucide-react';
+import { allLearningConcepts } from '../../data/learningConcepts';
+import { LearningConcept } from '../../types/learning';
 
 export const LearningModule: React.FC = () => {
   const [view, setView] = useState<'home' | 'lesson' | 'quiz' | 'challenge' | 'lab'>('home');
+  const [activeConceptId, setActiveConceptId] = useState<string | null>(null);
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
+  const [selectedQuizOption, setSelectedQuizOption] = useState<string | null>(null);
+  const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
   
   // Load progress
   useEffect(() => {
@@ -35,16 +40,18 @@ export const LearningModule: React.FC = () => {
     }
   };
 
-  const totalConcepts = 30;
-  const progressPercent = Math.round((completedTopics.length / totalConcepts) * 100);
+  const totalConcepts = Math.max(30, allLearningConcepts.length);
+  const progressPercent = Math.round((completedTopics.length / totalConcepts) * 100) || 0;
+
+  const activeConcept = allLearningConcepts.find(c => c.id === activeConceptId);
 
   // --- SUBVIEWS --- //
 
-  if (view === 'lesson') {
+  if (view === 'lesson' && activeConcept && activeConcept.lessonContent) {
     return (
       <div className="w-full max-w-[900px] mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
         <button 
-          onClick={() => setView('home')}
+          onClick={() => { setView('home'); setActiveConceptId(null); }}
           className="flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Learning Home
@@ -52,53 +59,62 @@ export const LearningModule: React.FC = () => {
         
         <header className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-heading font-bold text-[var(--app-text)]">Support & Resistance</h1>
-            <span className="text-xs font-bold text-[var(--app-text-muted)] tracking-wider">3 / 7</span>
+            <h1 className="text-3xl font-heading font-bold text-[var(--app-text)]">{activeConcept.title}</h1>
+            <span className="text-xs font-bold text-[var(--app-text-muted)] tracking-wider">LESSON</span>
           </div>
           <div className="w-full bg-[var(--app-surface-alt)] h-1.5 rounded-full overflow-hidden">
-            <div className="bg-[var(--primary)] h-full" style={{ width: '42%' }}></div>
+            <div className="bg-[var(--primary)] h-full" style={{ width: completedTopics.includes(activeConcept.id) ? '100%' : '50%' }}></div>
           </div>
         </header>
 
         <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl p-6 mb-8 shadow-sm">
           <h3 className="text-sm font-heading font-bold text-[var(--app-text)] uppercase tracking-wider mb-3">What you will learn</h3>
           <p className="text-[var(--app-text-muted)] text-lg leading-relaxed">
-            Identify important price levels where buying or selling pressure tends to increase.
+            {activeConcept.lessonContent.whatYouWillLearn}
           </p>
+        </div>
+        
+        <div className="bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-2xl p-6 mb-8 shadow-sm">
+           <p className="text-[var(--app-text)] text-base whitespace-pre-wrap leading-relaxed">
+             {activeConcept.lessonContent.explanation}
+           </p>
         </div>
 
         <div className="bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-2xl h-[400px] mb-8 relative flex flex-col items-center justify-center overflow-hidden">
-           {/* Mock Interactive Chart Area */}
+           {/* Mock Interactive Chart Area based on type */}
            <div className="absolute inset-0 opacity-20 dark:opacity-10" style={{ backgroundImage: 'linear-gradient(var(--app-border) 1px, transparent 1px), linear-gradient(90deg, var(--app-border) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
            
-           <svg className="w-full h-full p-8" viewBox="0 0 800 300" preserveAspectRatio="none">
-              {/* Support Zone */}
-              <rect x="0" y="240" width="800" height="20" fill="var(--primary-soft)" />
-              <line x1="0" y1="250" x2="800" y2="250" stroke="var(--primary)" strokeDasharray="5" strokeWidth="2" />
-              <text x="20" y="275" fill="var(--primary)" fontSize="12" fontWeight="bold">SUPPORT ZONE</text>
-              
-              {/* Resistance Zone */}
-              <rect x="0" y="40" width="800" height="20" fill="#ba1a1a" opacity="0.1" />
-              <line x1="0" y1="50" x2="800" y2="50" stroke="#ba1a1a" strokeDasharray="5" strokeWidth="2" />
-              <text x="20" y="35" fill="#ba1a1a" fontSize="12" fontWeight="bold">RESISTANCE ZONE</text>
+           {activeConcept.lessonContent.chartType === 'support_resistance' ? (
+             <svg className="w-full h-full p-8" viewBox="0 0 800 300" preserveAspectRatio="none">
+                <rect x="0" y="240" width="800" height="20" fill="var(--primary-soft)" />
+                <line x1="0" y1="250" x2="800" y2="250" stroke="var(--primary)" strokeDasharray="5" strokeWidth="2" />
+                <text x="20" y="275" fill="var(--primary)" fontSize="12" fontWeight="bold">SUPPORT ZONE</text>
+                
+                <rect x="0" y="40" width="800" height="20" fill="#ba1a1a" opacity="0.1" />
+                <line x1="0" y1="50" x2="800" y2="50" stroke="#ba1a1a" strokeDasharray="5" strokeWidth="2" />
+                <text x="20" y="35" fill="#ba1a1a" fontSize="12" fontWeight="bold">RESISTANCE ZONE</text>
 
-              {/* Price Line connecting "candles" */}
-              <path d="M 50,150 L 100,250 L 200,80 L 300,240 L 450,50 L 600,250 L 750,120" fill="none" stroke="var(--app-text-muted)" strokeWidth="3" />
-              
-              {/* Touch points */}
-              <circle cx="100" cy="250" r="6" fill="var(--primary)" />
-              <circle cx="300" cy="240" r="6" fill="var(--primary)" />
-              <circle cx="600" cy="250" r="6" fill="var(--primary)" />
-              
-              <circle cx="450" cy="50" r="6" fill="#ba1a1a" />
-           </svg>
+                <path d="M 50,150 L 100,250 L 200,80 L 300,240 L 450,50 L 600,250 L 750,120" fill="none" stroke="var(--app-text-muted)" strokeWidth="3" />
+                
+                <circle cx="100" cy="250" r="6" fill="var(--primary)" />
+                <circle cx="300" cy="240" r="6" fill="var(--primary)" />
+                <circle cx="600" cy="250" r="6" fill="var(--primary)" />
+                <circle cx="450" cy="50" r="6" fill="#ba1a1a" />
+             </svg>
+           ) : (
+             <div className="z-10 flex flex-col items-center opacity-50">
+                <BarChart2 className="w-16 h-16 text-[var(--app-text-muted)] mb-4" />
+                <p className="text-[var(--app-text-muted)] font-heading">Interactive Chart Visualization</p>
+             </div>
+           )}
         </div>
 
         <div className="flex justify-end">
           <button 
             onClick={() => {
-              saveProgress('support_resistance');
+              saveProgress(activeConcept.id);
               setView('home');
+              setActiveConceptId(null);
             }}
             className="btn-primary text-base px-8 py-3 shadow-md"
           >
@@ -110,11 +126,11 @@ export const LearningModule: React.FC = () => {
     );
   }
 
-  if (view === 'quiz') {
+  if (view === 'quiz' && activeConcept && activeConcept.quizContent) {
     return (
       <div className="w-full max-w-[800px] mx-auto p-6 md:p-8 animate-in fade-in duration-300">
         <button 
-          onClick={() => setView('home')}
+          onClick={() => { setView('home'); setActiveConceptId(null); setSelectedQuizOption(null); setQuizFeedback(null); }}
           className="flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Cancel Quiz
@@ -122,42 +138,108 @@ export const LearningModule: React.FC = () => {
 
         <div className="mb-8">
           <div className="flex justify-between text-xs font-bold text-[var(--app-text-muted)] tracking-wider mb-3">
-            <span>QUESTION 4 OF 10</span>
-            <span>4 / 10 COMPLETED</span>
+            <span className="uppercase">{activeConcept.title}</span>
+            <span>QUIZ</span>
           </div>
           <div className="w-full bg-[var(--app-surface-alt)] h-2 rounded-full overflow-hidden">
-            <div className="bg-[var(--secondary)] h-full" style={{ width: '40%' }}></div>
+            <div className="bg-[var(--secondary)] h-full" style={{ width: '0%' }}></div>
           </div>
         </div>
 
         <h2 className="text-2xl md:text-3xl font-heading font-bold text-[var(--app-text)] mb-8 leading-snug">
-          MSUMI is trading below its 50D moving average. What does this alone tell you?
+          {activeConcept.quizContent.question}
         </h2>
 
         <div className="space-y-4">
-          {[
-            { id: 'a', text: 'The stock must rise soon' },
-            { id: 'b', text: 'The stock is definitely undervalued' },
-            { id: 'c', text: 'Price is currently below its recent 50-day average' },
-            { id: 'd', text: 'The stock should immediately be sold' }
-          ].map(opt => (
-            <button key={opt.id} onClick={() => {
-              if(opt.id === 'c') {
-                saveProgress('quiz_ma');
-                setView('home');
-              }
-            }} className="w-full text-left p-5 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--secondary)] hover:bg-[var(--app-surface-hover)] transition-all font-body text-[var(--app-text)] shadow-sm">
-              <span className="font-bold mr-3 text-[var(--app-text-muted)]">{opt.id.toUpperCase()}.</span>
-              {opt.text}
-            </button>
-          ))}
+          {activeConcept.quizContent.options.map((opt, i) => {
+             const letter = String.fromCharCode(65 + i);
+             const isSelected = selectedQuizOption === opt.id;
+             const isSuccess = isSelected && opt.isCorrect;
+             const isFail = isSelected && !opt.isCorrect;
+             
+             return (
+              <button 
+                key={opt.id} 
+                disabled={selectedQuizOption !== null}
+                onClick={() => {
+                  setSelectedQuizOption(opt.id);
+                  setQuizFeedback(opt.explanation);
+                  if(opt.isCorrect) {
+                    saveProgress(activeConcept.id);
+                  }
+                }} 
+                className={`w-full text-left p-5 rounded-xl border transition-all font-body text-base shadow-sm ${
+                  isSuccess ? 'border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--app-text)]' : 
+                  isFail ? 'border-[#ba1a1a] bg-[#ba1a1a]/10 text-[var(--app-text)]' : 
+                  selectedQuizOption ? 'border-[var(--app-border)] bg-[var(--app-surface)] opacity-50' :
+                  'border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[var(--secondary)] hover:bg-[var(--app-surface-hover)] text-[var(--app-text)]'
+                }`}
+              >
+                <span className="font-bold mr-3 text-[var(--app-text-muted)]">{letter}.</span>
+                {opt.text}
+              </button>
+            )
+          })}
         </div>
+        
+        {quizFeedback && (
+          <div className={`mt-8 p-6 rounded-2xl border ${selectedQuizOption && activeConcept.quizContent?.options.find(o => o.id === selectedQuizOption)?.isCorrect ? 'bg-[var(--primary-soft)] border-[var(--primary)]' : 'bg-[#ba1a1a]/10 border-[#ba1a1a]'} animate-in fade-in slide-in-from-bottom-2`}>
+            <p className="text-[var(--app-text)] font-medium">{quizFeedback}</p>
+            <div className="mt-6 flex justify-end">
+               <button 
+                onClick={() => { setView('home'); setActiveConceptId(null); setSelectedQuizOption(null); setQuizFeedback(null); }}
+                className="btn-primary"
+               >
+                 Back to Home
+               </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
 
   // --- HOME VIEW --- //
+  
+  const technicalConcepts = allLearningConcepts.filter(c => c.category === 'Technical Analysis');
+  const fundamentalConcepts = allLearningConcepts.filter(c => c.category === 'Fundamental Analysis');
+  const portfolioConcepts = allLearningConcepts.filter(c => c.category === 'Portfolio Strategy');
+
+  const renderConceptCard = (concept: LearningConcept, IconComponent: any, hoverColor: string) => (
+    <button 
+      key={concept.id}
+      onClick={() => {
+        setActiveConceptId(concept.id);
+        setView(concept.type);
+      }} 
+      className={`text-left bg-[var(--app-surface)] p-5 rounded-2xl border border-[var(--app-border)] transition-all duration-200 group cursor-pointer block relative shadow-sm hover:shadow-md hover:border-[${hoverColor}]`}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <div className={`w-10 h-10 rounded-full bg-[var(--app-surface-hover)] flex items-center justify-center transition-colors`} style={{ color: hoverColor }}>
+          <IconComponent className="w-5 h-5" />
+        </div>
+        {completedTopics.includes(concept.id) ? (
+          <CheckCircle className="w-5 h-5" style={{ color: hoverColor }} />
+        ) : (
+          <span className="text-[10px] font-bold text-[var(--app-text-muted)] bg-[var(--app-surface-alt)] px-2 py-0.5 rounded uppercase">{concept.difficulty}</span>
+        )}
+      </div>
+      <h4 className="text-base font-heading font-bold text-[var(--app-text)] mb-1 transition-colors group-hover:text-[var(--primary)]">
+        {concept.title}
+      </h4>
+      <p className="text-sm text-[var(--app-text-muted)] line-clamp-2 mb-4">
+        {concept.description}
+      </p>
+      <div className="flex items-center justify-between text-xs font-medium text-[var(--app-text-muted)] mt-auto pt-3 border-t border-[var(--app-border)]">
+        <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {concept.durationMinutes} min</span>
+        <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-bold" style={{ color: hoverColor }}>
+          Start <ArrowRight className="w-3.5 h-3.5" />
+        </span>
+      </div>
+    </button>
+  );
+
   return (
     <div className="w-full max-w-[1280px] mx-auto p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
       
@@ -201,45 +283,22 @@ export const LearningModule: React.FC = () => {
         {/* Continue Learning Hero Card (Spans 8) */}
         <div className="lg:col-span-8 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl overflow-hidden relative group hover:border-[var(--primary)] transition-all duration-300 flex flex-col sm:flex-row shadow-sm">
           <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--app-surface-hover)] flex">
-            <div className="h-full bg-[var(--primary)] transition-all duration-1000" style={{ width: completedTopics.includes('support_resistance') ? '100%' : '65%' }}></div>
+            <div className="h-full bg-[var(--primary)] transition-all duration-1000" style={{ width: '100%' }}></div>
           </div>
           
           <div className="p-6 md:p-8 flex-1 flex flex-col justify-between z-10 bg-[var(--app-surface)]">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] tracking-wide uppercase">
-                  Technical Analysis
+                  Featured
                 </span>
               </div>
               <h2 className="text-2xl font-heading font-bold text-[var(--app-text)] mb-2">
-                Support & Resistance
+                Keep exploring financial markets!
               </h2>
               <div className="flex items-center gap-4 text-sm text-[var(--app-text-muted)] font-medium">
-                {completedTopics.includes('support_resistance') ? (
-                  <span className="flex items-center gap-1.5 text-[var(--primary)]">
-                    <CheckCircle className="w-4 h-4" /> Completed
-                  </span>
-                ) : (
-                  <>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" /> 8 min left
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <BarChart2 className="w-4 h-4" /> Intermediate
-                    </span>
-                  </>
-                )}
+                Pick a lesson or quiz below to increase your knowledge.
               </div>
-            </div>
-            
-            <div className="mt-6 sm:mt-8 flex gap-3">
-              <button 
-                onClick={() => setView('lesson')}
-                className="bg-[var(--primary)] hover:bg-[var(--primary-dim)] text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-              >
-                {completedTopics.includes('support_resistance') ? 'Review Lesson' : 'Continue Learning'}
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
           
@@ -258,100 +317,42 @@ export const LearningModule: React.FC = () => {
       <section>
         <h2 className="text-2xl font-heading font-bold text-[var(--app-text)] mb-6">Explore Topics</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Technical Analysis Column */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Technical Analysis
-            </h3>
-            
-            <button onClick={() => setView('quiz')} className="text-left bg-[var(--app-surface)] p-5 rounded-2xl border border-[var(--app-border)] hover:border-[var(--primary)] transition-all duration-200 group cursor-pointer block relative shadow-sm hover:shadow-md">
-              <div className="flex justify-between items-start mb-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--app-surface-hover)] flex items-center justify-center text-[var(--primary)] group-hover:bg-[var(--primary-soft)] transition-colors">
-                  <Activity className="w-5 h-5" />
-                </div>
-                {completedTopics.includes('quiz_ma') ? (
-                  <CheckCircle className="w-5 h-5 text-[var(--primary)]" />
-                ) : (
-                  <span className="text-[10px] font-bold text-[var(--app-text-muted)] bg-[var(--app-surface-alt)] px-2 py-0.5 rounded uppercase">Beginner</span>
-                )}
-              </div>
-              <h4 className="text-base font-heading font-bold text-[var(--app-text)] mb-1 group-hover:text-[var(--primary)] transition-colors">
-                Moving Average Quiz
-              </h4>
-              <p className="text-sm text-[var(--app-text-muted)] line-clamp-2 mb-4">
-                Test your knowledge on interpreting standard Moving Averages.
-              </p>
-              <div className="flex items-center justify-between text-xs font-medium text-[var(--app-text-muted)] mt-auto pt-3 border-t border-[var(--app-border)]">
-                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 5 min</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--primary)] flex items-center gap-1 font-bold">
-                  Start <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </button>
+        {allLearningConcepts.length === 0 ? (
+          <div className="py-20 text-center text-[var(--app-text-muted)]">
+            Loading interactive curriculum...
           </div>
-
-          {/* Fundamental Analysis Column */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Fundamental Analysis
-            </h3>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <a className="bg-[var(--app-surface)] p-5 rounded-2xl border border-[var(--app-border)] hover:border-[var(--primary)] transition-all duration-200 group cursor-pointer block relative shadow-sm hover:shadow-md" href="#">
-              <div className="flex justify-between items-start mb-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--app-surface-hover)] flex items-center justify-center text-[var(--primary)] group-hover:bg-[var(--primary-soft)] transition-colors">
-                  <Calculator className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-[var(--app-text-muted)] bg-[var(--app-surface-alt)] px-2 py-0.5 rounded uppercase">Intermediate</span>
-              </div>
-              <h4 className="text-base font-heading font-bold text-[var(--app-text)] mb-1 group-hover:text-[var(--primary)] transition-colors">
-                P/E Ratio Explained
-              </h4>
-              <p className="text-sm text-[var(--app-text-muted)] line-clamp-2 mb-4">
-                Understand how to value a company based on its current earnings relative to price.
-              </p>
-              <div className="flex items-center justify-between text-xs font-medium text-[var(--app-text-muted)] mt-auto pt-3 border-t border-[var(--app-border)]">
-                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 15 min</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--primary)] flex items-center gap-1 font-bold">
-                  Start <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </a>
-          </div>
+            {/* Technical Analysis Column */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Technical Analysis
+              </h3>
+              {technicalConcepts.map(c => renderConceptCard(c, Activity, 'var(--primary)'))}
+            </div>
 
-          {/* Portfolio & Risk Column */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
-              <PieChart className="w-4 h-4" />
-              Portfolio Strategy
-            </h3>
-            
-            <a className="bg-[var(--app-surface)] p-5 rounded-2xl border border-[var(--app-border)] hover:border-[var(--secondary)] transition-all duration-200 group cursor-pointer block relative shadow-sm hover:shadow-md" href="#">
-              <div className="flex justify-between items-start mb-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--app-surface-hover)] flex items-center justify-center text-[var(--secondary)] group-hover:bg-[var(--secondary-soft)] transition-colors">
-                  <PieChart className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-[var(--app-text-muted)] bg-[var(--app-surface-alt)] px-2 py-0.5 rounded uppercase">Advanced</span>
-              </div>
-              <h4 className="text-base font-heading font-bold text-[var(--app-text)] mb-1 group-hover:text-[var(--secondary)] transition-colors">
-                Asset Allocation Theory
-              </h4>
-              <p className="text-sm text-[var(--app-text-muted)] line-clamp-2 mb-4">
-                Why spreading your risk mathematically is the only free lunch in investing.
-              </p>
-              <div className="flex items-center justify-between text-xs font-medium text-[var(--app-text-muted)] mt-auto pt-3 border-t border-[var(--app-border)]">
-                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 22 min</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--secondary)] flex items-center gap-1 font-bold">
-                  Start <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </a>
-          </div>
+            {/* Fundamental Analysis Column */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Fundamental Analysis
+              </h3>
+              {fundamentalConcepts.map(c => renderConceptCard(c, Calculator, 'var(--primary)'))}
+            </div>
 
-        </div>
+            {/* Portfolio & Risk Column */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-xs font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider border-b border-[var(--app-border)] pb-2 mb-2 flex items-center gap-2">
+                <PieChart className="w-4 h-4" />
+                Portfolio Strategy
+              </h3>
+              {portfolioConcepts.map(c => renderConceptCard(c, PieChart, 'var(--secondary)'))}
+            </div>
+
+          </div>
+        )}
       </section>
       
     </div>
