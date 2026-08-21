@@ -47,7 +47,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex font-body">
+    <div className="min-h-screen bg-background text-on-background flex font-body-md">
       <DashboardSidebar
         activeModule={activeModule}
         onSelectModule={(mod) => setActiveModule(mod)}
