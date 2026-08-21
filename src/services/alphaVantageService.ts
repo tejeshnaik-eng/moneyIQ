@@ -1,11 +1,11 @@
 /**
- * Alpha Vantage Real Equity & ETF Service
- * API Key: NLG8IQ2UO7GNEOA0
- * Provides real-time quotes, day high/low, and daily time-series for Indian (BSE/NSE) and global equities.
+ * Stock Quote Service — Routes through our secure Express backend (/api/stock/:symbol)
+ * Backed by yahoo-finance2 on the server. No API keys exposed to the browser.
  */
 
 export interface StockQuote {
   symbol: string;
+  name: string;
   price: number;
   open: number;
   high: number;
@@ -15,19 +15,25 @@ export interface StockQuote {
   previousClose: number;
   change: number;
   changePercent: string;
+  marketCap: number | null;
+  trailingPE: number | null;
+  returnOnEquity: number | null;
+  debtToEquity: number | null;
+  fiftyTwoWeekHigh: number | null;
+  fiftyTwoWeekLow: number | null;
 }
 
-const API_KEY = 'NLG8IQ2UO7GNEOA0';
 const MEMORY_CACHE: Record<string, { data: StockQuote; timestamp: number }> = {};
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes live cache
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute live cache
 
 export class AlphaVantageService {
   /**
-   * Fetches real-time quote for a stock or ETF symbol (e.g. RELIANCE.BSE, HDFCBANK.BSE, INFY.BSE).
+   * Fetches live quote for an NSE stock symbol via our Express backend.
+   * Symbol can be bare (e.g. "RELIANCE") or suffixed (e.g. "RELIANCE.NS").
    */
   static async getQuote(symbol: string): Promise<StockQuote | null> {
-    const sym = symbol.toUpperCase().includes('.') ? symbol.toUpperCase() : `${symbol.toUpperCase()}.BSE`;
-    
+    const sym = symbol.trim().toUpperCase();
+
     // Check memory cache
     const cached = MEMORY_CACHE[sym];
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
@@ -35,46 +41,43 @@ export class AlphaVantageService {
     }
 
     try {
-      const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(sym)}&apikey=${API_KEY}`;
-      const res = await fetch(url);
-      if (res.ok) {
-        const json = await res.json();
-        if (json['Global Quote'] && json['Global Quote']['05. price']) {
-          const gq = json['Global Quote'];
-          const quote: StockQuote = {
-            symbol: gq['01. symbol'] || sym,
-            price: parseFloat(gq['05. price']),
-            open: parseFloat(gq['02. open'] || '0'),
-            high: parseFloat(gq['03. high'] || '0'),
-            low: parseFloat(gq['04. low'] || '0'),
-            volume: parseInt(gq['06. volume'] || '0'),
-            latestTradingDay: gq['07. latest trading day'] || new Date().toISOString().split('T')[0],
-            previousClose: parseFloat(gq['08. previous close'] || gq['05. price']),
-            change: parseFloat(gq['09. change'] || '0'),
-            changePercent: gq['10. change percent'] || '0.00%',
-          };
-
-          MEMORY_CACHE[sym] = { data: quote, timestamp: Date.now() };
-          return quote;
-        }
+      const res = await fetch(`/api/stock/${encodeURIComponent(sym)}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.warn(`[StockQuoteService] ${res.status} for ${sym}:`, err.error || 'Unknown error');
+        return null;
       }
+      const data = await res.json();
+
+      const quote: StockQuote = {
+        symbol: data.symbol,
+        name: data.name || sym,
+        price: data.regularMarketPrice ?? 0,
+        open: data.regularMarketPrice ?? 0,
+        high: data.fiftyTwoWeekHigh ?? 0,
+        low: data.fiftyTwoWeekLow ?? 0,
+        volume: 0,
+        latestTradingDay: new Date().toISOString().split('T')[0],
+        previousClose: data.regularMarketPrice
+          ? data.regularMarketPrice - (data.regularMarketChange ?? 0)
+          : 0,
+        change: data.regularMarketChange ?? 0,
+        changePercent: data.regularMarketChangePercent != null
+          ? `${(data.regularMarketChangePercent * 100).toFixed(2)}%`
+          : '0.00%',
+        marketCap: data.marketCap ?? null,
+        trailingPE: data.trailingPE ?? null,
+        returnOnEquity: data.returnOnEquity ?? null,
+        debtToEquity: data.debtToEquity ?? null,
+        fiftyTwoWeekHigh: data.fiftyTwoWeekHigh ?? null,
+        fiftyTwoWeekLow: data.fiftyTwoWeekLow ?? null,
+      };
+
+      MEMORY_CACHE[sym] = { data: quote, timestamp: Date.now() };
+      return quote;
     } catch (e) {
-      console.warn(`[AlphaVantage] Live API fetch failed for ${sym}, checking local snapshot...`, e);
+      console.error(`[StockQuoteService] Request failed for ${sym}:`, e);
+      return null;
     }
-
-    // Fallback to local snapshot data
-    try {
-      const snapshotRes = await fetch('/data/latest-market-data.json');
-      if (snapshotRes.ok) {
-        const snapshot = await snapshotRes.json();
-        if (snapshot.equities && snapshot.equities[sym]) {
-          return snapshot.equities[sym];
-        }
-      }
-    } catch (err) {
-      console.error('[AlphaVantage] Failed to load local snapshot:', err);
-    }
-
-    return null;
   }
 }
