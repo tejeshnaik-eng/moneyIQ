@@ -33,6 +33,7 @@ export default {
       fontFamily: {
         heading: ['Outfit', 'sans-serif'],
         body: ['"Hedvig Letters Sans"', 'sans-serif'],
+        mono: ['"Space Grotesk"', 'monospace'],
       },
     },
   },

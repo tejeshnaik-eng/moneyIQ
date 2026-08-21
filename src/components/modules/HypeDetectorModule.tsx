@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { mockHypeClaims } from '../../mock/hypeDetectorData';
-import { HypeClaim, AuditResult } from '../../types';
+import { HypeClaim } from '../../types';
 
 // ─── Loading Stage Messages (cycling during API call) ───────────────────────
 const LOADING_STAGES = [
@@ -196,11 +196,10 @@ export const HypeDetectorModule: React.FC = () => {
                   key={claim.id}
                   type="button"
                   onClick={() => handleTestPreset(claim)}
-                  className={`text-xs px-4 py-2 rounded-lg border font-medium transition-all duration-150 text-left ${
-                    isActive
+                  className={`text-xs px-4 py-2 rounded-lg border font-medium transition-all duration-150 text-left ${isActive
                       ? 'bg-[#006b57] text-white border-[#006b57] shadow-sm font-semibold'
                       : 'bg-white text-[#565e74] border-[#E2E8F0] hover:bg-[#f7f9fb] hover:border-[#bbcac3]'
-                  }`}
+                    }`}
                 >
                   {claim.title}
                 </button>
@@ -273,11 +272,10 @@ export const HypeDetectorModule: React.FC = () => {
               </h4>
             </div>
             <span
-              className={`px-4 py-1.5 rounded-full text-xs font-heading font-bold self-start shrink-0 ${
-                isHighRisk
+              className={`px-4 py-1.5 rounded-full text-xs font-heading font-bold self-start shrink-0 ${isHighRisk
                   ? 'bg-[#ffdad6] text-[#ba1a1a] border border-[#ba1a1a]/30'
                   : 'bg-amber-50 text-amber-800 border border-amber-500/20'
-              }`}
+                }`}
             >
               {auditResult.risk_assessment_badge}
             </span>

@@ -53,6 +53,157 @@ export interface RiskProfileResult {
   behavioralWarning: string;
 }
 
+export type WorkType = 
+  | 'Student'
+  | 'Salaried employee'
+  | 'Self-employed'
+  | 'Business owner'
+  | 'Freelancer'
+  | 'Homemaker'
+  | 'Retired'
+  | 'Currently unemployed'
+  | 'Other';
+
+export type IncomeStability = 
+  | 'Very unstable'
+  | 'Somewhat unstable'
+  | 'Fairly stable'
+  | 'Stable'
+  | 'Very stable';
+
+export type IncomeChange3Years = 
+  | 'Increase significantly'
+  | 'Increase slightly'
+  | 'Stay approximately the same'
+  | 'Decrease slightly'
+  | 'Decrease significantly'
+  | 'Not sure';
+
+export type TimeHorizon = 
+  | 'Within 1 year'
+  | '1–3 years'
+  | '3–5 years'
+  | '5–10 years'
+  | 'More than 10 years';
+
+export type PrimaryGoal = 
+  | 'Emergency fund'
+  | 'Education'
+  | 'Buying a vehicle'
+  | 'Buying a house'
+  | 'Retirement'
+  | 'Wealth creation'
+  | 'Starting a business'
+  | 'Other';
+
+export type InvestmentExperience = 
+  | 'None'
+  | 'Less than 1 year'
+  | '1–3 years'
+  | '3–5 years'
+  | 'More than 5 years';
+
+export type DecisionStyle = 
+  | 'Bank/financial advisor'
+  | 'Research and financial data'
+  | 'Friends/family'
+  | 'Social media/YouTube'
+  | 'News and market trends'
+  | 'My own experience'
+  | 'Combination of these';
+
+export type CrashReaction = 
+  | 'Sell everything'
+  | 'Sell some investments'
+  | 'Hold and wait'
+  | 'Continue my SIP/investments'
+  | 'Invest more';
+
+export type OutcomePreference = 
+  | '₹1.2 lakh with very low risk'
+  | '₹1.4 lakh with low risk'
+  | '₹1.7 lakh with moderate risk'
+  | '₹2 lakh with high risk'
+  | '₹2.5 lakh with very high risk';
+
+export type LossProtectionPriority = 
+  | 'Extremely important'
+  | 'Very important'
+  | 'Moderately important'
+  | 'Slightly important'
+  | 'Not important';
+
+export type VolatilityComfort = 
+  | 'Very uncomfortable'
+  | 'Uncomfortable'
+  | 'Neutral'
+  | 'Comfortable'
+  | 'Very comfortable';
+
+export interface InvestorProfileForm {
+  // Demographics & Work
+  age: number;
+  workType: WorkType;
+  incomeStability: IncomeStability;
+  incomeChange3Years: IncomeChange3Years;
+
+  // Financial Balance Sheet & Capacity
+  monthlyIncome: number;
+  totalSavingsInvestments: number;
+  monthlyInvestmentCapacity: number;
+  emergencySavings: number;
+  currentInvestmentPct: number;
+  emergencyWithdrawalNeed: number;
+  hasDebt: boolean;
+  outstandingDebt: number;
+  monthlyEmi: number;
+
+  // Goals & Horizon
+  timeHorizon: TimeHorizon;
+  primaryGoal: PrimaryGoal;
+
+  // Experience & Holdings
+  investmentExperience: InvestmentExperience;
+  currentInvestments: string[];
+  decisionStyle: DecisionStyle;
+
+  // Behavioral & Psychological Tolerance
+  crashReaction20: CrashReaction;
+  outcomePreference: OutcomePreference;
+  lossProtectionPriority: LossProtectionPriority;
+  volatilityComfort: VolatilityComfort;
+}
+
+export interface ComprehensiveProfileResult {
+  persona: string;
+  riskCapacityScore: number; // 0-100
+  riskToleranceScore: number; // 0-100
+  overallScore: number; // 0-100
+  investmentHorizonYears: number;
+  monthlyCapacity: number;
+  emergencyRunwayMonths: number;
+  debtToIncomeRatio: number;
+  savingsRatePct: number;
+  suggestedApproach: string;
+  mainConsideration: string;
+  description: string;
+  keyTrait: string;
+  recommendedMix: {
+    equity: number;
+    debt: number;
+    gold: number;
+    liquid: number;
+  };
+  behavioralWarning: string;
+  aiPromptContext: {
+    summary: string;
+    investorPersona: string;
+    capacityConstraints: string;
+    psychologicalProfile: string;
+    suggestedNextEducationalTopics: string[];
+  };
+}
+
 export interface PortfolioHolding {
   id: string;
   name: string;
@@ -118,31 +269,7 @@ export interface HistoricalCrisisCase {
   continuedSipResult: string;
 }
 
-export interface DecisionScenario {
-  id: string;
-  title: string;
-  tagline: string;
-  category: 'Asset Purchase' | 'Debt vs Invest' | 'Tax Regime';
-  parameters: {
-    label: string;
-    defaultValue: number;
-    min: number;
-    max: number;
-    step: number;
-    unit: string;
-  }[];
-  optionA: {
-    title: string;
-    netWealth5Years: number;
-    summary: string;
-  };
-  optionB: {
-    title: string;
-    netWealth5Years: number;
-    summary: string;
-  };
-  analyticalTakeaway: string;
-}
+
 
 export interface HypeClaim {
   id: string;
