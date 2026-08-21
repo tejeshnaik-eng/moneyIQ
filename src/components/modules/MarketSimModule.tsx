@@ -1,217 +1,174 @@
-import { getStorageKey } from '../../utils';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Activity, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  ShieldAlert, 
-  CheckCircle,
-  Search,
-  RefreshCw,
-  Landmark,
-  Layers
+  Clock,
+  Briefcase,
+  ChevronRight,
+  RotateCcw
 } from 'lucide-react';
-import { mockCrisisCases } from '../../data/historicalCrisisData';
-import { HistoricalCrisisCase } from '../../types';
-import { MarketDataEngine } from '../../services/marketDataEngine';
-import { StockQuote } from '../../services/alphaVantageService';
-import { CrisisHistoryData } from '../../services/yahooFinanceService';
+
+interface SimStep {
+  month: string;
+  price: number;
+  news: string;
+  financials: {
+    peRatio: string;
+    eps: string;
+    sentiment: 'Positive' | 'Negative' | 'Panic' | 'Recovery';
+  };
+}
+
+const HDFC_COVID_TIMELINE: SimStep[] = [
+  {
+    month: "January 2020",
+    price: 1270,
+    news: "Markets at all-time highs. Whispers of a new virus in China, but Indian economy appears robust. HDFC Bank reports strong Q3 credit growth.",
+    financials: { peRatio: "26.5", eps: "48.2", sentiment: "Positive" }
+  },
+  {
+    month: "February 2020",
+    price: 1180,
+    news: "Global supply chains hit. FIIs start pulling out of emerging markets. India reports first few cases.",
+    financials: { peRatio: "24.1", eps: "48.2", sentiment: "Negative" }
+  },
+  {
+    month: "March 23, 2020",
+    price: 770,
+    news: "NATIONWIDE LOCKDOWN ANNOUNCED. Complete panic on Dalal Street. RBI announces loan moratoriums. Fears of massive NPA crisis for banks.",
+    financials: { peRatio: "15.8", eps: "48.2 (Trailing)", sentiment: "Panic" }
+  },
+  {
+    month: "July 2020",
+    price: 1050,
+    news: "Economy unlocking. Moratorium extended but management commentary suggests NPAs will be lower than worst-case estimates.",
+    financials: { peRatio: "21.0", eps: "44.5", sentiment: "Recovery" }
+  },
+  {
+    month: "December 2020",
+    price: 1430,
+    news: "Vaccine approved! Massive FII inflows return to India. HDFC Bank reports excellent Q2 margins despite the pandemic year.",
+    financials: { peRatio: "28.5", eps: "51.0", sentiment: "Positive" }
+  }
+];
 
 export const MarketSimModule: React.FC = () => {
-  const [selectedCrisis, setSelectedCrisis] = useState<HistoricalCrisisCase>(mockCrisisCases[0]);
-  const [userAction, setUserAction] = useState<'hold' | 'panic_sell' | null>(null);
-  const [covidTimeline, setCovidTimeline] = useState<CrisisHistoryData | null>(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [cash, setCash] = useState(1000000); // 10 Lakh starting cash
+  const [shares, setShares] = useState(0);
+  const [tradeAmount, setTradeAmount] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+
+  const currentStep = HDFC_COVID_TIMELINE[stepIndex];
+  const portfolioValue = cash + (shares * currentStep.price);
   
-  // Real-time market sandbox — persisted to localStorage
-  const [assetSymbol, setAssetSymbol] = useState('');
-  const [assetQty, setAssetQty] = useState(1);
-  const [liveQuote, setLiveQuote] = useState<StockQuote | null>(null);
-  const [isSearchingQuote, setIsSearchingQuote] = useState(false);
-  const [cashBalance, setCashBalance] = useState<number>(() => {
-    try {
-      const stored = localStorage.getItem(getStorageKey('finsight_sandbox_cash'));
-      return stored ? Number(stored) : 0;
-    } catch { return 0; }
-  });
-  const [showCashInput, setShowCashInput] = useState(false);
-  const [cashInputValue, setCashInputValue] = useState('');
-  
-  const [tradeLogs, setTradeLogs] = useState<Array<{
-    id: string; asset: string; type: string; qty: number; price: number; total: number; time: string;
-  }>>(() => {
-    try {
-      const stored = localStorage.getItem(getStorageKey('finsight_sandbox_trades'));
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-
-  // Persist cash and trades to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(getStorageKey('finsight_sandbox_cash'), String(cashBalance));
-  }, [cashBalance]);
-
-  useEffect(() => {
-    localStorage.setItem(getStorageKey('finsight_sandbox_trades'), JSON.stringify(tradeLogs));
-  }, [tradeLogs]);
-
-  // Fetch initial crisis data (no auto-quote since symbol is empty)
-  const handleLookupQuote = async (sym: string) => {
-    if (!sym.trim()) return;
-    setIsSearchingQuote(true);
-    try {
-      const quote = await MarketDataEngine.getLiveQuote(sym);
-      setLiveQuote(quote);
-    } catch (e) {
-      console.error('Failed to lookup quote:', e);
-    } finally {
-      setIsSearchingQuote(false);
+  const handleBuy = () => {
+    if (tradeAmount <= 0 || tradeAmount > cash) return;
+    const qty = Math.floor(tradeAmount / currentStep.price);
+    if (qty > 0) {
+      setCash(prev => prev - (qty * currentStep.price));
+      setShares(prev => prev + qty);
+      setTradeAmount(0);
     }
   };
 
-  useEffect(() => {
-    MarketDataEngine.getCovidCrisisData().then(data => setCovidTimeline(data));
-  }, []);
-
-  const handleSimulateTrade = (type: 'Buy' | 'Sell') => {
-    if (!liveQuote) {
-      alert('Search for a stock and get a live price before placing an order.');
-      return;
+  const handleSell = () => {
+    if (tradeAmount <= 0) return;
+    const qtyToSell = Math.floor(tradeAmount / currentStep.price);
+    const actualQty = Math.min(qtyToSell, shares);
+    if (actualQty > 0) {
+      setShares(prev => prev - actualQty);
+      setCash(prev => prev + (actualQty * currentStep.price));
+      setTradeAmount(0);
     }
-    if (cashBalance <= 0 && type === 'Buy') {
-      alert('Set your virtual cash balance first using the "Set Cash" button.');
-      return;
-    }
-    const price = liveQuote.price;
-    const total = parseFloat((price * assetQty).toFixed(2));
-    const sym = liveQuote.symbol;
+  };
 
-    if (type === 'Buy') {
-      if (cashBalance < total) {
-        alert('Insufficient virtual cash balance for this order.');
-        return;
-      }
-      setCashBalance(prev => prev - total);
+  const handleNextStep = () => {
+    if (stepIndex < HDFC_COVID_TIMELINE.length - 1) {
+      setStepIndex(prev => prev + 1);
+      setTradeAmount(0);
     } else {
-      setCashBalance(prev => prev + total);
+      setGameOver(true);
     }
+  };
 
-    setTradeLogs([
-      {
-        id: String(Date.now()),
-        asset: sym,
-        type,
-        qty: assetQty,
-        price,
-        total,
-        time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-      },
-      ...tradeLogs,
-    ]);
+  const handleReset = () => {
+    setStepIndex(0);
+    setCash(1000000);
+    setShares(0);
+    setTradeAmount(0);
+    setGameOver(false);
+  };
+
+  const getSentimentColor = (s: string) => {
+    switch(s) {
+      case 'Positive': return 'text-status-positive bg-status-positive/10';
+      case 'Panic': return 'text-error bg-error-container';
+      case 'Negative': return 'text-orange-600 bg-orange-100';
+      case 'Recovery': return 'text-primary bg-primary/10';
+      default: return 'text-tertiary bg-surface-variant';
+    }
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* 2-Column Simulators Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
-        
-        {/* Virtual Sandbox & Real-time Equity Order Execution (Left) */}
-        <section className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-[#00b090]" />
-              <h3 className="font-heading font-bold text-lg text-[#191c1e]">
-                Live Market Sandbox
-              </h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2.5 py-1 rounded">
-                <span>Cash: ₹{cashBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-              </div>
-              {showCashInput ? (
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    step="10000"
-                    value={cashInputValue}
-                    onChange={(e) => setCashInputValue(e.target.value)}
-                    placeholder="e.g. 500000"
-                    className="w-28 px-2 py-1 text-xs bg-[#f7f9fb] border border-[#E2E8F0] rounded outline-none focus:border-[#00b090] font-mono"
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => {
-                      const val = Number(cashInputValue);
-                      if (val > 0) { setCashBalance(val); setShowCashInput(false); setCashInputValue(''); }
-                    }}
-                    className="text-[10px] font-heading font-bold text-[#006b57] hover:underline"
-                  >
-                    Set
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowCashInput(true)}
-                  className="text-[10px] font-heading font-bold text-[#006b57] hover:underline"
-                >
-                  {cashBalance === 0 ? 'Set Cash' : 'Adjust'}
-                </button>
-              )}
-            </div>
-          </div>
+    <div className="space-y-8 pb-12 w-full max-w-5xl mx-auto pt-8">
+      {/* Header */}
+      <div className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div>
+          <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
+            <Clock className="w-6 h-6 text-primary" />
+            Historical Crisis Simulator
+          </h2>
+          <p className="text-on-surface-variant font-body-sm mt-1 max-w-2xl">
+            Test your emotional discipline with real historical financials. 
+            Scenario: <strong>The 2020 Covid-19 Crash</strong> | Asset: <strong>HDFC Bank (HDFCBANK.NS)</strong>
+          </p>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="font-label-md text-tertiary uppercase tracking-widest text-[10px]">Your Net Worth</span>
+          <span className={`text-3xl font-mono font-bold ${portfolioValue < 1000000 ? 'text-error' : 'text-primary'}`}>
+            ₹{(portfolioValue/100000).toFixed(2)}L
+          </span>
+          <span className="font-mono text-[11px] text-on-surface-variant">
+            {shares} shares • ₹{(cash/100000).toFixed(2)}L cash
+          </span>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            {/* Asset Search */}
-            <div className="space-y-2">
-              <label className="block text-xs font-heading font-bold text-[#191c1e]">
-                Search NSE Equity / ETF Symbol (yahoo-finance2 Live Feed):
-              </label>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#565e74]" />
-                  <input
-                    type="text"
-                    placeholder="e.g. RELIANCE, HDFCBANK, INFY, TCS, ICICIBANK..."
-                    value={assetSymbol}
-                    onChange={(e) => setAssetSymbol(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleLookupQuote(assetSymbol)}
-                    className="w-full pl-9 pr-3 py-2 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
-                  />
-                </div>
-                <button
-                  onClick={() => handleLookupQuote(assetSymbol)}
-                  disabled={isSearchingQuote}
-                  className="btn-secondary text-xs py-2 px-4 shrink-0"
-                >
-                  {isSearchingQuote ? 'Fetching...' : 'Get Live Price'}
-                </button>
+      {!gameOver ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Situation Context (Left 2 cols) */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+              
+              <div className="flex items-center justify-between mb-6">
+                <span className="bg-surface-variant text-on-surface px-4 py-1.5 rounded-full font-mono text-sm font-bold border border-outline-variant/50">
+                  {currentStep.month}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getSentimentColor(currentStep.financials.sentiment)}`}>
+                  Market Mood: {currentStep.financials.sentiment}
+                </span>
               </div>
-            </div>
 
-            {/* Live Quote Card */}
-            {liveQuote && (
-              <div className="p-4 rounded-xl bg-[#f7f9fb] border border-[#E2E8F0] space-y-3">
-                {/* Header row */}
-                <div className="flex items-start justify-between">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-label-md text-tertiary uppercase tracking-widest mb-2">Macro Context & News</h3>
+                  <p className="font-body-lg text-on-surface leading-relaxed border-l-4 border-primary pl-4">
+                    "{currentStep.news}"
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-outline-variant/20">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-heading font-bold text-sm text-[#191c1e]">{liveQuote.symbol}</span>
-                      <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
-                        liveQuote.change >= 0 ? 'bg-[#00b090]/10 text-[#006b57]' : 'bg-[#ffdad6] text-[#ba1a1a]'
-                      }`}>
-                        {liveQuote.change >= 0 ? '+' : ''}{liveQuote.changePercent}
-                      </span>
-                    </div>
-                    {liveQuote.name && liveQuote.name !== liveQuote.symbol && (
-                      <span className="text-[11px] text-[#565e74] block mt-0.5">{liveQuote.name}</span>
-                    )}
+                    <span className="block font-label-md text-tertiary uppercase tracking-widest mb-1">Stock Price</span>
+                    <span className="text-2xl font-mono font-bold text-on-surface">₹{currentStep.price}</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-xl font-heading font-extrabold text-[#191c1e] font-mono block">
-                      ₹{liveQuote.price.toFixed(2)}
-                    </span>
-                    <span className="text-[10px] text-[#565e74] font-mono">NSE Live • yahoo-finance2</span>
+                  <div>
+                    <span className="block font-label-md text-tertiary uppercase tracking-widest mb-1">P/E Ratio</span>
+                    <span className="text-xl font-mono font-bold text-on-surface">{currentStep.financials.peRatio}</span>
+                  </div>
+                  <div>
+                    <span className="block font-label-md text-tertiary uppercase tracking-widest mb-1">Trailing EPS</span>
+                    <span className="text-xl font-mono font-bold text-on-surface">₹{currentStep.financials.eps}</span>
                   </div>
                 </div>
                 {/* 52W Range */}
@@ -248,233 +205,110 @@ export const MarketSimModule: React.FC = () => {
                   </div>
                 )}
               </div>
-            )}
-
-            {/* Order Controls */}
-            <div className="flex items-center gap-3 pt-2">
-              <div className="w-32">
-                <label className="block text-[11px] font-heading font-bold text-[#565e74] mb-1">Quantity</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={assetQty}
-                  onChange={(e) => setAssetQty(Number(e.target.value))}
-                  className="w-full px-3 py-1.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
-                />
-              </div>
-
-              <div className="flex-1 flex gap-2 pt-5">
-                <button
-                  onClick={() => handleSimulateTrade('Buy')}
-                  className="btn-primary flex-1 text-xs py-2"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Buy @ Live Price</span>
-                </button>
-                <button
-                  onClick={() => handleSimulateTrade('Sell')}
-                  className="btn-secondary flex-1 text-xs py-2"
-                >
-                  <TrendingDown className="w-4 h-4" />
-                  <span>Sell</span>
-                </button>
-              </div>
             </div>
-
-            {/* Trade History */}
-            <div className="pt-4 border-t border-[#E2E8F0]">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="text-xs font-heading font-bold text-[#565e74] uppercase tracking-wider">
-                  Simulated Execution Ledger
-                </h4>
-                {tradeLogs.length > 0 && (
-                  <button
-                    onClick={() => { setTradeLogs([]); }}
-                    className="text-[10px] text-[#ba1a1a] font-heading font-bold hover:underline"
-                  >
-                    Clear History
-                  </button>
-                )}
-              </div>
-              {tradeLogs.length === 0 ? (
-                <div className="text-center py-6 text-xs text-[#565e74] border border-[#E2E8F0] rounded-lg bg-[#f7f9fb]">
-                  No trades yet. Search for a stock, set your virtual cash, and execute your first simulated order.
-                </div>
-              ) : (
-              <div className="overflow-x-auto border border-[#E2E8F0] rounded-lg max-h-48 overflow-y-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-[#f7f9fb] border-b border-[#E2E8F0]">
-                      <th className="p-2.5 font-heading font-bold text-[#565e74]">Asset</th>
-                      <th className="p-2.5 font-heading font-bold text-[#565e74]">Type</th>
-                      <th className="p-2.5 font-heading font-bold text-[#565e74]">Qty</th>
-                      <th className="p-2.5 font-heading font-bold text-[#565e74]">Price</th>
-                      <th className="p-2.5 font-heading font-bold text-[#565e74] text-right">Total Outflow</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F0]">
-                    {tradeLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-[#f7f9fb]">
-                        <td className="p-2.5 font-heading font-bold text-[#191c1e]">{log.asset}</td>
-                        <td className="p-2.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-heading font-bold ${
-                            log.type === 'Buy' ? 'bg-[#00b090]/10 text-[#006b57]' : 'bg-[#ffdad6] text-[#ba1a1a]'
-                          }`}>
-                            {log.type}
-                          </span>
-                        </td>
-                        <td className="p-2.5 text-[#565e74] font-mono">{log.qty}</td>
-                        <td className="p-2.5 text-[#565e74] font-mono">₹{log.price.toFixed(2)}</td>
-                        <td className="p-2.5 text-right font-mono font-bold text-[#191c1e]">
-                          ₹{log.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Historical Crisis Replay Engine with Authentic Trajectories (Right) */}
-        <section className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-[#ba1a1a]" />
-              <h3 className="font-heading font-bold text-lg text-[#191c1e]">
-                Authentic Crash Replay Engine
-              </h3>
-            </div>
-            <span className="text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2 py-0.5 rounded">
-              Yahoo Finance Historical Series
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {mockCrisisCases.map((crisis: HistoricalCrisisCase) => (
-              <button
-                key={crisis.id}
-                onClick={() => {
-                  setSelectedCrisis(crisis);
-                  setUserAction(null);
-                }}
-                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-                  selectedCrisis.id === crisis.id
-                    ? 'bg-[#006b57] text-white border-[#006b57] font-bold'
-                    : 'bg-[#f7f9fb] text-[#565e74] border-[#E2E8F0] hover:bg-[#eceef0]'
-                }`}
+            
+            <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex justify-between items-center">
+              <span className="font-body-sm text-on-surface-variant">Make your decision, then advance time.</span>
+              <button 
+                onClick={handleNextStep}
+                className="bg-on-surface text-surface py-3 px-6 rounded-xl font-label-md flex items-center gap-2 hover:bg-on-surface-variant transition-colors shadow-md"
               >
-                {crisis.title.split(':')[0]}
+                Advance Time (Next Month) <ChevronRight className="w-4 h-4" />
               </button>
-            ))}
+            </div>
           </div>
 
-          {/* Crisis Details Card */}
-          <div className="p-4 rounded-xl bg-[#f7f9fb] border border-[#E2E8F0] space-y-3">
-            <div className="flex justify-between items-baseline">
-              <h4 className="font-heading font-bold text-base text-[#191c1e]">
-                {selectedCrisis.title}
-              </h4>
-              <span className="text-sm font-heading font-extrabold text-[#ba1a1a] font-mono">
-                -{selectedCrisis.drawdownPercentage}%
+          {/* Trade Execution (Right Col) */}
+          <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col h-full">
+            <h3 className="font-headline-sm font-bold text-on-surface mb-6 flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Trade Desk
+            </h3>
+
+            <div className="space-y-6 flex-1">
+              <div className="space-y-2">
+                <label className="font-label-md text-tertiary uppercase tracking-widest">Order Value (₹)</label>
+                <input 
+                  type="number" 
+                  value={tradeAmount || ''} 
+                  onChange={(e) => setTradeAmount(Number(e.target.value))}
+                  placeholder="e.g. 50000"
+                  className="w-full bg-surface border border-outline-variant/50 rounded-xl py-3 px-4 focus:outline-none focus:border-primary text-body-md font-mono"
+                />
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => setTradeAmount(Math.floor(cash))} className="text-[10px] bg-surface-variant px-2 py-1 rounded text-on-surface-variant font-bold hover:bg-outline-variant/40">Max Buy</button>
+                  <button onClick={() => setTradeAmount(Math.floor(shares * currentStep.price))} className="text-[10px] bg-surface-variant px-2 py-1 rounded text-on-surface-variant font-bold hover:bg-outline-variant/40">Max Sell</button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={handleBuy}
+                  disabled={tradeAmount <= 0 || tradeAmount > cash}
+                  className="bg-status-positive/10 text-status-positive border border-status-positive/30 py-3 rounded-xl font-label-md font-bold disabled:opacity-50 hover:bg-status-positive/20 transition-colors"
+                >
+                  BUY
+                </button>
+                <button 
+                  onClick={handleSell}
+                  disabled={tradeAmount <= 0 || (tradeAmount/currentStep.price) > shares}
+                  className="bg-error-container text-error border border-error/30 py-3 rounded-xl font-label-md font-bold disabled:opacity-50 hover:bg-error-container/80 transition-colors"
+                >
+                  SELL
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-outline-variant/30 text-center">
+              <span className="font-body-sm text-tertiary block mb-1">If you Buy now:</span>
+              <span className="font-mono text-sm text-on-surface-variant">Will get ~{tradeAmount > 0 ? Math.floor(tradeAmount / currentStep.price) : 0} shares</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-surface-container-lowest p-12 rounded-2xl border border-outline-variant/30 shadow-sm text-center max-w-2xl mx-auto space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+          
+          <h2 className="text-3xl font-headline-lg font-bold text-on-surface relative z-10">Simulation Complete</h2>
+          <p className="font-body-md text-on-surface-variant relative z-10">
+            The year is 2021. The market has recovered and entered a massive bull run. Let's see how your emotional discipline paid off.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 py-6 relative z-10">
+            <div className="p-6 bg-surface-variant/30 rounded-xl border border-outline-variant/30">
+              <span className="block font-label-md text-tertiary uppercase tracking-widest mb-2">Your Final Portfolio</span>
+              <span className={`text-3xl font-mono font-bold ${portfolioValue >= 1000000 ? 'text-status-positive' : 'text-error'}`}>
+                ₹{(portfolioValue/100000).toFixed(2)}L
+              </span>
+              <span className="block text-sm font-bold mt-2">
+                {portfolioValue >= 1000000 ? '+' : ''}{(((portfolioValue - 1000000) / 1000000) * 100).toFixed(1)}% Return
               </span>
             </div>
-
-            <p className="text-xs text-[#565e74] leading-relaxed">
-              {selectedCrisis.description}
-            </p>
-
-            {/* Authentic Timeline Data Points for Covid 2020 */}
-            {selectedCrisis.id === 'covid-2020' && covidTimeline && (
-              <div className="p-3 rounded-lg bg-white border border-[#E2E8F0] space-y-2">
-                <span className="text-[11px] font-heading font-bold text-[#191c1e] block">
-                  Authentic Nifty 50 Crisis Milestone Points:
-                </span>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 rounded bg-[#f7f9fb]">
-                    <span className="text-[10px] text-[#565e74] block">Pre-Crash Peak</span>
-                    <span className="text-xs font-mono font-bold text-[#191c1e]">₹12,201.20</span>
-                  </div>
-                  <div className="p-2 rounded bg-[#ffdad6]/30">
-                    <span className="text-[10px] text-[#ba1a1a] block">March 23 Bottom</span>
-                    <span className="text-xs font-mono font-bold text-[#ba1a1a]">₹7,610.25</span>
-                  </div>
-                  <div className="p-2 rounded bg-[#00b090]/10">
-                    <span className="text-[10px] text-[#006b57] block">Nov 2020 Recovery</span>
-                    <span className="text-xs font-mono font-bold text-[#006b57]">₹12,968.95</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
-              <div className="p-2.5 rounded bg-white border border-[#E2E8F0]">
-                <span className="text-[#565e74] block">Period</span>
-                <span className="font-heading font-bold text-[#191c1e] mt-0.5 block">{selectedCrisis.period}</span>
-              </div>
-              <div className="p-2.5 rounded bg-white border border-[#E2E8F0]">
-                <span className="text-[#565e74] block">Recovery Timeline</span>
-                <span className="font-heading font-bold text-[#00b090] mt-0.5 block">{selectedCrisis.recoveryMonths} Months</span>
-              </div>
+            
+            <div className="p-6 bg-surface-variant/30 rounded-xl border border-outline-variant/30">
+              <span className="block font-label-md text-tertiary uppercase tracking-widest mb-2">Buy & Hold (Do Nothing)</span>
+              <span className="text-3xl font-mono font-bold text-on-surface">
+                ₹11.25L
+              </span>
+              <span className="block text-sm font-bold mt-2 text-on-surface-variant">
+                +12.5% Return
+              </span>
             </div>
           </div>
 
-          {/* Interactive Decision Test */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-heading font-bold text-[#191c1e] uppercase tracking-wider">
-              Test Your Reaction: What would you do at the trough?
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setUserAction('panic_sell')}
-                className={`p-3 rounded-lg border text-left transition-all ${
-                  userAction === 'panic_sell'
-                    ? 'border-[#ba1a1a] bg-[#ffdad6]/20'
-                    : 'border-[#E2E8F0] hover:border-[#ba1a1a]/50 bg-white'
-                }`}
-              >
-                <span className="text-xs font-heading font-bold text-[#ba1a1a] block">Panic Sell & Exit</span>
-                <span className="text-[11px] text-[#565e74] mt-1 block">Stop further losses and move into savings FD.</span>
-              </button>
+          <p className="font-body-sm text-on-surface-variant border-l-4 border-primary pl-4 text-left relative z-10">
+            <strong>Lesson:</strong> Most retail investors panic-sold in March 2020 at P/E 15, locking in a 40% loss. 
+            The optimal mathematical move was to buy heavily during peak panic, but behaviorally, doing nothing (Buy & Hold) still outperformed panic selling.
+          </p>
 
-              <button
-                onClick={() => setUserAction('hold')}
-                className={`p-3 rounded-lg border text-left transition-all ${
-                  userAction === 'hold'
-                    ? 'border-[#00b090] bg-[#00b090]/10'
-                    : 'border-[#E2E8F0] hover:border-[#00b090]/50 bg-white'
-                }`}
-              >
-                <span className="text-xs font-heading font-bold text-[#006b57] block">Continue SIP Uninterrupted</span>
-                <span className="text-[11px] text-[#565e74] mt-1 block">Accumulate cheap units systematically.</span>
-              </button>
-            </div>
-
-            {userAction && (
-              <div className="p-4 rounded-xl bg-white border border-[#E2E8F0] space-y-2 mt-3">
-                <div className="flex items-center gap-2">
-                  {userAction === 'hold' ? (
-                    <CheckCircle className="w-4 h-4 text-[#00b090]" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-[#ba1a1a]" />
-                  )}
-                  <span className="text-xs font-heading font-bold text-[#191c1e]">
-                    Empirical Historical Outcome:
-                  </span>
-                </div>
-                <p className="text-xs text-[#565e74] leading-relaxed">
-                  {userAction === 'hold'
-                    ? selectedCrisis.continuedSipResult
-                    : selectedCrisis.panicSoldResult}
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-
-      </div>
+          <button 
+            onClick={handleReset}
+            className="bg-primary text-on-primary py-3 px-8 rounded-xl font-label-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors relative z-10 mt-4 mx-auto"
+          >
+            <RotateCcw className="w-4 h-4" /> Try Again
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, ShieldCheck, Plus, LogOut } from 'lucide-react';
+import { Bell, Search, History, UserCircle } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 
 interface DashboardTopBarProps {
@@ -41,58 +41,20 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   const meta = getModuleMeta(activeModule);
 
   return (
-    <header className="bg-white border-b border-[#E2E8F0] px-8 py-4 sticky top-0 z-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-[1280px] mx-auto w-full">
-        <div>
-          <div className="flex items-center gap-2 uppercase tracking-wider text-[11px] font-mono">
-            <span className="text-[#006b57] font-semibold">
-              FinSight Ledger
-            </span>
-            <span className="text-[#E2E8F0]">•</span>
-            <span className="text-[#565e74]">
-              {user.name} ({user.riskCategory})
-            </span>
-          </div>
-          <h2 className="text-2xl font-heading font-extrabold text-[#191c1e] mt-0.5">
-            {meta.title}
-          </h2>
-          <p className="text-xs text-[#565e74] mt-0.5">
-            {meta.desc}
-          </p>
+    <header className="bg-surface/80 backdrop-blur-md dark:bg-on-background/80 text-primary dark:text-primary-fixed-dim top-0 sticky z-40 border-b border-outline-variant/30 dark:border-outline/30 flex justify-between items-center h-16 px-lg w-full">
+      <div className="flex items-center gap-sm">
+        <span className="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">{meta.title}</span>
+      </div>
+      {/* Search & Actions */}
+      <div className="flex items-center gap-lg">
+        <div className="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
+          <Search className="w-5 h-5 absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" />
+          <input className="bg-surface-variant/30 border-none text-body-sm py-2 pl-10 pr-sm w-64 rounded-full focus:outline-none focus:ring-1 focus:ring-primary placeholder-on-surface-variant/60" placeholder="Search ticker or asset..." type="text"/>
         </div>
-
-        <div className="flex items-center gap-3 self-start sm:self-auto">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f7f9fb] border border-[#E2E8F0] text-xs font-mono text-[#006b57]">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>INR Base (₹)</span>
-          </div>
-
-          <button
-            className="p-2 rounded-lg text-[#565e74] hover:bg-[#f2f4f6] hover:text-[#191c1e] border border-[#E2E8F0]"
-            title="Notifications"
-          >
-            <Bell className="w-4 h-4" />
-          </button>
-
-          {onNewAction && (
-            <button
-              onClick={onNewAction}
-              className="btn-primary text-xs py-2 px-4 shadow-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create / Add</span>
-            </button>
-          )}
-
-          {onLogout && (
-            <button
-              onClick={onLogout}
-              title="Sign out"
-              className="p-2 rounded-lg text-[#565e74] hover:bg-[#ffdad6] hover:text-[#ba1a1a] border border-[#E2E8F0] transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          )}
+        <div className="flex items-center gap-sm text-on-surface-variant dark:text-surface-variant">
+          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><Bell className="w-5 h-5" /></button>
+          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><History className="w-5 h-5" /></button>
+          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors ml-xs w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><UserCircle className="w-5 h-5" /></button>
         </div>
       </div>
     </header>
