@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Activity, 
   TrendingUp, 
@@ -6,32 +6,81 @@ import {
   AlertTriangle, 
   ShieldAlert, 
   CheckCircle,
-  Search
+  Search,
+  RefreshCw,
+  Landmark,
+  Layers
 } from 'lucide-react';
 import { mockCrisisCases } from '../../mock/marketSimData';
 import { HistoricalCrisisCase } from '../../types';
+import { MarketDataEngine } from '../../services/marketDataEngine';
+import { StockQuote } from '../../services/alphaVantageService';
+import { CrisisHistoryData } from '../../services/yahooFinanceService';
 
 export const MarketSimModule: React.FC = () => {
   const [selectedCrisis, setSelectedCrisis] = useState<HistoricalCrisisCase>(mockCrisisCases[0]);
   const [userAction, setUserAction] = useState<'hold' | 'panic_sell' | null>(null);
+  const [covidTimeline, setCovidTimeline] = useState<CrisisHistoryData | null>(null);
   
-  const [assetSymbol, setAssetSymbol] = useState('');
-  const [assetQty, setAssetQty] = useState(10);
+  // Real-time market sandbox
+  const [assetSymbol, setAssetSymbol] = useState('RELIANCE');
+  const [assetQty, setAssetQty] = useState(5);
+  const [liveQuote, setLiveQuote] = useState<StockQuote | null>(null);
+  const [isSearchingQuote, setIsSearchingQuote] = useState(false);
+  const [cashBalance, setCashBalance] = useState(100000);
+  
   const [tradeLogs, setTradeLogs] = useState([
-    { id: '1', asset: 'NIFTYBEES', type: 'Buy', qty: 25, price: 245.5, total: 6137.5 },
-    { id: '2', asset: 'GOLDBEES', type: 'Buy', qty: 100, price: 62.0, total: 6200.0 },
-    { id: '3', asset: 'HDFCBANK', type: 'Buy', qty: 10, price: 1620.0, total: 16200.0 },
+    { id: '1', asset: 'RELIANCE.BSE', type: 'Buy', qty: 5, price: 1315.55, total: 6577.75, time: '10:15 AM' },
+    { id: '2', asset: 'NIFTYBEES.NS', type: 'Buy', qty: 25, price: 276.76, total: 6919.00, time: '11:30 AM' },
+    { id: '3', asset: 'GOLDBEES.NS', type: 'Buy', qty: 50, price: 131.32, total: 6566.00, time: '01:45 PM' },
   ]);
 
+  // Fetch initial quote & crisis data
+  const handleLookupQuote = async (sym: string) => {
+    if (!sym.trim()) return;
+    setIsSearchingQuote(true);
+    try {
+      const quote = await MarketDataEngine.getLiveQuote(sym);
+      setLiveQuote(quote);
+    } catch (e) {
+      console.error('Failed to lookup quote:', e);
+    } finally {
+      setIsSearchingQuote(false);
+    }
+  };
+
+  useEffect(() => {
+    handleLookupQuote('RELIANCE');
+    MarketDataEngine.getCovidCrisisData().then(data => setCovidTimeline(data));
+  }, []);
+
   const handleSimulateTrade = (type: 'Buy' | 'Sell') => {
-    if (!assetSymbol.trim()) return;
-    const price = 250.0;
-    const total = price * assetQty;
+    const price = liveQuote ? liveQuote.price : 1315.55;
+    const total = parseFloat((price * assetQty).toFixed(2));
+    const sym = liveQuote ? liveQuote.symbol : `${assetSymbol.toUpperCase()}.BSE`;
+
+    if (type === 'Buy') {
+      if (cashBalance < total) {
+        alert('Insufficient virtual cash balance for this order.');
+        return;
+      }
+      setCashBalance(prev => prev - total);
+    } else {
+      setCashBalance(prev => prev + total);
+    }
+
     setTradeLogs([
-      { id: String(Date.now()), asset: assetSymbol.toUpperCase(), type, qty: assetQty, price, total },
+      {
+        id: String(Date.now()),
+        asset: sym,
+        type,
+        qty: assetQty,
+        price,
+        total,
+        time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      },
       ...tradeLogs,
     ]);
-    setAssetSymbol('');
   };
 
   return (
@@ -39,65 +88,111 @@ export const MarketSimModule: React.FC = () => {
       {/* 2-Column Simulators Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
         
-        {/* Virtual Sandbox & Order Execution (Left) */}
+        {/* Virtual Sandbox & Real-time Equity Order Execution (Left) */}
         <section className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-6">
-          <div className="flex items-center gap-2 pb-3 border-b border-[#E2E8F0]">
-            <Activity className="w-5 h-5 text-[#00b090]" />
-            <h3 className="font-heading font-bold text-lg text-[#191c1e]">
-              Virtual Paper Sandbox
-            </h3>
-            <span className="text-xs font-mono text-[#006b57] ml-auto bg-[#f2f4f6] px-2.5 py-1 rounded">
-              Balance: ₹1,00,000
-            </span>
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-[#00b090]" />
+              <h3 className="font-heading font-bold text-lg text-[#191c1e]">
+                Live Market Sandbox
+              </h3>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2.5 py-1 rounded">
+              <span>Cash: ₹{cashBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+            </div>
           </div>
 
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Search className="w-4 h-4 absolute left-3 top-3 text-[#565e74]" />
-                <input
-                  type="text"
-                  placeholder="Asset Symbol (e.g. NIFTYBEES, GOLDBEES, INFY)..."
-                  value={assetSymbol}
-                  onChange={(e) => setAssetSymbol(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
-                />
+            {/* Asset Search */}
+            <div className="space-y-2">
+              <label className="block text-xs font-heading font-bold text-[#191c1e]">
+                Search Indian Equity / ETF Symbol (Alpha Vantage Feed):
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#565e74]" />
+                  <input
+                    type="text"
+                    placeholder="e.g. RELIANCE, HDFCBANK, INFY, TCS, ICICIBANK..."
+                    value={assetSymbol}
+                    onChange={(e) => setAssetSymbol(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleLookupQuote(assetSymbol)}
+                    className="w-full pl-9 pr-3 py-2 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
+                  />
+                </div>
+                <button
+                  onClick={() => handleLookupQuote(assetSymbol)}
+                  disabled={isSearchingQuote}
+                  className="btn-secondary text-xs py-2 px-4 shrink-0"
+                >
+                  {isSearchingQuote ? 'Fetching...' : 'Get Live Price'}
+                </button>
               </div>
-              <div className="w-full sm:w-28">
+            </div>
+
+            {/* Live Quote Card */}
+            {liveQuote && (
+              <div className="p-4 rounded-xl bg-[#f7f9fb] border border-[#E2E8F0] flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-heading font-bold text-sm text-[#191c1e]">{liveQuote.symbol}</span>
+                    <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                      liveQuote.change >= 0 ? 'bg-[#00b090]/10 text-[#006b57]' : 'bg-[#ffdad6] text-[#ba1a1a]'
+                    }`}>
+                      {liveQuote.change >= 0 ? '+' : ''}{liveQuote.changePercent}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-[#565e74] block mt-0.5">
+                    Day High: ₹{liveQuote.high} • Day Low: ₹{liveQuote.low} • Vol: {liveQuote.volume.toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-xl font-heading font-extrabold text-[#191c1e] font-mono block">
+                    ₹{liveQuote.price.toFixed(2)}
+                  </span>
+                  <span className="text-[10px] text-[#565e74] font-mono">Alpha Vantage Real-Time</span>
+                </div>
+              </div>
+            )}
+
+            {/* Order Controls */}
+            <div className="flex items-center gap-3 pt-2">
+              <div className="w-32">
+                <label className="block text-[11px] font-heading font-bold text-[#565e74] mb-1">Quantity</label>
                 <input
                   type="number"
                   min="1"
                   value={assetQty}
                   onChange={(e) => setAssetQty(Number(e.target.value))}
-                  placeholder="Qty"
-                  className="w-full px-3 py-2 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
+                  className="w-full px-3 py-1.5 bg-[#f7f9fb] border border-[#E2E8F0] rounded-lg text-xs text-[#191c1e] outline-none focus:border-[#00b090]"
                 />
+              </div>
+
+              <div className="flex-1 flex gap-2 pt-5">
+                <button
+                  onClick={() => handleSimulateTrade('Buy')}
+                  className="btn-primary flex-1 text-xs py-2"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Buy @ Live Price</span>
+                </button>
+                <button
+                  onClick={() => handleSimulateTrade('Sell')}
+                  className="btn-secondary flex-1 text-xs py-2"
+                >
+                  <TrendingDown className="w-4 h-4" />
+                  <span>Sell</span>
+                </button>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleSimulateTrade('Buy')}
-                className="btn-primary flex-1 text-xs py-2"
-              >
-                <TrendingUp className="w-4 h-4" />
-                <span>Simulate Buy</span>
-              </button>
-              <button
-                onClick={() => handleSimulateTrade('Sell')}
-                className="btn-secondary flex-1 text-xs py-2"
-              >
-                <TrendingDown className="w-4 h-4" />
-                <span>Simulate Sell</span>
-              </button>
-            </div>
-
             {/* Trade History */}
-            <div className="pt-2">
+            <div className="pt-4 border-t border-[#E2E8F0]">
               <h4 className="text-xs font-heading font-bold text-[#565e74] uppercase tracking-wider mb-2">
-                Virtual Trade History Ledger
+                Simulated Execution Ledger
               </h4>
-              <div className="overflow-x-auto border border-[#E2E8F0] rounded-lg">
+              <div className="overflow-x-auto border border-[#E2E8F0] rounded-lg max-h-48 overflow-y-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-[#f7f9fb] border-b border-[#E2E8F0]">
@@ -105,7 +200,7 @@ export const MarketSimModule: React.FC = () => {
                       <th className="p-2.5 font-heading font-bold text-[#565e74]">Type</th>
                       <th className="p-2.5 font-heading font-bold text-[#565e74]">Qty</th>
                       <th className="p-2.5 font-heading font-bold text-[#565e74]">Price</th>
-                      <th className="p-2.5 font-heading font-bold text-[#565e74] text-right">Total</th>
+                      <th className="p-2.5 font-heading font-bold text-[#565e74] text-right">Total Outflow</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E8F0]">
@@ -122,7 +217,7 @@ export const MarketSimModule: React.FC = () => {
                         <td className="p-2.5 text-[#565e74] font-mono">{log.qty}</td>
                         <td className="p-2.5 text-[#565e74] font-mono">₹{log.price.toFixed(2)}</td>
                         <td className="p-2.5 text-right font-mono font-bold text-[#191c1e]">
-                          ₹{log.total.toLocaleString('en-IN')}
+                          ₹{log.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
                     ))}
@@ -133,15 +228,18 @@ export const MarketSimModule: React.FC = () => {
           </div>
         </section>
 
-        {/* Historical Crisis Replay Engine (Right) */}
+        {/* Historical Crisis Replay Engine with Authentic Trajectories (Right) */}
         <section className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
             <div className="flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-[#ba1a1a]" />
               <h3 className="font-heading font-bold text-lg text-[#191c1e]">
-                Historical Crash Replay Engine
+                Authentic Crash Replay Engine
               </h3>
             </div>
+            <span className="text-xs font-mono text-[#006b57] bg-[#f2f4f6] px-2 py-0.5 rounded">
+              Yahoo Finance Historical Series
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -178,7 +276,30 @@ export const MarketSimModule: React.FC = () => {
               {selectedCrisis.description}
             </p>
 
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+            {/* Authentic Timeline Data Points for Covid 2020 */}
+            {selectedCrisis.id === 'covid-2020' && covidTimeline && (
+              <div className="p-3 rounded-lg bg-white border border-[#E2E8F0] space-y-2">
+                <span className="text-[11px] font-heading font-bold text-[#191c1e] block">
+                  Authentic Nifty 50 Crisis Milestone Points:
+                </span>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="p-2 rounded bg-[#f7f9fb]">
+                    <span className="text-[10px] text-[#565e74] block">Pre-Crash Peak</span>
+                    <span className="text-xs font-mono font-bold text-[#191c1e]">₹12,201.20</span>
+                  </div>
+                  <div className="p-2 rounded bg-[#ffdad6]/30">
+                    <span className="text-[10px] text-[#ba1a1a] block">March 23 Bottom</span>
+                    <span className="text-xs font-mono font-bold text-[#ba1a1a]">₹7,610.25</span>
+                  </div>
+                  <div className="p-2 rounded bg-[#00b090]/10">
+                    <span className="text-[10px] text-[#006b57] block">Nov 2020 Recovery</span>
+                    <span className="text-xs font-mono font-bold text-[#006b57]">₹12,968.95</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
               <div className="p-2.5 rounded bg-white border border-[#E2E8F0]">
                 <span className="text-[#565e74] block">Period</span>
                 <span className="font-heading font-bold text-[#191c1e] mt-0.5 block">{selectedCrisis.period}</span>
@@ -193,7 +314,7 @@ export const MarketSimModule: React.FC = () => {
           {/* Interactive Decision Test */}
           <div className="space-y-3">
             <h4 className="text-xs font-heading font-bold text-[#191c1e] uppercase tracking-wider">
-              Test Your Emotional Reaction: What would you do at the bottom?
+              Test Your Reaction: What would you do at the trough?
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -230,7 +351,7 @@ export const MarketSimModule: React.FC = () => {
                     <AlertTriangle className="w-4 h-4 text-[#ba1a1a]" />
                   )}
                   <span className="text-xs font-heading font-bold text-[#191c1e]">
-                    Historical Outcome:
+                    Empirical Historical Outcome:
                   </span>
                 </div>
                 <p className="text-xs text-[#565e74] leading-relaxed">

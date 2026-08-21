@@ -1,0 +1,973 @@
+{
+  "metadata": {
+    "generatedAt": "2026-08-21T15:21:54.968Z",
+    "sources": [
+      "AMFI India (portal.amfiindia.com)",
+      "Alpha Vantage API (BSE/NSE Equities)",
+      "Yahoo Finance (Nifty 50 & Historical Crises)"
+    ]
+  },
+  "mutualFunds": {
+    "100822": {
+      "schemeCode": "100822",
+      "isin": "INF789F01JN2",
+      "schemeName": "UTI Nifty 50 Index Fund Regular Plan Growth",
+      "nav": 168.0473,
+      "date": "20-Aug-2026"
+    },
+    "100823": {
+      "schemeCode": "100823",
+      "isin": "INF789F01JL6",
+      "schemeName": "UTI Nifty 50 Index Fund Regular Plan IDCW",
+      "nav": 84.662,
+      "date": "20-Aug-2026"
+    },
+    "119598": {
+      "schemeCode": "119598",
+      "isin": "INF200K01QX4",
+      "schemeName": "SBI Large Cap Fund Direct Plan Growth",
+      "nav": 104.9023,
+      "date": "20-Aug-2026"
+    },
+    "120503": {
+      "schemeCode": "120503",
+      "isin": "INF846K01EW2",
+      "schemeName": "Axis ELSS Tax Saver Fund Direct Plan Growth Option",
+      "nav": 112.2447,
+      "date": "20-Aug-2026"
+    },
+    "120716": {
+      "schemeCode": "120716",
+      "isin": "INF789F01XA0",
+      "schemeName": "UTI Nifty 50 Index Fund Direct Plan Growth",
+      "nav": 170.6314,
+      "date": "20-Aug-2026"
+    },
+    "120717": {
+      "schemeCode": "120717",
+      "isin": "INF789F01WY2",
+      "schemeName": "UTI Nifty 50 Index Fund Direct Plan IDCW",
+      "nav": 85.9665,
+      "date": "20-Aug-2026"
+    },
+    "120847": {
+      "schemeCode": "120847",
+      "isin": "INF966L01986",
+      "schemeName": "Quant ELSS Tax Saver Fund Direct Plan Growth Option",
+      "nav": 464.0935,
+      "date": "20-Aug-2026"
+    },
+    "122639": {
+      "schemeCode": "122639",
+      "isin": "INF879O01027",
+      "schemeName": "Parag Parikh Flexi Cap Fund Direct Plan Growth",
+      "nav": 90.7427,
+      "date": "20-Aug-2026"
+    },
+    "122640": {
+      "schemeCode": "122640",
+      "isin": "INF879O01019",
+      "schemeName": "Parag Parikh Flexi Cap Fund Regular Plan Growth",
+      "nav": 82.6988,
+      "date": "20-Aug-2026"
+    },
+    "127042": {
+      "schemeCode": "127042",
+      "isin": "INF247L01445",
+      "schemeName": "Motilal Oswal Midcap Fund",
+      "nav": 121.6223,
+      "date": "20-Aug-2026"
+    },
+    "135320": {
+      "schemeCode": "135320",
+      "isin": "INF789F1AZC0",
+      "schemeName": "UTI Nifty 50 ETF Direct Plan",
+      "nav": 268.8924,
+      "date": "20-Aug-2026"
+    },
+    "143260": {
+      "schemeCode": "143260",
+      "isin": "INF879O01035",
+      "schemeName": "Parag Parikh Liquid Fund Regular Plan Growth",
+      "nav": 1551.5185,
+      "date": "20-Aug-2026"
+    },
+    "143261": {
+      "schemeCode": "143261",
+      "isin": "INF879O01043",
+      "schemeName": "Parag Parikh Liquid Fund Regular Plan Monthly IDCW Payout",
+      "nav": 1007.1959,
+      "date": "20-Aug-2026"
+    },
+    "143262": {
+      "schemeCode": "143262",
+      "isin": "INF879O01076",
+      "schemeName": "Parag Parikh Liquid Fund Direct Plan Monthly IDCW Payout",
+      "nav": 1007.2581,
+      "date": "20-Aug-2026"
+    },
+    "143263": {
+      "schemeCode": "143263",
+      "isin": "-",
+      "schemeName": "Parag Parikh Liquid Fund Direct Plan Daily Reinvestment of IDCW",
+      "nav": 1000.5542,
+      "date": "20-Aug-2026"
+    },
+    "143264": {
+      "schemeCode": "143264",
+      "isin": "-",
+      "schemeName": "Parag Parikh Liquid Fund Regular Plan Daily Reinvestment of IDCW",
+      "nav": 1000.5404,
+      "date": "20-Aug-2026"
+    },
+    "143265": {
+      "schemeCode": "143265",
+      "isin": "-",
+      "schemeName": "Parag Parikh Liquid Fund Direct Plan Weekly Reinvestment of IDCW",
+      "nav": 1001.4709,
+      "date": "20-Aug-2026"
+    },
+    "143266": {
+      "schemeCode": "143266",
+      "isin": "-",
+      "schemeName": "Parag Parikh Liquid Fund Regular Plan Weekly Reinvestment of IDCW",
+      "nav": 1001.463,
+      "date": "20-Aug-2026"
+    },
+    "143269": {
+      "schemeCode": "143269",
+      "isin": "INF879O01068",
+      "schemeName": "Parag Parikh Liquid Fund Direct Plan Growth",
+      "nav": 1564.4899,
+      "date": "20-Aug-2026"
+    },
+    "147481": {
+      "schemeCode": "147481",
+      "isin": "INF879O01100",
+      "schemeName": "Parag Parikh ELSS Tax Saver Fund Direct Plan Growth",
+      "nav": 31.8913,
+      "date": "20-Aug-2026"
+    },
+    "147482": {
+      "schemeCode": "147482",
+      "isin": "INF879O01092",
+      "schemeName": "Parag Parikh ELSS Tax Saver Fund Regular Plan Growth",
+      "nav": 29.3179,
+      "date": "20-Aug-2026"
+    },
+    "148958": {
+      "schemeCode": "148958",
+      "isin": "INF879O01175",
+      "schemeName": "Parag Parikh Conservative Hybrid Fund Direct Plan Growth",
+      "nav": 16.1425,
+      "date": "20-Aug-2026"
+    },
+    "148959": {
+      "schemeCode": "148959",
+      "isin": "INF879O01209",
+      "schemeName": "Parag Parikh Conservative Hybrid Fund Regular Plan Growth",
+      "nav": 15.8889,
+      "date": "20-Aug-2026"
+    },
+    "148960": {
+      "schemeCode": "148960",
+      "isin": "INF879O01191",
+      "schemeName": "Parag Parikh Conservative Hybrid Fund Regular Plan Monthly IDCW Payout",
+      "nav": 10.7921,
+      "date": "20-Aug-2026"
+    },
+    "148961": {
+      "schemeCode": "148961",
+      "isin": "INF879O01167",
+      "schemeName": "Parag Parikh Conservative Hybrid Fund Direct Plan Monthly IDCW Payout",
+      "nav": 11.0397,
+      "date": "20-Aug-2026"
+    },
+    "151738": {
+      "schemeCode": "151738",
+      "isin": "INF789F1AYO8",
+      "schemeName": "UTI Nifty 500 Value 50 Index Fund Regular Plan Growth",
+      "nav": 21.85,
+      "date": "20-Aug-2026"
+    },
+    "151739": {
+      "schemeCode": "151739",
+      "isin": "INF789F1AYN0",
+      "schemeName": "UTI Nifty 500 Value 50 Index Fund Direct Plan Growth",
+      "nav": 22.1921,
+      "date": "20-Aug-2026"
+    },
+    "152109": {
+      "schemeCode": "152109",
+      "isin": "INF879O01225",
+      "schemeName": "Parag Parikh Arbitrage Fund Direct Plan Growth",
+      "nav": 12.0902,
+      "date": "20-Aug-2026"
+    },
+    "152110": {
+      "schemeCode": "152110",
+      "isin": "INF879O01217",
+      "schemeName": "Parag Parikh Arbitrage Fund Regular Plan Growth",
+      "nav": 11.9706,
+      "date": "20-Aug-2026"
+    },
+    "152464": {
+      "schemeCode": "152464",
+      "isin": "INF879O01233",
+      "schemeName": "Parag Parikh Dynamic Asset Allocation Fund Regular Plan Growth",
+      "nav": 11.7471,
+      "date": "20-Aug-2026"
+    },
+    "152467": {
+      "schemeCode": "152467",
+      "isin": "-",
+      "schemeName": "Parag Parikh Dynamic Asset Allocation Fund",
+      "nav": 10.0374,
+      "date": "20-Aug-2026"
+    },
+    "152468": {
+      "schemeCode": "152468",
+      "isin": "INF879O01266",
+      "schemeName": "Parag Parikh Dynamic Asset Allocation Fund Direct Plan Growth",
+      "nav": 11.8379,
+      "date": "20-Aug-2026"
+    },
+    "152469": {
+      "schemeCode": "152469",
+      "isin": "-",
+      "schemeName": "Parag Parikh Dynamic Asset Allocation Fund",
+      "nav": 10.2906,
+      "date": "20-Aug-2026"
+    },
+    "153964": {
+      "schemeCode": "153964",
+      "isin": "-",
+      "schemeName": "Parag Parikh Flexi Cap Fund Direct Plan Monthly IDCW Payout",
+      "nav": 90.7427,
+      "date": "20-Aug-2026"
+    },
+    "153965": {
+      "schemeCode": "153965",
+      "isin": "-",
+      "schemeName": "Parag Parikh Flexi Cap Fund Regular Plan Monthly IDCW Payout",
+      "nav": 82.6984,
+      "date": "20-Aug-2026"
+    },
+    "154153": {
+      "schemeCode": "154153",
+      "isin": "-",
+      "schemeName": "Parag Parikh Large Cap Fund Regular Plan Monthly IDCW Payout",
+      "nav": 9.7136,
+      "date": "20-Aug-2026"
+    },
+    "154154": {
+      "schemeCode": "154154",
+      "isin": "INF879O01365",
+      "schemeName": "Parag Parikh Large Cap Fund Regular Plan Growth",
+      "nav": 9.7137,
+      "date": "20-Aug-2026"
+    },
+    "154155": {
+      "schemeCode": "154155",
+      "isin": "INF879O01332",
+      "schemeName": "Parag Parikh Large Cap Fund Direct Plan Growth",
+      "nav": 9.7342,
+      "date": "20-Aug-2026"
+    },
+    "154156": {
+      "schemeCode": "154156",
+      "isin": "-",
+      "schemeName": "Parag Parikh Large Cap Fund Direct Plan Monthly IDCW Payout",
+      "nav": 9.7417,
+      "date": "20-Aug-2026"
+    }
+  },
+  "equities": {
+    "RELIANCE.BSE": {
+      "symbol": "RELIANCE.BSE",
+      "price": 1315.55,
+      "open": 1316,
+      "high": 1316.55,
+      "low": 1307,
+      "volume": 490737,
+      "latestTradingDay": "2026-08-20",
+      "previousClose": 1307.5,
+      "change": 8.05,
+      "changePercent": "0.6157%"
+    },
+    "INFY.BSE": {
+      "symbol": "INFY.BSE",
+      "price": 1130.2,
+      "open": 1144.6,
+      "high": 1144.6,
+      "low": 1125.8,
+      "volume": 295539,
+      "latestTradingDay": "2026-08-20",
+      "previousClose": 1117.05,
+      "change": 13.15,
+      "changePercent": "1.1772%"
+    },
+    "ICICIBANK.BSE": {
+      "symbol": "ICICIBANK.BSE",
+      "price": 1411.5,
+      "open": 1409.9,
+      "high": 1412.95,
+      "low": 1405,
+      "volume": 807795,
+      "latestTradingDay": "2026-08-20",
+      "previousClose": 1401.8,
+      "change": 9.7,
+      "changePercent": "0.6920%"
+    }
+  },
+  "indices": {
+    "^NSEI": {
+      "symbol": "^NSEI",
+      "currency": "INR",
+      "regularMarketPrice": 24252,
+      "chartPreviousClose": 24187.7,
+      "history": [
+        {
+          "date": "2026-07-21",
+          "close": 24187.7
+        },
+        {
+          "date": "2026-07-22",
+          "close": 23996.25
+        },
+        {
+          "date": "2026-07-23",
+          "close": 23869.6
+        },
+        {
+          "date": "2026-07-24",
+          "close": 23767.45
+        },
+        {
+          "date": "2026-07-27",
+          "close": 23995.95
+        },
+        {
+          "date": "2026-07-28",
+          "close": 23985.35
+        },
+        {
+          "date": "2026-07-29",
+          "close": 24250.2
+        },
+        {
+          "date": "2026-07-30",
+          "close": 24317.15
+        },
+        {
+          "date": "2026-07-31",
+          "close": 24383.6
+        },
+        {
+          "date": "2026-08-03",
+          "close": 24774.3
+        },
+        {
+          "date": "2026-08-04",
+          "close": 24614.9
+        },
+        {
+          "date": "2026-08-05",
+          "close": 24624.65
+        },
+        {
+          "date": "2026-08-06",
+          "close": 24636
+        },
+        {
+          "date": "2026-08-07",
+          "close": 24570.65
+        },
+        {
+          "date": "2026-08-10",
+          "close": 24583.8
+        },
+        {
+          "date": "2026-08-11",
+          "close": 24471.7
+        },
+        {
+          "date": "2026-08-12",
+          "close": 24435.95
+        },
+        {
+          "date": "2026-08-13",
+          "close": 24395.85
+        },
+        {
+          "date": "2026-08-14",
+          "close": 24366
+        },
+        {
+          "date": "2026-08-17",
+          "close": 24287.65
+        },
+        {
+          "date": "2026-08-18",
+          "close": 24154.9
+        },
+        {
+          "date": "2026-08-19",
+          "close": 24078.3
+        },
+        {
+          "date": "2026-08-20",
+          "close": 24231.85
+        },
+        {
+          "date": "2026-08-21",
+          "close": 24252
+        }
+      ]
+    },
+    "^BSESN": {
+      "symbol": "^BSESN",
+      "currency": "INR",
+      "regularMarketPrice": 77540.83,
+      "chartPreviousClose": 77470.11,
+      "history": [
+        {
+          "date": "2026-07-21",
+          "close": 77470.11
+        },
+        {
+          "date": "2026-07-22",
+          "close": 76755.05
+        },
+        {
+          "date": "2026-07-23",
+          "close": 76391.39
+        },
+        {
+          "date": "2026-07-24",
+          "close": 76059.77
+        },
+        {
+          "date": "2026-07-27",
+          "close": 76835.78
+        },
+        {
+          "date": "2026-07-28",
+          "close": 76765.92
+        },
+        {
+          "date": "2026-07-29",
+          "close": 77654.6
+        },
+        {
+          "date": "2026-07-30",
+          "close": 77928.15
+        },
+        {
+          "date": "2026-07-31",
+          "close": 78094.64
+        },
+        {
+          "date": "2026-08-03",
+          "close": 78639.03
+        },
+        {
+          "date": "2026-08-04",
+          "close": 78428.95
+        },
+        {
+          "date": "2026-08-05",
+          "close": 78581
+        },
+        {
+          "date": "2026-08-06",
+          "close": 78954.76
+        },
+        {
+          "date": "2026-08-07",
+          "close": 78499.17
+        },
+        {
+          "date": "2026-08-10",
+          "close": 78542.44
+        },
+        {
+          "date": "2026-08-11",
+          "close": 78154.25
+        },
+        {
+          "date": "2026-08-12",
+          "close": 77966.35
+        },
+        {
+          "date": "2026-08-13",
+          "close": 78079.96
+        },
+        {
+          "date": "2026-08-14",
+          "close": 78009.25
+        },
+        {
+          "date": "2026-08-17",
+          "close": 77728.16
+        },
+        {
+          "date": "2026-08-18",
+          "close": 77235.46
+        },
+        {
+          "date": "2026-08-19",
+          "close": 76909.68
+        },
+        {
+          "date": "2026-08-20",
+          "close": 77537.72
+        },
+        {
+          "date": "2026-08-21",
+          "close": 77540.83
+        }
+      ]
+    },
+    "NIFTYBEES.NS": {
+      "symbol": "NIFTYBEES.NS",
+      "currency": "INR",
+      "regularMarketPrice": 276.76,
+      "chartPreviousClose": 275.13,
+      "history": [
+        {
+          "date": "2026-07-21",
+          "close": 275.13
+        },
+        {
+          "date": "2026-07-22",
+          "close": 273.36
+        },
+        {
+          "date": "2026-07-23",
+          "close": 271.98
+        },
+        {
+          "date": "2026-07-24",
+          "close": 271.21
+        },
+        {
+          "date": "2026-07-27",
+          "close": 273.59
+        },
+        {
+          "date": "2026-07-28",
+          "close": 273.53
+        },
+        {
+          "date": "2026-07-29",
+          "close": 275.82
+        },
+        {
+          "date": "2026-07-30",
+          "close": 276.49
+        },
+        {
+          "date": "2026-07-31",
+          "close": 277.42
+        },
+        {
+          "date": "2026-08-03",
+          "close": 279.87
+        },
+        {
+          "date": "2026-08-04",
+          "close": 278.79
+        },
+        {
+          "date": "2026-08-05",
+          "close": 279.96
+        },
+        {
+          "date": "2026-08-06",
+          "close": 280.59
+        },
+        {
+          "date": "2026-08-07",
+          "close": 279.83
+        },
+        {
+          "date": "2026-08-10",
+          "close": 280.46
+        },
+        {
+          "date": "2026-08-11",
+          "close": 279.13
+        },
+        {
+          "date": "2026-08-12",
+          "close": 278.32
+        },
+        {
+          "date": "2026-08-13",
+          "close": 278.16
+        },
+        {
+          "date": "2026-08-14",
+          "close": 278.35
+        },
+        {
+          "date": "2026-08-17",
+          "close": 277.91
+        },
+        {
+          "date": "2026-08-18",
+          "close": 276.1
+        },
+        {
+          "date": "2026-08-19",
+          "close": 274.62
+        },
+        {
+          "date": "2026-08-21",
+          "close": 276.76
+        }
+      ]
+    },
+    "GOLDBEES.NS": {
+      "symbol": "GOLDBEES.NS",
+      "currency": "INR",
+      "regularMarketPrice": 131.32,
+      "chartPreviousClose": 117.73,
+      "history": [
+        {
+          "date": "2026-07-21",
+          "close": 117.73
+        },
+        {
+          "date": "2026-07-22",
+          "close": 119.14
+        },
+        {
+          "date": "2026-07-23",
+          "close": 118.69
+        },
+        {
+          "date": "2026-07-24",
+          "close": 117.91
+        },
+        {
+          "date": "2026-07-27",
+          "close": 118.62
+        },
+        {
+          "date": "2026-07-28",
+          "close": 116.83
+        },
+        {
+          "date": "2026-07-29",
+          "close": 116.85
+        },
+        {
+          "date": "2026-07-30",
+          "close": 117.37
+        },
+        {
+          "date": "2026-07-31",
+          "close": 117.11
+        },
+        {
+          "date": "2026-08-03",
+          "close": 117.26
+        },
+        {
+          "date": "2026-08-04",
+          "close": 117.15
+        },
+        {
+          "date": "2026-08-05",
+          "close": 119.39
+        },
+        {
+          "date": "2026-08-06",
+          "close": 122.48
+        },
+        {
+          "date": "2026-08-07",
+          "close": 123.4
+        },
+        {
+          "date": "2026-08-10",
+          "close": 124.58
+        },
+        {
+          "date": "2026-08-11",
+          "close": 125.52
+        },
+        {
+          "date": "2026-08-12",
+          "close": 126.45
+        },
+        {
+          "date": "2026-08-13",
+          "close": 125.48
+        },
+        {
+          "date": "2026-08-14",
+          "close": 125.13
+        },
+        {
+          "date": "2026-08-17",
+          "close": 126.42
+        },
+        {
+          "date": "2026-08-18",
+          "close": 126.43
+        },
+        {
+          "date": "2026-08-19",
+          "close": 125.73
+        },
+        {
+          "date": "2026-08-21",
+          "close": 131.32
+        }
+      ]
+    },
+    "COVID_CRASH_2020": {
+      "title": "Covid 2020 Crash Timeline",
+      "peakClose": 12201.2,
+      "troughClose": 7610.25,
+      "drawdownPercentage": -37.63,
+      "timeline": [
+        {
+          "date": "2020-01-31",
+          "close": 11962.1
+        },
+        {
+          "date": "2020-02-03",
+          "close": 11707.9
+        },
+        {
+          "date": "2020-02-04",
+          "close": 11979.65
+        },
+        {
+          "date": "2020-02-05",
+          "close": 12089.15
+        },
+        {
+          "date": "2020-02-06",
+          "close": 12137.95
+        },
+        {
+          "date": "2020-02-07",
+          "close": 12098.35
+        },
+        {
+          "date": "2020-02-10",
+          "close": 12031.5
+        },
+        {
+          "date": "2020-02-11",
+          "close": 12107.9
+        },
+        {
+          "date": "2020-02-12",
+          "close": 12201.2
+        },
+        {
+          "date": "2020-02-13",
+          "close": 12174.65
+        },
+        {
+          "date": "2020-02-14",
+          "close": 12113.45
+        },
+        {
+          "date": "2020-02-17",
+          "close": 12045.8
+        },
+        {
+          "date": "2020-02-18",
+          "close": 11992.5
+        },
+        {
+          "date": "2020-02-19",
+          "close": 12125.9
+        },
+        {
+          "date": "2020-02-20",
+          "close": 12080.85
+        },
+        {
+          "date": "2020-02-24",
+          "close": 11829.4
+        },
+        {
+          "date": "2020-02-25",
+          "close": 11797.9
+        },
+        {
+          "date": "2020-02-26",
+          "close": 11678.5
+        },
+        {
+          "date": "2020-02-27",
+          "close": 11633.3
+        },
+        {
+          "date": "2020-02-28",
+          "close": 11201.75
+        },
+        {
+          "date": "2020-03-02",
+          "close": 11132.75
+        },
+        {
+          "date": "2020-03-03",
+          "close": 11303.3
+        },
+        {
+          "date": "2020-03-04",
+          "close": 11251
+        },
+        {
+          "date": "2020-03-05",
+          "close": 11269
+        },
+        {
+          "date": "2020-03-06",
+          "close": 10989.45
+        },
+        {
+          "date": "2020-03-09",
+          "close": 10451.45
+        },
+        {
+          "date": "2020-03-11",
+          "close": 10458.4
+        },
+        {
+          "date": "2020-03-12",
+          "close": 9590.15
+        },
+        {
+          "date": "2020-03-13",
+          "close": 9955.2
+        },
+        {
+          "date": "2020-03-16",
+          "close": 9197.4
+        },
+        {
+          "date": "2020-03-17",
+          "close": 8967.05
+        },
+        {
+          "date": "2020-03-18",
+          "close": 8468.8
+        },
+        {
+          "date": "2020-03-19",
+          "close": 8263.45
+        },
+        {
+          "date": "2020-03-20",
+          "close": 8745.45
+        },
+        {
+          "date": "2020-03-23",
+          "close": 7610.25
+        },
+        {
+          "date": "2020-03-24",
+          "close": 7801.05
+        },
+        {
+          "date": "2020-03-25",
+          "close": 8317.85
+        },
+        {
+          "date": "2020-03-26",
+          "close": 8641.45
+        },
+        {
+          "date": "2020-03-27",
+          "close": 8660.25
+        },
+        {
+          "date": "2020-03-30",
+          "close": 8281.1
+        },
+        {
+          "date": "2020-03-31",
+          "close": 8597.75
+        },
+        {
+          "date": "2020-04-01",
+          "close": 8253.8
+        },
+        {
+          "date": "2020-04-03",
+          "close": 8083.8
+        },
+        {
+          "date": "2020-04-07",
+          "close": 8792.2
+        },
+        {
+          "date": "2020-04-08",
+          "close": 8748.75
+        },
+        {
+          "date": "2020-04-09",
+          "close": 9111.9
+        },
+        {
+          "date": "2020-04-13",
+          "close": 8993.85
+        },
+        {
+          "date": "2020-04-15",
+          "close": 8925.3
+        },
+        {
+          "date": "2020-04-16",
+          "close": 8992.8
+        },
+        {
+          "date": "2020-04-17",
+          "close": 9266.75
+        },
+        {
+          "date": "2020-04-20",
+          "close": 9261.85
+        },
+        {
+          "date": "2020-04-21",
+          "close": 8981.45
+        },
+        {
+          "date": "2020-04-22",
+          "close": 9187.3
+        },
+        {
+          "date": "2020-04-23",
+          "close": 9313.9
+        },
+        {
+          "date": "2020-04-24",
+          "close": 9154.4
+        },
+        {
+          "date": "2020-04-27",
+          "close": 9282.3
+        },
+        {
+          "date": "2020-04-28",
+          "close": 9380.9
+        },
+        {
+          "date": "2020-04-29",
+          "close": 9553.35
+        }
+      ]
+    }
+  }
+}
