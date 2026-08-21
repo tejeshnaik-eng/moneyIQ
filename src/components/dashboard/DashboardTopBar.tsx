@@ -42,12 +42,12 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
     <header className="bg-white border-b border-[#E2E8F0] px-8 py-4 sticky top-0 z-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-[1280px] mx-auto w-full">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-[#006b57] font-semibold uppercase tracking-wider">
+          <div className="flex items-center gap-2 uppercase tracking-wider text-[11px] font-mono">
+            <span className="text-[#006b57] font-semibold">
               FinSight Ledger
             </span>
             <span className="text-[#E2E8F0]">•</span>
-            <span className="text-[11px] font-mono text-[#565e74]">
+            <span className="text-[#565e74]">
               {user.name} ({user.riskCategory})
             </span>
           </div>
