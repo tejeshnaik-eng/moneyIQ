@@ -12,6 +12,13 @@ export const App: React.FC = () => {
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [pendingModule, setPendingModule] = useState<ModuleId>('overview');
 
+  // CRITICAL FIX: Automatically route to dashboard if already logged in (resolves double-click bug)
+  React.useEffect(() => {
+    if (isLoggedIn && currentView === 'landing') {
+      setCurrentView('dashboard');
+    }
+  }, [isLoggedIn, currentView]);
+
   const handleStartFromLanding = (module: ModuleId = 'overview') => {
     setPendingModule(module);
     if (!isLoggedIn) {
