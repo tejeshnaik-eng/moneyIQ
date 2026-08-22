@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle2, Circle, ArrowRight, BookOpen } from 'lucide-react';
 import { GrowwInteractiveModule2 } from './GrowwInteractiveModule2';
 import { SIPMechanicsModule3 } from './SIPMechanicsModule3';
+import { TaxationModule4 } from './TaxationModule4';
 
 /* ═══════════════════════════════════════════════════
    PHASE 1 COURSE DATA
@@ -498,6 +499,14 @@ const LESSONS: Lesson[] = [
     subtitle: 'Master Rupee Cost Averaging and the Groww execution lifecycle.',
     content: (
       <SIPMechanicsModule3 />
+    )
+  }
+,{
+    id: 'taxation-mechanics',
+    title: 'Module 4: Mutual Fund Taxation & Redemption',
+    subtitle: 'Master tax classifications, FIFO rules, and smart redemption strategies.',
+    content: (
+      <TaxationModule4 />
     )
   }
 ];
