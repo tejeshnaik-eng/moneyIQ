@@ -6,7 +6,8 @@ export type ModuleId =
   | 'spend'
   | 'marketsim'
   | 'learning'
-  | 'hypedetector';
+  | 'hypedetector'
+  | 'tools';
 
 export interface UserProfile {
   name: string;

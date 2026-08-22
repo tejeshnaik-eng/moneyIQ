@@ -18,7 +18,8 @@ import {
   Gauge,
   Database,
   ArrowUpRight,
-  Smartphone
+  Smartphone,
+  Wrench
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 
@@ -113,6 +114,16 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             )}
             {renderNavButton('learning', 'App Guides', Smartphone)}
             {renderNavButton('hypedetector', 'Hype Detector', Flame)}
+          </div>
+
+          {/* SECTION 4: Utilities */}
+          <div className="space-y-1">
+            {!collapsed && (
+              <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2 mt-4">
+                Utilities
+              </h3>
+            )}
+            {renderNavButton('tools', 'Tools', Wrench)}
           </div>
 
           <div className="pt-4">

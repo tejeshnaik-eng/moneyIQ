@@ -8,6 +8,7 @@ import { GoalsModule } from '../modules/GoalsModule';
 import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
 import { LearningModule } from '../modules/LearningModule';
+import { ToolsModule } from '../modules/ToolsModule';
 import { HypeDetectorModule } from '../modules/HypeDetectorModule';
 import { AiChatWidget } from '../chat/AiChatWidget';
 import { ModuleId, UserProfile } from '../../types';
@@ -44,6 +45,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         return <LearningModule />;
       case 'hypedetector':
         return <HypeDetectorModule />;
+      case 'tools':
+        return <ToolsModule />;
       default:
         return <OverviewModule onNavigateModule={(m) => setActiveModule(m)} />;
     }
@@ -59,7 +62,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto h-screen ${activeModule === 'overview' ? 'bg-[#1E1E1E]' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto h-screen ${['overview', 'tools'].includes(activeModule) ? 'bg-[#1E1E1E]' : ''}`}>
         <DashboardTopBar
           activeModule={activeModule}
           user={user}
@@ -67,7 +70,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           onLogout={onLogout}
         />
 
-        <main className={`flex-1 w-full mx-auto ${activeModule === 'overview' ? 'p-0 max-w-none' : 'p-6 sm:p-8 max-w-[1280px]'}`}>
+        <main className={`flex-1 w-full mx-auto ${['overview', 'tools'].includes(activeModule) ? 'p-0 max-w-none' : 'p-6 sm:p-8 max-w-[1280px]'}`}>
           {renderActiveModule()}
         </main>
       </div>

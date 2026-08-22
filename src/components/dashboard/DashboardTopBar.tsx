@@ -30,9 +30,11 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
       case 'marketsim':
         return { title: 'Market Simulator', desc: 'Real historical crisis sandbox (Covid 2020, 2008 GFC, 2016 Demonetization).' };
       case 'learning':
-        return { title: 'Learning', desc: 'Build your market knowledge by learning with real charts and interactive examples.' };
+        return { title: 'App Guides', desc: 'Build your market knowledge by learning with real charts and interactive examples.' };
       case 'hypedetector':
         return { title: 'Hype Detector', desc: 'Official SEBI & RBI empirical fact-checker and claim verification.' };
+      case 'tools':
+        return { title: 'Tools', desc: 'Useful calculators and financial tools to help you make better decisions.' };
       default:
         return { title: 'Dashboard', desc: 'Institutional portfolio management engine.' };
     }
@@ -41,20 +43,20 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   const meta = getModuleMeta(activeModule);
 
   return (
-    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-[100px] px-10 w-full`}>
+    <header className={`${['overview', 'tools'].includes(activeModule) ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-[100px] px-10 w-full`}>
       <div className="flex items-center gap-sm">
-        <span className={`font-headline-sm text-[26px] font-bold tracking-tight ${activeModule === 'overview' ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
+        <span className={`font-headline-sm text-[26px] font-bold tracking-tight ${['overview', 'tools'].includes(activeModule) ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
       </div>
       {/* Search & Actions */}
       <div className="flex items-center gap-8">
         <div className="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
-          <Search className={`w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`} />
-          <input className={`${activeModule === 'overview' ? 'bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-gray-700' : 'bg-surface-variant/30 text-body-sm placeholder-on-surface-variant/60 focus:ring-primary'} border-none py-3.5 pl-14 pr-6 w-80 rounded-full focus:outline-none focus:ring-1 text-[15px]`} placeholder="Search ticker or asset..." type="text"/>
+          <Search className={`w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 ${['overview', 'tools'].includes(activeModule) ? 'text-gray-400' : 'text-on-surface-variant'}`} />
+          <input className={`${['overview', 'tools'].includes(activeModule) ? 'bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-gray-700' : 'bg-surface-variant/30 text-body-sm placeholder-on-surface-variant/60 focus:ring-primary'} border-none py-3.5 pl-14 pr-6 w-80 rounded-full focus:outline-none focus:ring-1 text-[15px]`} placeholder="Search ticker or asset..." type="text"/>
         </div>
-        <div className={`flex items-center gap-3 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`}>
-          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><Bell className="w-6 h-6" /></button>
-          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><History className="w-6 h-6" /></button>
-          <button className={`hover:text-primary transition-colors ml-2 w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><UserCircle className="w-7 h-7" /></button>
+        <div className={`flex items-center gap-3 ${['overview', 'tools'].includes(activeModule) ? 'text-gray-400' : 'text-on-surface-variant'}`}>
+          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${['overview', 'tools'].includes(activeModule) ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><Bell className="w-6 h-6" /></button>
+          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${['overview', 'tools'].includes(activeModule) ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><History className="w-6 h-6" /></button>
+          <button className={`hover:text-primary transition-colors ml-2 w-12 h-12 flex items-center justify-center rounded-full ${['overview', 'tools'].includes(activeModule) ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><UserCircle className="w-7 h-7" /></button>
         </div>
       </div>
     </header>
