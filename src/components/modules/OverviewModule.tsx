@@ -80,17 +80,17 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
 
   return (
     <div 
-      className="w-full h-full bg-[#F7F8F7] text-[#101413] font-sans overflow-y-auto custom-scrollbar"
+      className="w-full h-full bg-[#1E1E1E] text-white font-sans overflow-y-auto custom-scrollbar"
       style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
     >
       <div className="max-w-[1400px] mx-auto p-8 lg:p-10 pb-20">
         
         {/* Page Heading */}
         <div className="mb-10">
-          <h1 className="text-[34px] sm:text-[38px] font-bold tracking-[-0.035em] text-[#101413] mb-1">
+          <h1 className="text-[34px] sm:text-[38px] font-bold tracking-[-0.035em] text-white mb-1">
             Financial Overview
           </h1>
-          <p className="text-base text-[#7B8580] font-medium">
+          <p className="text-base text-[#A1A1AA] font-medium">
             Your financial position, portfolio, goals, and risk at a glance.
           </p>
         </div>
