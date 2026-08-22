@@ -38,23 +38,23 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
     if (!user) return;
     const fetchDashboardData = async () => {
       try {
-        const { data: portData } = await supabase.from('portfolios').select('current_value, ticker, name');
+        const { data: portData } = await supabase.from('portfolios').select('current, ticker, name');
         if (portData) {
           setHoldings(portData);
-          setAssets(portData.reduce((s, x) => s + (Number(x.current_value) || 0), 0));
+          setAssets(portData.reduce((s, x) => s + (Number(x.current) || 0), 0));
         }
 
         const { data: profileData } = await supabase.from('risk_profiles').select('profile_data').maybeSingle();
         if (profileData?.profile_data) {
           setProfile(profileData.profile_data);
-          setLiabilities(profileData.profile_data.monthlyCapacity ? profileData.profile_data.monthlyCapacity * 12 * 0.1 : 0);
+          setLiabilities(0);
           setHasProfile(true);
         }
 
-        const { data: spendData } = await supabase.from('transactions').select('amount, type, category');
+        const { data: spendData } = await supabase.from('transactions').select('amount, category');
         if (spendData) {
           setTxns(spendData);
-          setLeakage(spendData.filter(t => t.type === 'expense' && (t.category === 'Discretionary' || t.category === 'Entertainment' || t.category === 'Shopping'))
+          setLeakage(spendData.filter(t => t.category === 'Discretionary/Leaks')
             .reduce((s, x) => s + Math.abs(Number(x.amount) || 0), 0));
         }
 
@@ -159,7 +159,12 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
           <div className={`${widgetClass} bg-[#DDF6F5]`}>
             <Scale className="w-7 h-7 text-[#008F91] mb-5" />
             <h3 className="text-[15px] font-medium text-[#58645F] mb-1">Liability Burden</h3>
-            <p className="text-[28px] leading-tight font-bold text-[#101413] mb-2">₹{liabilities.toLocaleString('en-IN')}</p>
+            {liabilities > 0 ? (
+              <p className="text-[28px] leading-tight font-bold text-[#101413] mb-2">₹{liabilities.toLocaleString('en-IN')}</p>
+            ) : (
+              <p className="text-[28px] leading-tight font-bold text-[#71717A] mb-2">₹0</p>
+            )}
+            <p className="text-[13px] font-medium text-[#008F91]">No active liabilities logged</p>
           </div>
 
         </div>
