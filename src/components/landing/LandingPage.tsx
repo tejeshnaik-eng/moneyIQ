@@ -20,14 +20,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             backgroundPosition: 'center bottom',
           }}
         >
-          {/* White Gradient Fade from Top */}
           <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-transparent"></div>
         </div>
 
         {/* Foreground Content */}
         <div className="relative z-10 flex flex-col h-full w-full max-w-5xl mx-auto">
           
-          {/* Glass Navbar Pill (Restored and adapted from screenshots) */}
+          {/* Glass Navbar Pill */}
           <div className="w-full flex justify-center mt-6 md:mt-10 px-4">
             <nav className="flex items-center justify-between bg-white/40 backdrop-blur-xl border border-white/60 rounded-full py-2 px-3 shadow-[0_8px_32px_rgba(0,0,0,0.05)] w-full max-w-2xl transition-all hover:bg-white/50">
               <div className="flex items-center justify-center w-10 h-10 bg-black rounded-full text-white">
@@ -45,7 +44,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 onClick={() => onStart('overview')}
                 className="bg-white/80 hover:bg-white border border-white/80 shadow-sm text-black font-semibold text-[14px] py-2.5 px-6 rounded-full transition-all hover:shadow-md active:scale-95"
               >
-                Get started
+                Login / Sign Up
               </button>
             </nav>
           </div>
@@ -59,15 +58,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               Indian Portfolio
             </h1>
             
-            <p className="text-[16px] md:text-[18px] text-black/60 max-w-lg mx-auto leading-relaxed font-medium mb-12">
-              FinSight reads your real mutual funds and stocks — not social media hype. Practice with virtual money, analyze risk, and build a plan you can actually trust.
+            <p className="text-[15px] md:text-[17px] text-black/70 max-w-2xl mx-auto leading-relaxed font-medium mb-12">
+              Financial literacy in India is growing, but financial confidence is not. FinSight transforms complex market data into clear, actionable insights. Stop relying on social media hype—consolidate your portfolio, understand your risk, and make data-driven decisions with confidence.
             </p>
 
             <button 
               onClick={() => onStart('overview')}
-              className="bg-black text-white hover:bg-black/80 shadow-lg font-semibold text-[16px] py-4 px-10 rounded-full transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95 mb-16 hidden md:block"
+              className="bg-white text-black border border-black/5 hover:bg-gray-50 shadow-[0_8px_30px_rgba(0,0,0,0.12)] font-semibold text-[16px] py-4 px-10 rounded-full transition-all hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.16)] active:scale-95 mb-16 hidden md:block"
             >
-              Start Free Trial
+              Login / Sign Up
             </button>
 
             {/* Floating Glassmorphism Cards */}
@@ -80,7 +79,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   </div>
                   <div className="text-left">
                     <h3 className="text-black font-bold text-[15px] leading-tight">Parag Parikh Flexi</h3>
-                    <p className="text-black/50 font-medium text-[13px]">Mutual Fund • Growth</p>
+                    <p className="text-black/50 font-medium text-[13px]">Portfolio Consolidation</p>
                   </div>
                 </div>
                 <div className="text-right">

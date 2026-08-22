@@ -13,8 +13,6 @@ export const App: React.FC = () => {
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [pendingModule, setPendingModule] = useState<ModuleId>('overview');
 
-  // Once auth state resolves, if a user is already logged in (cookie rehydration),
-  // keep them on landing unless they navigate themselves.
   const handleStartFromLanding = (module: ModuleId = 'overview') => {
     setPendingModule(module);
     if (!isLoggedIn) {
@@ -30,7 +28,6 @@ export const App: React.FC = () => {
     setAuthModalOpen(true);
   };
 
-  // Called by AuthModal after successful login/register
   const handleAuthSuccess = () => {
     setAuthModalOpen(false);
     setCurrentView('dashboard');
@@ -42,7 +39,6 @@ export const App: React.FC = () => {
     localStorage.removeItem('current_user_email');
   };
 
-  // Build a UserProfile from the JWT user object (for components that expect it)
   const userProfile: UserProfile | null = user
     ? {
         name: user.name,
@@ -57,26 +53,28 @@ export const App: React.FC = () => {
       }
     : null;
 
-  // Sync email to localStorage for getStorageKey() utility
   if (user) {
     localStorage.setItem('current_user_email', user.email);
   }
 
-  // Show a minimal splash while we check the session cookie
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[var(--app-bg)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono text-[var(--app-text-muted)]">Restoring session…</span>
+          <div className="w-8 h-8 border-2 border-[#20EFA0] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-[#A7B5AE]">Restoring session...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-text)]">
-      {currentView === 'landing' && (
+    <div className="min-h-screen bg-[#080B0A] text-[#F2F7F4]">
+      {/* 
+        CRITICAL FIX: We DO NOT render the Header when currentView === 'landing'.
+        The LandingPage handles its own beautiful glassmorphism navigation pill.
+      */}
+      {currentView === 'dashboard' && (
         <Header
           user={userProfile}
           onOpenAuth={handleOpenAuth}
