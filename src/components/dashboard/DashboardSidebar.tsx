@@ -17,7 +17,8 @@ import {
   Folder,
   Gauge,
   Database,
-  ArrowUpRight
+  ArrowUpRight,
+  Smartphone
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 
@@ -110,7 +111,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 Observe
               </h3>
             )}
-            {renderNavButton('learning', 'Learning', Database)}
+            {renderNavButton('learning', 'App Guides', Smartphone)}
             {renderNavButton('hypedetector', 'Hype Detector', Flame)}
           </div>
 
