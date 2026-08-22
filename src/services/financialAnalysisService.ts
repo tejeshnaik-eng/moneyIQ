@@ -85,8 +85,12 @@ export function heuristicAnalysis(params: {
 }
 
 // ── Gemini AI analysis ─────────────────────────────────────────────
-const GEMINI_ENDPOINT =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const MODELS_TO_TRY = [
+  'gemini-3.6-flash',
+  'gemini-3.7-flash',
+  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite'
+];
 
 export async function analyzeWithGemini(profileJson: Record<string, unknown>): Promise<FinancialAnalysisResult | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,35 +119,45 @@ Return exactly this JSON shape (all fields required):
 
 Rules: scores must reflect real financial principles. Penalise high EMI burden, inadequate emergency fund, no investment diversification. Reward long time horizons, stable income, disciplined spending. India-specific context.`;
 
-  try {
-    const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
-      }),
-    });
+  for (const model of MODELS_TO_TRY) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+      const res = await fetch(`${endpoint}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
+        }),
+      });
 
-    if (!res.ok) throw new Error(`Gemini API error: ${res.status}`);
-    const data = await res.json();
-    const rawText: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      if (!res.ok) {
+        console.warn(`[Gemini analysis] ${model} API error: ${res.status}`);
+        continue; // Try the next model
+      }
+      
+      const data = await res.json();
+      const rawText: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
-    // Strip any accidental markdown code fences
-    const cleaned = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const parsed = JSON.parse(cleaned) as FinancialAnalysisResult;
+      // Strip any accidental markdown code fences
+      const cleaned = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      const parsed = JSON.parse(cleaned) as FinancialAnalysisResult;
 
-    // Basic validation
-    if (
-      typeof parsed.healthScore === 'number' &&
-      Array.isArray(parsed.insights) &&
-      parsed.dimensions
-    ) {
-      return parsed;
+      // Basic validation
+      if (
+        typeof parsed.healthScore === 'number' &&
+        Array.isArray(parsed.insights) &&
+        parsed.dimensions
+      ) {
+        return parsed; // Successfully parsed, return result
+      }
+      
+      console.warn(`[Gemini analysis] ${model} returned invalid JSON structure`);
+    } catch (e) {
+      console.warn(`[Gemini analysis] ${model} failed, trying next...`, e);
     }
-    return null;
-  } catch (e) {
-    console.warn('[Gemini analysis] failed, using heuristic fallback:', e);
-    return null;
   }
+  
+  console.warn('[Gemini analysis] all models failed, using heuristic fallback');
+  return null;
 }
