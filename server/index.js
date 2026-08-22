@@ -35,7 +35,7 @@ const saveUsers = (users) => {
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey', 'ripHistorical'] });
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -387,14 +387,27 @@ app.get('/api/health', (_req, res) => {
 });
 
 // --- Vite Middleware (MUST be after API routes) ---
-const vite = await createViteServer({
-  server: { middlewareMode: true },
-  appType: 'spa',
-});
-app.use(vite.middlewares);
+if (process.env.NODE_ENV === 'production') {
+  console.log('Serving production build from /dist...');
+  app.use(express.static(join(__dirname, '../dist')));
+  app.get('*', (req, res) => {
+    // Exclude API routes from falling through to React's index.html
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API route not found' });
+    }
+    res.sendFile(join(__dirname, '../dist/index.html'));
+  });
+} else {
+  console.log('Running Vite in dev middleware mode...');
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    appType: 'spa',
+  });
+  app.use(vite.middlewares);
+}
 
 app.listen(PORT, () => {
-  console.log(`\n🟢 FinSight Unified Server running at http://localhost:${PORT}`);
+  console.log(`\n🟢 FinSight Unified Server running at 0.0.0.0:${PORT}`);
   console.log(`   GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Loaded' : '✗ Missing!'}`);
   console.log(`   JWT_SECRET:     ${process.env.JWT_SECRET ? '✓ Loaded' : '✗ Missing (using fallback)!'}\n`);
 });
