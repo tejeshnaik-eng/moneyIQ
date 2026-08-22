@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Header } from './components/common/Header';
 import { LandingPage } from './components/landing/LandingPage';
 import { DashboardShell } from './components/dashboard/DashboardShell';
 import { AuthModal } from './components/auth/AuthModal';
@@ -71,27 +70,10 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#080B0A] text-[#F2F7F4]">
       {/* 
-        CRITICAL FIX: We DO NOT render the Header when currentView === 'landing'.
-        The LandingPage handles its own beautiful glassmorphism navigation pill.
+        CRITICAL FIX: The old global Header has been entirely annihilated from App.tsx. 
+        LandingPage handles its own nav pill. DashboardShell handles its own TopBar and Sidebar.
       */}
-      {currentView === 'dashboard' && (
-        <Header
-          user={userProfile}
-          onOpenAuth={handleOpenAuth}
-          onLogout={handleLogout}
-          currentView={currentView}
-          onNavigate={(view) => {
-            if (view === 'dashboard' && !isLoggedIn) {
-              setAuthModalMode('signup');
-              setAuthModalOpen(true);
-            } else {
-              setCurrentView(view);
-            }
-          }}
-          onStartModule={handleStartFromLanding}
-        />
-      )}
-
+      
       {currentView === 'landing' ? (
         <LandingPage onStart={handleStartFromLanding} />
       ) : userProfile ? (
