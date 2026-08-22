@@ -245,7 +245,7 @@ ${JSON.stringify(inputPayload, null, 2)}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Col: Summary & Risk */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[#161616] border border-[#222] p-6 rounded-xl">
+          <div className="bg-[#161616] p-6 rounded-xl">
             <h4 className="text-[10px] font-heading font-bold text-[#71717A] uppercase tracking-widest mb-3">Executive Summary</h4>
             <p className="text-sm text-white leading-relaxed font-body">
               {analysisResult.summary}
@@ -280,26 +280,30 @@ ${JSON.stringify(inputPayload, null, 2)}
           </div>
 
           {/* Warnings */}
-          {analysisResult.warnings && analysisResult.warnings.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-[10px] font-heading font-bold text-[#71717A] uppercase tracking-widest">Structural Warnings</h4>
-              {analysisResult.warnings.map((w: any, idx: number) => (
-                <div key={idx} className={`p-4 rounded-lg border flex items-start gap-3 \${
-                  w.severity === 'high' ? 'bg-[#111111] border-[#ff4444] text-[#ff4444]' :
-                  w.severity === 'medium' ? 'bg-[#111111] border-[#f4a261] text-[#f4a261]' :
-                  'bg-[#111111] border-[#222] text-[#71717A]'
-                }`}>
-                  {w.severity === 'high' ? <Flame className="w-5 h-5 shrink-0" /> : <AlertTriangle className="w-5 h-5 shrink-0" />}
-                  <p className="font-body-sm text-sm text-white">{w.message}</p>
+            {analysisResult.warnings && analysisResult.warnings.length > 0 && (
+              <div className="bg-[#161616] p-6 rounded-xl">
+                <h4 className="text-[10px] font-heading font-bold text-[#71717A] uppercase tracking-widest mb-6">Structural Warnings</h4>
+                <div className="space-y-6">
+                  {analysisResult.warnings.map((w: any, idx: number) => (
+                    <div key={idx} className="flex items-start gap-4">
+                      <div className={`shrink-0 mt-0.5 ${
+                        w.severity === 'high' ? 'text-[#D64545]' :
+                        w.severity === 'medium' ? 'text-[#D99A00]' :
+                        'text-[#71717A]'
+                      }`}>
+                        {w.severity === 'high' ? <Flame className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                      </div>
+                      <p className="font-body text-[13px] text-[#E4E4E7] leading-relaxed">{w.message}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
 
-        {/* Right Col: Charts & Diversification */}
+          {/* Right Col: Charts & Diversification */}
         <div className="space-y-6">
-          <div className="bg-[#161616] border border-[#222] p-6 rounded-xl">
+          <div className="bg-[#161616] p-6 rounded-xl">
             <h4 className="text-[10px] font-heading font-bold text-[#71717A] uppercase tracking-widest mb-4">Allocation Breakdown</h4>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
@@ -339,7 +343,7 @@ ${JSON.stringify(inputPayload, null, 2)}
             </div>
           </div>
 
-          <div className="bg-[#161616] border border-[#222] p-6 rounded-xl">
+          <div className="bg-[#161616] p-6 rounded-xl">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-[10px] font-heading font-bold text-[#71717A] uppercase tracking-widest">Diversification</h4>
               <span className="text-lg font-heading font-extrabold text-[#20EFA0]">{analysisResult.diversification_score.score}/100</span>
@@ -349,10 +353,10 @@ ${JSON.stringify(inputPayload, null, 2)}
                 <div key={idx}>
                   <div className="flex justify-between text-[11px] mb-1">
                     <span className="text-[#71717A] font-medium">{comp.label}</span>
-                    <span className="font-mono font-bold text-white">{comp.score}/25</span>
+                    <span className="font-mono font-bold text-white">{comp.score}/100</span>
                   </div>
-                  <div className="w-full bg-[#111111] border border-[#222] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[#20EFA0] h-full rounded-full" style={{ width: `\${(comp.score / 25) * 100}%` }}></div>
+                  <div className="w-full bg-[#111111] h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-[#20EFA0] h-full rounded-full" style={{ width: `\${comp.score}%` }}></div>
                   </div>
                 </div>
               ))}
