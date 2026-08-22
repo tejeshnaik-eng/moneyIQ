@@ -76,7 +76,7 @@ export const AiChatWidget: React.FC = () => {
       }));
       contents.push({ role: 'user', parts: [{ text: trimmed }] });
 
-      const promptSystemContext = "You are FinSight AI assistant. Provide extremely detailed, comprehensive, and robust answers. Do not cut off mid-sentence. Provide full context.";
+      const promptSystemContext = "You are MoneyIQ AI assistant. Provide extremely detailed, comprehensive, and robust answers. Do not cut off mid-sentence. Provide full context.";
       
       
       const fallbackModels = [
@@ -153,7 +153,7 @@ export const AiChatWidget: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#111916] flex items-center justify-center border border-[#6E7C75]/20">
               <Bot className="w-5 h-5 text-[#20EFA0]" />
             </div>
-            <h2 className="text-[18px] font-medium text-[#F2F7F4] tracking-tight">FinSight AI</h2>
+            <h2 className="text-[18px] font-medium text-[#F2F7F4] tracking-tight">MoneyIQ AI</h2>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1 bg-[#111916] rounded-full text-xs font-medium text-[#A7B5AE] border border-[#6E7C75]/20">
@@ -263,7 +263,7 @@ export const AiChatWidget: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask FinSight AI..."
+              placeholder="Ask MoneyIQ AI..."
               className="w-full bg-[#111916] border border-[#6E7C75]/30 text-[#F2F7F4] placeholder-[#6E7C75] rounded-full py-2.5 pl-4 pr-10 text-[15px] outline-none focus:border-[#20EFA0]/50 transition-colors"
             />
             <button 

@@ -70,13 +70,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     >
       <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col">
         {/* Top Header / Back Button */}
-        <div className="p-4 pt-6">
-          <button 
-            onClick={() => onSelectModule('overview')}
-            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#E4E4E7] transition-colors font-heading text-sm font-medium"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            {!collapsed && <span>Dashboard</span>}
+        <div className="p-5 pt-8 pb-4">
+          <button onClick={() => onSelectModule('overview')} className="flex items-center">
+            {collapsed ? (
+              <img src="/logo.png" alt="MoneyIQ" className="w-8 h-8 object-cover object-left" />
+            ) : (
+              <img src="/logo.png" alt="MoneyIQ Logo" className="h-8 w-auto object-contain" />
+            )}
           </button>
         </div>
 

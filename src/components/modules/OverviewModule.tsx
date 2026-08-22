@@ -181,11 +181,11 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
               
               <div className="flex items-end gap-4 mb-10">
                 <div className="flex items-baseline">
-                  <span className="text-[52px] leading-none font-bold text-[#101413]">{analysis?.healthScore || 80}</span>
+                  <span className="text-[52px] leading-none font-bold text-[#101413]">{analysis?.healthScore || profile?.overallScore || '--'}</span>
                   <span className="text-[28px] font-bold text-[#58645F] ml-2">/ 100</span>
                 </div>
                 <div className="bg-[#00B386] text-white px-5 py-1.5 rounded-full text-sm font-bold mb-2">
-                  {analysis?.healthBand || 'Excellent'}
+                  {analysis?.healthBand || profile?.keyTrait || 'Assessment Pending'}
                 </div>
               </div>
 

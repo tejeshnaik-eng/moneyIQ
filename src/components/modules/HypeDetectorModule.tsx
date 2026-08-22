@@ -14,7 +14,7 @@ export const HypeDetectorModule: React.FC = () => {
     {
       id: 'welcome',
       role: 'ai',
-      content: "Hello. I am the FinSight Regulatory Auditor.\n\nPaste any viral social media claim, Telegram tip, or finfluencer pitch below. I will evaluate it against official SEBI & RBI regulatory realities, exposing hidden risks and mathematical facts."
+      content: "Hello. I am the MoneyIQ Regulatory Auditor.\n\nPaste any viral social media claim, Telegram tip, or finfluencer pitch below. I will evaluate it against official SEBI & RBI regulatory realities, exposing hidden risks and mathematical facts."
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -99,7 +99,7 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
         </span>
         <h3 className="text-2xl font-heading font-extrabold text-[var(--app-text)] mt-1.5 flex items-center gap-2">
           <ShieldAlert className="w-6 h-6 text-[var(--primary-dim)]" />
-          FinSight Hype Auditor
+          MoneyIQ Hype Auditor
         </h3>
       </div>
 

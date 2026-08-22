@@ -50,7 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white shadow-md">
               <Landmark className="w-5 h-5" />
             </div>
-            <span className="font-bold text-2xl text-black tracking-tight">FinSight</span>
+            <span className="font-bold text-2xl text-black tracking-tight">MoneyIQ</span>
           </div>
           <button 
             onClick={onClose}
@@ -69,7 +69,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <p className="text-[15px] font-medium text-black/60 leading-relaxed">
               {initialMode === 'login' 
                 ? 'Sign in to access your AI-powered portfolio insights and continue building financial confidence.' 
-                : 'Join FinSight to transform complex market data into clear, actionable insights.'}
+                : 'Join MoneyIQ to transform complex market data into clear, actionable insights.'}
             </p>
           </div>
 
@@ -115,7 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
           
           <p className="mt-8 text-center text-[13px] font-medium text-black/40">
-            By continuing, you agree to FinSight's <a href="#" className="text-black/70 hover:text-black underline decoration-black/20 underline-offset-2">Terms of Service</a> and <a href="#" className="text-black/70 hover:text-black underline decoration-black/20 underline-offset-2">Privacy Policy</a>.
+            By continuing, you agree to MoneyIQ's <a href="#" className="text-black/70 hover:text-black underline decoration-black/20 underline-offset-2">Terms of Service</a> and <a href="#" className="text-black/70 hover:text-black underline decoration-black/20 underline-offset-2">Privacy Policy</a>.
           </p>
         </div>
       </div>

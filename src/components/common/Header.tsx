@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white shrink-0">
               <Landmark className="w-5 h-5" />
             </div>
-            <span>FinSight</span>
+            <span>MoneyIQ</span>
           </button>
 
           <nav className="hidden lg:flex h-full items-center gap-5 text-sm font-heading font-medium text-[var(--app-text-muted)] overflow-hidden">
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4 absolute left-3 text-[var(--app-text-muted)]" />
               <input
                 type="text"
-                placeholder="Search FinSight..."
+                placeholder="Search MoneyIQ..."
                 className="pl-9 pr-12 py-1.5 w-48 bg-[var(--app-surface-alt)] rounded-full border border-[var(--app-border)] focus:outline-none focus:border-[var(--primary)] text-xs font-body text-[var(--app-text)]"
               />
               <span className="absolute right-3 text-[10px] text-[var(--app-text-muted)] font-mono">Ctrl+K</span>

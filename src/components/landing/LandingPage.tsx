@@ -59,7 +59,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             </h1>
             
             <p className="text-[15px] md:text-[17px] text-black/70 max-w-2xl mx-auto leading-relaxed font-medium mb-12">
-              Financial literacy in India is growing, but financial confidence is not. FinSight transforms complex market data into clear, actionable insights. Stop relying on social media hype—consolidate your portfolio, understand your risk, and make data-driven decisions with confidence.
+              Financial literacy in India is growing, but financial confidence is not. MoneyIQ transforms complex market data into clear, actionable insights. Stop relying on social media hype—consolidate your portfolio, understand your risk, and make data-driven decisions with confidence.
             </p>
 
             <button 
