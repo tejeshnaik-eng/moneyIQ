@@ -8,6 +8,7 @@ import { GoalsModule } from '../modules/GoalsModule';
 import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
 import { LearningModule } from '../modules/LearningModule';
+import { QuantRiskModule } from '../modules/QuantRiskModule';
 import { ToolsModule } from '../modules/ToolsModule';
 import { AiChatWidget } from '../chat/AiChatWidget';
 import { ModuleId, UserProfile } from '../../types';
@@ -67,6 +68,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         return <MarketSimModule />;
       case 'learning':
         return <LearningModule />;
+      case 'quant_risk':
+        return <QuantRiskModule />;
       case 'tools':
         return <ToolsModule />;
       default:

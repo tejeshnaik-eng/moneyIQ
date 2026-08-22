@@ -7,7 +7,7 @@ export type ModuleId =
   | 'marketsim'
   | 'learning'
   | 'hypedetector'
-  | 'tools';
+  | 'tools'  | 'quant_risk';
 
 export interface UserProfile {
   name: string;

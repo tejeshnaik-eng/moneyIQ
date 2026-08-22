@@ -115,6 +115,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               </h3>
             )}
             {renderNavButton('learning', 'Learning', GraduationCap)}
+            {renderNavButton('quant_risk', 'Risk Profiling (Quant)', Shield)}
           </div>
 
           {/* SECTION 4: Utilities */}
