@@ -13,8 +13,8 @@ type Tab = 'Overview' | 'Technicals' | 'News' | 'Events' | 'F&O';
 const Tooltip = ({ children, content }: { children: React.ReactNode, content: string }) => {
   return (
     <div className="relative inline-flex flex-col items-center group cursor-help">
-      <span className="border-b border-dashed border-[#6E7C75]/50">{children}</span>
-      <div className="absolute bottom-full mb-2 hidden group-hover:block w-max max-w-[250px] bg-[#1A1A1A] text-[#F2F7F4] text-xs p-2 rounded shadow-lg border border-[#6E7C75]/20 z-[100] whitespace-normal text-left">
+      <span className="6E7C75]/50">{children}</span>
+      <div className="absolute bottom-full mb-2 hidden group-hover:block w-max max-w-[250px] bg-[#1A1A1A] text-[#F2F7F4] text-xs p-2 rounded-2xl shadow-lg 6E7C75]/20 z-[100] whitespace-normal text-left">
         {content}
       </div>
     </div>
@@ -178,7 +178,7 @@ function FinancialChart({ data, width, height, type }: { data: OHLCV[]; width: n
         </g>
       </svg>
       {hoveredIndex !== null && data[hoveredIndex] && (
-        <div className="absolute top-2 right-2 bg-[#111916] text-[#A7B5AE] text-xs p-2 rounded shadow flex space-x-3 font-['Hedvig_Letters_Sans'] border border-[#20EFA0]/20 z-10">
+        <div className="absolute top-2 right-2 bg-[#111916] text-[#A7B5AE] text-xs p-2 rounded-2xl shadow flex space-x-3 font-['Hedvig_Letters_Sans'] 20EFA0]/20 z-10">
           <span className="text-[#F2F7F4]">{new Date(data[hoveredIndex].time).toLocaleDateString()}</span>
           <span>O: <span className="text-[#F2F7F4]">{data[hoveredIndex].open.toFixed(2)}</span></span>
           <span>H: <span className="text-[#F2F7F4]">{data[hoveredIndex].high.toFixed(2)}</span></span>
@@ -330,15 +330,15 @@ export const MarketSimModule: React.FC = () => {
               <h3 className="text-lg font-medium text-[#F2F7F4]">
                 <Tooltip content="Price range over specific periods">Performance</Tooltip>
               </h3>
-              <div className="bg-[#111916] rounded-lg p-5 border border-[#6E7C75]/20 space-y-6">
+              <div className="bg-[#111916] rounded-2xl-[24px] p-5 6E7C75]/20 space-y-6">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <div><p className="text-[#6E7C75]">Today's Low</p><p className="text-[#F2F7F4] font-medium">₹{todayLow.toFixed(2)}</p></div>
                     <div className="text-right"><p className="text-[#6E7C75]">Today's High</p><p className="text-[#F2F7F4] font-medium">₹{todayHigh.toFixed(2)}</p></div>
                   </div>
-                  <div className="relative h-2 bg-[#2A2A2A] rounded-full">
-                    <div className="absolute top-0 bottom-0 left-0 bg-[#20EFA0] rounded-full" style={{width: '100%'}}></div>
-                    <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[#F2F7F4] rotate-45 border-2 border-[#111916]" style={{ left: `calc(${getProgress(todayLow, todayHigh, currentPrice)}% - 6px)`}}></div>
+                  <div className="relative h-2 bg-[#2A2A2A] rounded-2xl-full">
+                    <div className="absolute top-0 bottom-0 left-0 bg-[#20EFA0] rounded-2xl-full" style={{width: '100%'}}></div>
+                    <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[#F2F7F4] rotate-45 ]" style={{ left: `calc(${getProgress(todayLow, todayHigh, currentPrice)}% - 6px)`}}></div>
                   </div>
                 </div>
                 <div>
@@ -346,13 +346,13 @@ export const MarketSimModule: React.FC = () => {
                     <div><p className="text-[#6E7C75]">52W Low</p><p className="text-[#F2F7F4] font-medium">₹{w52Low.toFixed(2)}</p></div>
                     <div className="text-right"><p className="text-[#6E7C75]">52W High</p><p className="text-[#F2F7F4] font-medium">₹{w52High.toFixed(2)}</p></div>
                   </div>
-                  <div className="relative h-2 bg-[#2A2A2A] rounded-full">
-                    <div className="absolute top-0 bottom-0 left-0 bg-[#20EFA0] rounded-full" style={{width: '100%'}}></div>
-                    <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[#F2F7F4] rotate-45 border-2 border-[#111916]" style={{ left: `calc(${getProgress(w52Low, w52High, currentPrice)}% - 6px)`}}></div>
+                  <div className="relative h-2 bg-[#2A2A2A] rounded-2xl-full">
+                    <div className="absolute top-0 bottom-0 left-0 bg-[#20EFA0] rounded-2xl-full" style={{width: '100%'}}></div>
+                    <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[#F2F7F4] rotate-45 ]" style={{ left: `calc(${getProgress(w52Low, w52High, currentPrice)}% - 6px)`}}></div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#6E7C75]/20 grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="pt-4 6E7C75]/20 grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div><p className="text-[#6E7C75] text-xs">Open</p><p className="text-[#F2F7F4] text-sm font-medium">{currentDayData.open.toFixed(2)}</p></div>
                   <div><p className="text-[#6E7C75] text-xs">Prev. Close</p><p className="text-[#F2F7F4] text-sm font-medium">{prevClose.toFixed(2)}</p></div>
                   <div><p className="text-[#6E7C75] text-xs">Volume</p><p className="text-[#F2F7F4] text-sm font-medium">{(currentDayData.volume/1000).toFixed(2)}k</p></div>
@@ -365,19 +365,19 @@ export const MarketSimModule: React.FC = () => {
                 <Tooltip content="Core financial metrics of the company">Fundamentals</Tooltip>
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#111916] p-4 rounded-lg border border-[#6E7C75]/20 flex justify-between">
+                <div className="bg-[#111916] p-4 rounded-2xl-[24px] 6E7C75]/20 flex justify-between">
                   <Tooltip content="Total market value of a company's outstanding shares"><span className="text-[#6E7C75] text-sm">Market Cap</span></Tooltip>
                   <span className="text-[#F2F7F4] font-medium">{stockData.marketCap ? `₹${(stockData.marketCap / 10000000).toFixed(2)}Cr` : 'N/A'}</span>
                 </div>
-                <div className="bg-[#111916] p-4 rounded-lg border border-[#6E7C75]/20 flex justify-between">
+                <div className="bg-[#111916] p-4 rounded-2xl-[24px] 6E7C75]/20 flex justify-between">
                   <Tooltip content="Price-to-Earnings ratio"><span className="text-[#6E7C75] text-sm">P/E Ratio</span></Tooltip>
                   <span className="text-[#F2F7F4] font-medium">{stockData.peRatio?.toFixed(2) || 'N/A'}</span>
                 </div>
-                <div className="bg-[#111916] p-4 rounded-lg border border-[#6E7C75]/20 flex justify-between">
+                <div className="bg-[#111916] p-4 rounded-2xl-[24px] 6E7C75]/20 flex justify-between">
                   <Tooltip content="Return on Equity"><span className="text-[#6E7C75] text-sm">ROE</span></Tooltip>
                   <span className="text-[#F2F7F4] font-medium">{'N/A'}</span>
                 </div>
-                <div className="bg-[#111916] p-4 rounded-lg border border-[#6E7C75]/20 flex justify-between">
+                <div className="bg-[#111916] p-4 rounded-2xl-[24px] 6E7C75]/20 flex justify-between">
                   <Tooltip content="Annual dividend payment relative to stock price"><span className="text-[#6E7C75] text-sm">Dividend Yield</span></Tooltip>
                   <span className="text-[#F2F7F4] font-medium">{'N/A'}</span>
                 </div>
@@ -389,12 +389,12 @@ export const MarketSimModule: React.FC = () => {
               <h3 className="text-lg font-medium text-[#F2F7F4]">
                 <Tooltip content="Real-time list of buy and sell orders">Market depth</Tooltip>
               </h3>
-              <div className="bg-[#111916] rounded-lg p-5 border border-[#6E7C75]/20">
+              <div className="bg-[#111916] rounded-2xl-[24px] p-5 6E7C75]/20">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-[#20EFA0]">0.0% Buy</span>
                   <span className="text-[#FF5B5B]">0.0% Sell</span>
                 </div>
-                <div className="flex h-2 bg-[#2A2A2A] rounded-full mb-6 overflow-hidden">
+                <div className="flex h-2 bg-[#2A2A2A] rounded-2xl-full mb-6 overflow-hidden">
                   <div className="bg-[#20EFA0]" style={{width: '50%'}}></div>
                   <div className="bg-[#FF5B5B]" style={{width: '50%'}}></div>
                 </div>
@@ -438,18 +438,18 @@ export const MarketSimModule: React.FC = () => {
 
       return (
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 font-['Outfit']">
-          <div className="bg-[#111916] p-5 rounded-lg border border-[#6E7C75]/20 flex items-center justify-between">
+          <div className="bg-[#111916] p-5 rounded-2xl-[24px] 6E7C75]/20 flex items-center justify-between">
             <div>
               <p className="text-[#6E7C75] text-sm mb-1">
                 <Tooltip content="Relative Strength Index - momentum oscillator">RSI (14)</Tooltip>
               </p>
               <p className="text-[#F2F7F4] text-3xl font-medium">{currentRSI?.toFixed(2) || 'N/A'}</p>
             </div>
-            <span className="px-3 py-1 rounded-full text-sm font-medium border" style={{ backgroundColor: `${rsiColor}10`, color: rsiColor, borderColor: `${rsiColor}30` }}>
+            <span className="px-3 py-1 rounded-2xl-full text-sm font-medium" style={{ backgroundColor: `${rsiColor}10`, color: rsiColor, borderColor: `${rsiColor}30` }}>
               {rsiSignal}
             </span>
           </div>
-          <div className="bg-[#111916] p-5 rounded-lg border border-[#6E7C75]/20">
+          <div className="bg-[#111916] p-5 rounded-2xl-[24px] 6E7C75]/20">
             <p className="text-[#6E7C75] text-sm mb-1">
               <Tooltip content="Simple Moving Average">SMA (20)</Tooltip>
             </p>
@@ -465,12 +465,12 @@ export const MarketSimModule: React.FC = () => {
     if (activeTab === 'F&O') {
       return (
         <div className="p-6 font-['Outfit'] space-y-6">
-          <div className="bg-[#111916] rounded-lg border border-[#6E7C75]/20 overflow-hidden">
-            <div className="p-4 bg-[#0D1311] border-b border-[#6E7C75]/20 flex justify-between items-center">
+          <div className="bg-[#111916] rounded-2xl-[24px] 6E7C75]/20 overflow-hidden">
+            <div className="p-4 bg-[#0D1311] 6E7C75]/20 flex justify-between items-center">
               <h3 className="text-[#F2F7F4] font-medium">Option Chain (Example Data)</h3>
-              <span className="text-xs bg-[#2A2A2A] text-[#A7B5AE] px-2 py-1 rounded">Exp: 28 Sep 2026</span>
+              <span className="text-xs bg-[#2A2A2A] text-[#A7B5AE] px-2 py-1 rounded-2xl">Exp: 28 Sep 2026</span>
             </div>
-            <div className="p-4 grid grid-cols-3 text-sm text-center border-b border-[#6E7C75]/20">
+            <div className="p-4 grid grid-cols-3 text-sm text-center 6E7C75]/20">
               <div className="text-[#A7B5AE]">CALLS (LTP)</div>
               <div className="text-[#F2F7F4] font-medium">STRIKE</div>
               <div className="text-[#A7B5AE]">PUTS (LTP)</div>
@@ -490,7 +490,7 @@ export const MarketSimModule: React.FC = () => {
     if (activeTab === 'Events') {
       return (
         <div className="p-6 font-['Outfit'] space-y-6">
-          <div className="bg-[#111916] rounded-lg border border-[#6E7C75]/20 p-5">
+          <div className="bg-[#111916] rounded-2xl-[24px] 6E7C75]/20 p-5">
             <h3 className="text-[#F2F7F4] font-medium mb-4">Company Events (Example Data)</h3>
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#6E7C75]/20 before:to-transparent">
               {[
@@ -499,11 +499,11 @@ export const MarketSimModule: React.FC = () => {
                 { date: '05 Aug 2026', title: 'Dividend Ex-Date (₹15.50)', type: 'Dividend' }
               ].map((ev, i) => (
                 <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-5 h-5 rounded-full border border-[#20EFA0] bg-[#111916] text-[#20EFA0] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2"></div>
-                  <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-4 rounded-lg bg-[#0D1311] border border-[#6E7C75]/20 shadow">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-2xl-full 20EFA0] bg-[#111916] text-[#20EFA0] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2"></div>
+                  <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-4 rounded-2xl-[24px] bg-[#0D1311] 6E7C75]/20 shadow">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-[#A7B5AE]">{ev.date}</span>
-                      <span className="text-[10px] bg-[#2A2A2A] text-[#F2F7F4] px-2 py-0.5 rounded">{ev.type}</span>
+                      <span className="text-[10px] bg-[#2A2A2A] text-[#F2F7F4] px-2 py-0.5 rounded-2xl">{ev.type}</span>
                     </div>
                     <h4 className="text-[#F2F7F4] font-medium text-sm">{ev.title}</h4>
                   </div>
@@ -528,10 +528,10 @@ export const MarketSimModule: React.FC = () => {
     <div className="flex flex-col h-screen bg-[#080B0A] text-[#F2F7F4] font-['Outfit'] overflow-hidden">
       
       {/* Header */}
-      <header className="flex-none bg-[#0D1311] border-b border-[#111916] p-4 flex justify-between items-center z-10">
+      <header className="flex-none bg-[#0D1311] ] p-4 flex justify-between items-center z-10">
         <div className="flex items-center space-x-6">
           <div className="relative group">
-            <div className="flex items-center bg-[#111916] rounded-md px-3 py-1.5 border border-[#6E7C75]/20">
+            <div className="flex items-center bg-[#111916] rounded-2xl-[20px] px-3 py-1.5 6E7C75]/20">
               <Search className="w-4 h-4 text-[#A7B5AE] mr-2" />
               <input 
                 className="bg-transparent text-[#F2F7F4] outline-none placeholder-[#6E7C75] w-48 text-sm"
@@ -541,7 +541,7 @@ export const MarketSimModule: React.FC = () => {
               />
             </div>
             {searchQuery && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 w-full mt-1 bg-[#111916] border border-[#6E7C75]/20 rounded-md shadow-xl overflow-hidden z-20">
+              <div className="absolute top-full left-0 w-full mt-1 bg-[#111916] 6E7C75]/20 rounded-2xl-[20px] shadow-xl overflow-hidden z-20">
                 {searchResults.map(res => (
                   <button 
                     key={res.symbol}
@@ -560,7 +560,7 @@ export const MarketSimModule: React.FC = () => {
           </div>
 
           {!loading && stockData && currentDayData && (
-            <div className="flex items-center space-x-4 border-l border-[#111916] pl-6">
+            <div className="flex items-center space-x-4 ] pl-6">
               <div>
                 <h1 className="text-xl font-bold font-['Hedvig_Letters_Sans']">{stockData.companyName} <span className="text-sm font-normal text-[#A7B5AE]">({stockData.symbol})</span></h1>
                 <div className="flex items-center space-x-2">
@@ -575,15 +575,15 @@ export const MarketSimModule: React.FC = () => {
           )}
         </div>
 
-        <div className="flex bg-[#111916] rounded-full p-1 border border-[#6E7C75]/20">
+        <div className="flex bg-[#111916] rounded-2xl-full p-1 6E7C75]/20">
           <button 
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${mode === 'RESEARCH' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'text-[#A7B5AE] hover:text-[#F2F7F4]'}`}
+            className={`px-4 py-1.5 rounded-2xl-full text-sm font-medium transition-colors ${mode === 'RESEARCH' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'text-[#A7B5AE] hover:text-[#F2F7F4]'}`}
             onClick={() => setMode('RESEARCH')}
           >
             Research
           </button>
           <button 
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${mode === 'SIMULATE' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'text-[#A7B5AE] hover:text-[#F2F7F4]'}`}
+            className={`px-4 py-1.5 rounded-2xl-full text-sm font-medium transition-colors ${mode === 'SIMULATE' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'text-[#A7B5AE] hover:text-[#F2F7F4]'}`}
             onClick={() => setMode('SIMULATE')}
           >
             Simulate
@@ -597,7 +597,7 @@ export const MarketSimModule: React.FC = () => {
         {/* Left/Center: Chart + Tabs */}
         <div className="flex-1 flex flex-col overflow-hidden bg-[#080B0A]">
           {/* Chart Container */}
-          <div className="flex-1 min-h-[300px] border-b border-[#111916] p-6 flex flex-col" ref={containerRef}>
+          <div className="flex-1 min-h-[300px] ] p-6 flex flex-col" ref={containerRef}>
             {loading ? (
               <div className="h-full flex items-center justify-center text-[#A7B5AE]">Loading chart...</div>
             ) : (
@@ -639,13 +639,13 @@ export const MarketSimModule: React.FC = () => {
                 </div>
 
                 {/* Toolbar */}
-                <div className="h-10 flex items-center justify-between border-t border-[#111916] pt-4 mt-auto">
+                <div className="h-10 flex items-center justify-between ] pt-4 mt-auto">
                   <div className="flex items-center space-x-1">
                     {['1D', '1W', '1M', '3M', '6M', '1Y', '3Y', '5Y', 'All'].map(tf => (
                       <button 
                         key={tf}
                         onClick={() => setTimeframe(tf)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${timeframe === tf ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'bg-transparent text-[#A7B5AE] hover:bg-[#1A1A1A] hover:text-[#F2F7F4]'}`}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-2xl-full transition-colors ${timeframe === tf ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'bg-transparent text-[#A7B5AE] hover:bg-[#1A1A1A] hover:text-[#F2F7F4]'}`}
                       >
                         {tf}
                       </button>
@@ -654,13 +654,13 @@ export const MarketSimModule: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <button 
                       onClick={() => setChartType(chartType === 'line' ? 'candlestick' : 'line')}
-                      className={`p-1.5 rounded-full transition-colors ${chartType === 'candlestick' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'bg-transparent text-[#A7B5AE] hover:bg-[#1A1A1A] hover:text-[#F2F7F4]'}`}
+                      className={`p-1.5 rounded-2xl-full transition-colors ${chartType === 'candlestick' ? 'bg-[#2A2A2A] text-[#F2F7F4]' : 'bg-transparent text-[#A7B5AE] hover:bg-[#1A1A1A] hover:text-[#F2F7F4]'}`}
                       title="Toggle Chart Type"
                     >
                       {chartType === 'line' ? <BarChart2 className="w-4 h-4" /> : <LineChart className="w-4 h-4" />}
                     </button>
                     <div className="w-px h-4 bg-[#111916]"></div>
-                    <button className="flex items-center px-3 py-1.5 text-xs font-medium rounded-full text-[#A7B5AE] bg-transparent hover:bg-[#1A1A1A] hover:text-[#F2F7F4] transition-colors">
+                    <button className="flex items-center px-3 py-1.5 text-xs font-medium rounded-2xl-full text-[#A7B5AE] bg-transparent hover:bg-[#1A1A1A] hover:text-[#F2F7F4] transition-colors">
                       <Terminal className="w-3 h-3 mr-1" />
                       Terminal
                     </button>
@@ -672,16 +672,12 @@ export const MarketSimModule: React.FC = () => {
 
           {/* Tabs Section */}
           <div className="h-1/3 min-h-[250px] bg-[#0D1311] flex flex-col">
-            <div className="flex space-x-6 px-6 border-b border-[#111916]">
+            <div className="flex space-x-6 px-6 ]">
               {(['Overview', 'Technicals', 'News', 'Events', 'F&O'] as Tab[]).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-3 px-2 border-b-2 text-sm font-medium transition-colors ${
-                    activeTab === tab 
-                      ? 'border-[#F2F7F4] text-[#F2F7F4]' 
-                      : 'border-transparent text-[#A7B5AE] hover:text-[#F2F7F4]'
-                  }`}
+                  className={`py-3 px-2 text-sm font-medium transition-colors ${ activeTab === tab ? 'F2F7F4] text-[#F2F7F4]' : ' text-[#A7B5AE] hover:text-[#F2F7F4]' }`}
                 >
                   {tab}
                 </button>
@@ -695,14 +691,14 @@ export const MarketSimModule: React.FC = () => {
 
         {/* Right Sidebar: Simulator Panel */}
         {mode === 'SIMULATE' && (
-          <div className="w-80 bg-[#0D1311] border-l border-[#111916] flex flex-col">
-            <div className="p-4 border-b border-[#111916]">
+          <div className="w-80 bg-[#0D1311] ] flex flex-col">
+            <div className="p-4 ]">
               <h2 className="text-lg font-medium flex items-center mb-4">
                 <Briefcase className="w-5 h-5 mr-2 text-[#20EFA0]" />
                 Simulator
               </h2>
               
-              <div className="bg-[#111916] p-4 rounded-lg space-y-3 mb-6">
+              <div className="bg-[#111916] p-4 rounded-2xl-[24px] space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#6E7C75]">Portfolio Value</span>
                   <span className="text-[#F2F7F4] font-medium font-['Hedvig_Letters_Sans']">₹{simPortfolioValue.toFixed(2)}</span>
@@ -715,7 +711,7 @@ export const MarketSimModule: React.FC = () => {
                   <span className="text-[#6E7C75]">Holdings</span>
                   <span className="text-[#F2F7F4] font-medium font-['Hedvig_Letters_Sans']">{simShares} shares</span>
                 </div>
-                <div className="pt-2 border-t border-[#6E7C75]/20 flex justify-between text-sm">
+                <div className="pt-2 6E7C75]/20 flex justify-between text-sm">
                   <span className="text-[#6E7C75]">Return</span>
                   <span className={`font-medium ${simPortfolioValue >= simCapital ? 'text-[#20EFA0]' : 'text-[#FF5B5B]'}`}>
                     {((simPortfolioValue - simCapital) / simCapital * 100).toFixed(2)}%
@@ -731,7 +727,7 @@ export const MarketSimModule: React.FC = () => {
                 <button 
                   onClick={handleStepForward}
                   disabled={!stockData || simIndex >= stockData.history.length - 1}
-                  className="w-full py-2.5 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-2xl-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <StepForward className="w-4 h-4 mr-2" />
                   Step Next Day
@@ -745,7 +741,7 @@ export const MarketSimModule: React.FC = () => {
                     type="number" 
                     value={tradeQuantity}
                     onChange={(e) => setTradeQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-20 bg-[#111916] border border-[#6E7C75]/30 rounded px-2 py-1 text-right outline-none text-[#F2F7F4]"
+                    className="w-20 bg-[#111916] 6E7C75]/30 rounded-2xl px-2 py-1 text-right outline-none text-[#F2F7F4]"
                     min="1"
                   />
                 </div>
@@ -753,14 +749,14 @@ export const MarketSimModule: React.FC = () => {
                   <button 
                     onClick={handleBuy}
                     disabled={!currentDayData || simCash < currentDayData.close * tradeQuantity}
-                    className="py-2 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-2xl-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Buy
                   </button>
                   <button 
                     onClick={handleSell}
                     disabled={simShares < tradeQuantity}
-                    className="py-2 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 bg-[#2A2A2A] hover:bg-[#333333] text-[#F2F7F4] rounded-2xl-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Sell
                   </button>

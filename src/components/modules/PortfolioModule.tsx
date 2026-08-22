@@ -324,7 +324,7 @@ export const PortfolioModule: React.FC = () => {
 
   if (holdings.length === 0) {
     return (
-      <div className="space-y-8 pb-12 w-full max-w-7xl mx-auto pt-8 px-4 md:px-0">
+      <div className="space-y-8 pb-12 w-full max-w-7xl mx-auto pt-8 px-6 lg:px-10">
         <div className="p-12 rounded-[24px] bg-[#161616] border border-[#2A2A2A] shadow-xl flex flex-col items-center justify-center text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-[#2A2A2A] flex items-center justify-center shadow-inner">
             <Landmark className="w-8 h-8 text-[#8A8F98]" />
@@ -365,7 +365,7 @@ export const PortfolioModule: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full pt-8 pb-12 px-4 md:px-0">
+    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full pt-8 pb-12 px-6 lg:px-10">
       {/* Top Summary (Hero Panel) */}
       <section className="bg-[#0b1c30] text-white rounded-[2rem] p-12 shadow-xl mb-16 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>

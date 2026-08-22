@@ -23,7 +23,7 @@ export const QuantRiskModule: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full pt-8 pb-12 px-4 md:px-0 text-white">
+    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full pt-8 pb-12 px-6 lg:px-10 text-white">
       <div className="mb-8">
         <h1 className="text-3xl font-heading font-bold mb-2">Quantitative Risk Profiler</h1>
         <p className="text-[#8A8F98] text-[15px] max-w-2xl">
