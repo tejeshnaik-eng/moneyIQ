@@ -154,6 +154,7 @@ export const RiskProfilingModule: React.FC = () => {
       setViewState('result');
     } catch (err) {
       console.error('Failed to calculate risk profile', err);
+      alert('AI Analysis failed. This usually means the Gemini API Key is missing on Vercel or you have hit the rate limit. Please try again in 1 minute.');
     } finally {
       setIsCalculating(false);
     }
