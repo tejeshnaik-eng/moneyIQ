@@ -59,7 +59,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen">
+      <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto h-screen ${activeModule === 'overview' ? 'bg-[#1E1E1E]' : ''}`}>
         <DashboardTopBar
           activeModule={activeModule}
           user={user}
@@ -67,7 +67,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           onLogout={onLogout}
         />
 
-        <main className="flex-1 p-6 sm:p-8 max-w-[1280px] w-full mx-auto">
+        <main className={`flex-1 w-full mx-auto ${activeModule === 'overview' ? 'p-0 max-w-none' : 'p-6 sm:p-8 max-w-[1280px]'}`}>
           {renderActiveModule()}
         </main>
       </div>

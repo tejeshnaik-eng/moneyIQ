@@ -41,20 +41,20 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   const meta = getModuleMeta(activeModule);
 
   return (
-    <header className="bg-surface/80 backdrop-blur-md dark:bg-on-background/80 text-primary dark:text-primary-fixed-dim top-0 sticky z-40 border-b border-outline-variant/30 dark:border-outline/30 flex justify-between items-center h-16 px-lg w-full">
+    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-16 px-lg w-full`}>
       <div className="flex items-center gap-sm">
-        <span className="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">{meta.title}</span>
+        <span className={`font-headline-sm text-headline-sm font-bold ${activeModule === 'overview' ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
       </div>
       {/* Search & Actions */}
       <div className="flex items-center gap-lg">
         <div className="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
-          <Search className="w-5 h-5 absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" />
-          <input className="bg-surface-variant/30 border-none text-body-sm py-2 pl-10 pr-sm w-64 rounded-full focus:outline-none focus:ring-1 focus:ring-primary placeholder-on-surface-variant/60" placeholder="Search ticker or asset..." type="text"/>
+          <Search className={`w-5 h-5 absolute left-md top-1/2 -translate-y-1/2 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`} />
+          <input className={`${activeModule === 'overview' ? 'bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-gray-700' : 'bg-surface-variant/30 text-body-sm placeholder-on-surface-variant/60 focus:ring-primary'} border-none py-2 pl-10 pr-sm w-64 rounded-full focus:outline-none focus:ring-1`} placeholder="Search ticker or asset..." type="text"/>
         </div>
-        <div className="flex items-center gap-sm text-on-surface-variant dark:text-surface-variant">
-          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><Bell className="w-5 h-5" /></button>
-          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><History className="w-5 h-5" /></button>
-          <button className="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors ml-xs w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50"><UserCircle className="w-5 h-5" /></button>
+        <div className={`flex items-center gap-sm ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`}>
+          <button className={`hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><Bell className="w-5 h-5" /></button>
+          <button className={`hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><History className="w-5 h-5" /></button>
+          <button className={`hover:text-primary transition-colors ml-xs w-10 h-10 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><UserCircle className="w-5 h-5" /></button>
         </div>
       </div>
     </header>
