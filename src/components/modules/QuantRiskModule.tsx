@@ -11,7 +11,8 @@ export const QuantRiskModule: React.FC = () => {
     emergencyMonths: 6,
     monthlyEmi: 15000,
     behavior: 'hold_and_do_nothing',
-    monthlyBudget: 25000
+    monthlyBudget: 25000,
+    additionalContext: ''
   });
 
   const [result, setResult] = useState<RiskProfileResult | null>(null);
@@ -99,6 +100,12 @@ export const QuantRiskModule: React.FC = () => {
               </select>
             </div>
 
+            {/* Additional Context */}
+            <div>
+              <label className="block text-[12px] font-heading font-medium text-[#8A8F98] mb-1.5">Additional Context for AI (Optional)</label>
+              <textarea className="w-full bg-[#252525] border-none rounded-xl py-3 px-4 focus:outline-none focus:ring-1 focus:ring-[#00D09C] text-[14px] text-white resize-none" rows={2} value={inputs.additionalContext} onChange={e => setInputs({...inputs, additionalContext: e.target.value})} placeholder="e.g. I prefer ESG funds, or I have existing real estate investments..." />
+            </div>
+
             {/* 5. Budget */}
             <div className="pt-2">
               <label className="block text-[12px] font-heading font-medium text-[#00D09C] mb-1.5 uppercase tracking-wider">SIP Budget (₹/month)</label>
@@ -124,7 +131,7 @@ export const QuantRiskModule: React.FC = () => {
             <>
               {/* Score & Persona */}
               <div className="bg-[#1C1C1C] rounded-[24px] p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#00D09C]/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+                
                 
                 <div className="flex flex-col items-center md:items-start z-10">
                   <span className="text-[11px] font-bold text-[#8A8F98] uppercase tracking-widest mb-2">Composite Risk Score</span>
@@ -150,7 +157,7 @@ export const QuantRiskModule: React.FC = () => {
                   Target Allocation
                 </h3>
                 
-                <div className="h-6 w-full rounded-full overflow-hidden flex mb-6 shadow-inner bg-[#111]">
+                <div className="h-2 w-full rounded-full overflow-hidden flex mb-8 bg-[#2A2A2A]">
                   {result.targetAllocation.equity > 0 && <div className="h-full bg-[#00D09C]" style={{ width: `${result.targetAllocation.equity}%` }} title={`Equity: ${result.targetAllocation.equity}%`}></div>}
                   {result.targetAllocation.debt > 0 && <div className="h-full bg-[#2775E8]" style={{ width: `${result.targetAllocation.debt}%` }} title={`Debt: ${result.targetAllocation.debt}%`}></div>}
                   {result.targetAllocation.gold > 0 && <div className="h-full bg-[#D99A00]" style={{ width: `${result.targetAllocation.gold}%` }} title={`Gold: ${result.targetAllocation.gold}%`}></div>}
@@ -181,23 +188,23 @@ export const QuantRiskModule: React.FC = () => {
                 
                 <div className="space-y-3">
                   {result.basket.map((fund, idx) => (
-                    <div key={idx} className="bg-[#111] border border-[#222] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:border-[#333] transition-colors">
+                    <div key={idx} className="bg-[#161616] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                            fund.category === 'Equity' ? 'bg-[#1A3329] text-[#00D09C]' :
-                            fund.category === 'Debt' ? 'bg-[#1A2642] text-[#2775E8]' :
-                            'bg-[#33250A] text-[#D99A00]'
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            fund.category === 'Equity' ? 'bg-[#1A3329] text-[#00E5AA]' :
+                            fund.category === 'Debt' ? 'bg-[#1A2642] text-[#4D90FE]' :
+                            'bg-[#33250A] text-[#FFB800]'
                           }`}>
                             {fund.category} • {fund.subCategory}
                           </span>
-                          <span className="text-[10px] text-[#555] font-mono bg-[#222] px-1.5 py-0.5 rounded">ID: {fund.schemeCode}</span>
+                          <span className="text-[11px] text-[#555] bg-[#222] px-2 py-0.5 rounded font-mono font-medium">ID: {fund.schemeCode}</span>
                         </div>
-                        <h4 className="text-[14px] font-bold text-white leading-tight">{fund.schemeName}</h4>
+                        <h4 className="text-[16px] font-bold text-white tracking-tight leading-tight">{fund.schemeName}</h4>
                       </div>
-                      <div className="flex items-center md:flex-col md:items-end justify-between md:justify-center border-t md:border-t-0 border-[#222] pt-3 md:pt-0">
-                        <span className="text-[12px] text-[#8A8F98] font-medium">{fund.weightagePercent.toFixed(1)}% Weight</span>
-                        <span className="text-[18px] font-bold text-white">₹{fund.monthlySIPAmount.toLocaleString('en-IN')}</span>
+                      <div className="flex items-center md:flex-col md:items-end justify-between md:justify-center mt-2 md:mt-0">
+                        <span className="text-[13px] text-[#A1A1AA] font-medium mb-0.5">{fund.weightagePercent.toFixed(1)}% Weight</span>
+                        <span className="text-[22px] font-bold text-white tracking-tight">₹{fund.monthlySIPAmount.toLocaleString('en-IN')}</span>
                       </div>
                     </div>
                   ))}

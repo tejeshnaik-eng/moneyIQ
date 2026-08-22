@@ -219,9 +219,57 @@ export const PortfolioModule: React.FC = () => {
     }
   };
 
-  const AddModal = () => {
-    if (!showAddModal) return null;
-    return createPortal(
+  
+
+  if (isLoadingDb) {
+    return (
+      <div className="flex-1 flex items-center justify-center pt-8 pb-12">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-[#00D09C] border-t-transparent animate-spin"></div>
+          <p className="text-[#8A8F98] font-body-md">Loading portfolio...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (holdings.length === 0) {
+    return (
+      <div className="space-y-8 pb-12 w-full max-w-7xl mx-auto pt-8 px-6 lg:px-10">
+        <div className="p-12 rounded-[24px] bg-[#161616] border border-[#2A2A2A] shadow-xl flex flex-col items-center justify-center text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-[#2A2A2A] flex items-center justify-center shadow-inner">
+            <Landmark className="w-8 h-8 text-[#8A8F98]" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-heading font-bold text-white mb-2">No holdings yet</h3>
+            <p className="text-[15px] text-[#8A8F98] max-w-sm mx-auto">
+              Add your first investment to see portfolio analytics, live tracking, and insights.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 w-full max-w-md">
+            <button
+              onClick={() => {
+                if (window.confirm('Are you sure you want to load demo data? This will clear current holdings.')) {
+                  if (user) {
+                    supabase.from('portfolios').delete().eq('user_id', user.id).then(() => {
+                      setHoldings([]);
+                    });
+                  }
+                }
+              }}
+              className="py-3.5 px-4 flex-1 items-center justify-center gap-2 text-[#D64545] font-bold text-[14px] hover:bg-[#D64545]/10 rounded-xl transition-colors border-none text-center"
+            >
+              Clear Data
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="bg-[#00D09C] shadow-[0_4px_24px_rgba(0,208,156,0.3)] text-black font-extrabold text-[15px] py-3.5 px-8 rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
+            >
+              <Plus className="w-5 h-5" />
+              Add Asset
+            </button>
+          </div>
+        </div>
+        {showAddModal && createPortal(
       <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div className="bg-[#1C1C1C] rounded-[24px] shadow-[0_24px_64px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden border-none text-white">
           <div className="p-6 pb-4 flex items-center justify-between border-none">
@@ -308,58 +356,7 @@ export const PortfolioModule: React.FC = () => {
         </div>
       </div>,
       document.body
-    );
-  };
-
-  if (isLoadingDb) {
-    return (
-      <div className="flex-1 flex items-center justify-center pt-8 pb-12">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#00D09C] border-t-transparent animate-spin"></div>
-          <p className="text-[#8A8F98] font-body-md">Loading portfolio...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (holdings.length === 0) {
-    return (
-      <div className="space-y-8 pb-12 w-full max-w-7xl mx-auto pt-8 px-6 lg:px-10">
-        <div className="p-12 rounded-[24px] bg-[#161616] border border-[#2A2A2A] shadow-xl flex flex-col items-center justify-center text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-[#2A2A2A] flex items-center justify-center shadow-inner">
-            <Landmark className="w-8 h-8 text-[#8A8F98]" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-heading font-bold text-white mb-2">No holdings yet</h3>
-            <p className="text-[15px] text-[#8A8F98] max-w-sm mx-auto">
-              Add your first investment to see portfolio analytics, live tracking, and insights.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 w-full max-w-md">
-            <button
-              onClick={() => {
-                if (window.confirm('Are you sure you want to load demo data? This will clear current holdings.')) {
-                  if (user) {
-                    supabase.from('portfolios').delete().eq('user_id', user.id).then(() => {
-                      setHoldings([]);
-                    });
-                  }
-                }
-              }}
-              className="py-3.5 px-4 flex-1 items-center justify-center gap-2 text-[#D64545] font-bold text-[14px] hover:bg-[#D64545]/10 rounded-xl transition-colors border-none text-center"
-            >
-              Clear Data
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-[#00D09C] shadow-[0_4px_24px_rgba(0,208,156,0.3)] text-black font-extrabold text-[15px] py-3.5 px-8 rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
-            >
-              <Plus className="w-5 h-5" />
-              Add Asset
-            </button>
-          </div>
-        </div>
-        <AddModal />
+    )}
       </div>
     );
   }
@@ -518,7 +515,94 @@ export const PortfolioModule: React.FC = () => {
         />
       </section>
       
-      <AddModal />
+      {showAddModal && createPortal(
+      <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="bg-[#1C1C1C] rounded-[24px] shadow-[0_24px_64px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden border-none text-white">
+          <div className="p-6 pb-4 flex items-center justify-between border-none">
+            <div>
+              <h3 className="font-heading text-xl font-bold text-white mb-1">Add Asset</h3>
+              <div className="flex gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-[#1A3329] text-[#00D09C] text-[10px] font-bold tracking-wider uppercase">Equity</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#1A3329] text-[#00D09C] text-[10px] font-bold tracking-wider uppercase">Manual Entry</span>
+              </div>
+            </div>
+            <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-[#2A2A2A] rounded-full transition-colors">
+              <X className="w-5 h-5 text-[#8A8F98]" />
+            </button>
+          </div>
+          
+          <div className="px-6 pb-2">
+            <label className="text-[#00D09C] py-2.5 px-4 rounded-xl flex items-center gap-2 cursor-pointer w-full justify-center bg-[#00D09C]/10 hover:bg-[#00D09C]/20 transition-colors font-bold text-[13px] border-none">
+              <input type="file" accept=".csv, .xlsx" className="hidden" onChange={(e) => {
+                handleFileUpload(e);
+                setShowAddModal(false);
+              }} />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              Import Statement (XLSX/CSV)
+            </label>
+          </div>
+
+          <form onSubmit={handleAddHolding} className="p-6 space-y-5 pt-4">
+            <div>
+              <label className="block text-[12px] font-heading font-medium text-[#8A8F98] mb-1.5">Asset Name</label>
+              <input type="text" required className="w-full bg-[#252525] border-none rounded-xl py-3.5 px-4 focus:outline-none focus:ring-1 focus:ring-[#00D09C] text-[14px] text-white" value={newHolding.name} onChange={e => setNewHolding({...newHolding, name: e.target.value})} placeholder="e.g. Nippon India Small Cap Fund" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[12px] font-heading font-medium text-[#8A8F98] mb-1.5">Ticker (Optional)</label>
+                <input type="text" className="w-full bg-[#252525] border-none rounded-xl py-3.5 px-4 focus:outline-none focus:ring-1 focus:ring-[#00D09C] text-[14px] text-white" value={newHolding.ticker} onChange={e => setNewHolding({...newHolding, ticker: e.target.value})} placeholder="e.g. NIFTYBEES" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-heading font-medium text-[#8A8F98] mb-1.5">Platform</label>
+                <select className="w-full bg-[#252525] border-none rounded-xl py-3.5 px-4 focus:outline-none focus:ring-1 focus:ring-[#00D09C] text-[14px] text-white" value={newHolding.platform} onChange={e => setNewHolding({...newHolding, platform: e.target.value as any})}>
+                  <option value="Zerodha">Zerodha</option>
+                  <option value="Groww">Groww</option>
+                  <option value="INDmoney">INDmoney</option>
+                  <option value="EPFO">EPFO</option>
+                  <option value="Direct Bank">Direct Bank</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="bg-[#111111] p-4 rounded-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-[#222] pb-4">
+                 <div className="text-[12px] font-medium text-[#8A8F98]">Category</div>
+                 <select className="bg-transparent border-none focus:outline-none text-[#00D09C] font-bold text-right text-[14px]" value={newHolding.category} onChange={e => setNewHolding({...newHolding, category: e.target.value as any})}>
+                  <option value="Large Cap">Large Cap</option>
+                  <option value="Flexi Cap">Flexi Cap</option>
+                  <option value="Mid Cap">Mid Cap</option>
+                  <option value="Small Cap">Small Cap</option>
+                  <option value="Debt/EPF">Debt/EPF</option>
+                  <option value="Gold/SGB">Gold/SGB</option>
+                  <option value="Liquid Cash">Liquid Cash</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-6 pt-2">
+                <div>
+                  <label className="block text-[11px] font-heading font-medium text-[#8A8F98] mb-1">Invested Amount</label>
+                  <div className="flex items-center">
+                    <span className="text-[#00D09C] font-bold text-xl mr-1">₹</span>
+                    <input type="number" required min="0" step="1" className="w-full bg-transparent border-none p-0 focus:ring-0 text-xl font-bold text-white placeholder-[#444]" value={newHolding.investedValue || ''} onChange={e => setNewHolding({...newHolding, investedValue: Number(e.target.value)})} placeholder="5000" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-heading font-medium text-[#8A8F98] mb-1">Current Value</label>
+                  <div className="flex items-center">
+                    <span className="text-[#00D09C] font-bold text-xl mr-1">₹</span>
+                    <input type="number" required min="0" step="1" className="w-full bg-transparent border-none p-0 focus:ring-0 text-xl font-bold text-white placeholder-[#444]" value={newHolding.currentValue || ''} onChange={e => setNewHolding({...newHolding, currentValue: Number(e.target.value)})} placeholder="5500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" className="w-full bg-[#00D09C] text-black font-extrabold tracking-wide text-[15px] py-4 rounded-xl hover:bg-[#00E5AA] shadow-[0_4px_24px_rgba(0,208,156,0.25)] transition-all mt-4">
+              SAVE ASSET
+            </button>
+          </form>
+        </div>
+      </div>,
+      document.body
+    )}
     </div>
   );
 };

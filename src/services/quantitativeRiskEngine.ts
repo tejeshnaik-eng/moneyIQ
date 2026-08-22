@@ -7,6 +7,7 @@ export interface RiskProfileInputs {
   monthlyEmi: number;
   behavior: 'panic_sell_all' | 'stop_all_sips' | 'hold_and_do_nothing' | 'buy_more_aggressively';
   monthlyBudget: number;
+  additionalContext?: string;
 }
 
 export interface AllocatedFund {

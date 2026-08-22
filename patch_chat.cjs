@@ -3,63 +3,18 @@ const fs = require('fs');
 const file = 'src/components/chat/AiChatWidget.tsx';
 let c = fs.readFileSync(file, 'utf8');
 
-const oldStr = `const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents,
-          config: {
-            systemInstruction: promptSystemContext,
-            temperature: 0.3,
-          }
-        });
+// Replace accent color
+c = c.replace(/#20EFA0/g, '#E4E4E7');
+c = c.replace(/#1bc785/g, '#D4D4D8');
+c = c.replace(/bg-\[#20EFA0\]\/20/g, 'bg-[#E4E4E7]/20');
+c = c.replace(/focus:border-\[#20EFA0\]\/50/g, 'focus:border-[#E4E4E7]/50');
 
-        const aiResponse = response.text;
-        
-        if (aiResponse) {
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: aiResponse, timestamp: getFormattedTime() }]);
-        } else {
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'AI failed. Invalid API response format.', timestamp: getFormattedTime() }]);
-        }`;
+// Use uploaded icon
+c = c.replace(/<Bot className="w-5 h-5 text-\[#E4E4E7\]" \/>/g, '<img src="/favicon.png" alt="mIQ" className="w-5 h-5 object-contain" />');
+c = c.replace(/<Bot className="w-4 h-4 text-\[#E4E4E7\]" \/>/g, '<img src="/favicon.png" alt="mIQ" className="w-4 h-4 object-contain" />');
+c = c.replace(/import \{.*?Bot,.*\} from 'lucide-react';/, (match) => {
+  return match; // Bot is used, maybe leave import to not break TS if unused, or just keep it
+});
 
-const newStr = `
-      const fallbackModels = [
-        'gemini-3.5-flash-lite',
-        'gemini-3.1-flash-lite',
-        'gemini-2.5-flash-lite',
-        'gemini-3.5-flash',
-        'gemini-3-flash',
-        'gemini-2.5-flash'
-      ];
-      
-      let aiResponse = "";
-      let success = false;
-      
-      for (const modelName of fallbackModels) {
-        try {
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents,
-            config: {
-              systemInstruction: promptSystemContext,
-              temperature: 0.3,
-            }
-          });
-          if (response.text) {
-             aiResponse = response.text;
-             success = true;
-             break;
-          }
-        } catch (e) {
-          console.warn('Model ' + modelName + ' failed, trying next...');
-          continue;
-        }
-      }
-      
-      if (success && aiResponse) {
-        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: aiResponse, timestamp: getFormattedTime() }]);
-      } else {
-        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'AI failed. All fallback models exhausted.', timestamp: getFormattedTime() }]);
-      }`;
-
-c = c.replace(oldStr, newStr);
 fs.writeFileSync(file, c);
-console.log('AiChatWidget patched successfully');
+console.log('Updated Chatbot palette and icon');

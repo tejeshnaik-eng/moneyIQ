@@ -136,7 +136,7 @@ export const AiChatWidget: React.FC = () => {
       {/* Floating Action Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-40 bg-[#20EFA0] hover:bg-[#1bc785] text-[#080B0A] w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 hover:scale-105'}`}
+        className={`fixed bottom-6 right-6 z-40 bg-[#E4E4E7] hover:bg-[#D4D4D8] text-[#080B0A] w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 hover:scale-105'}`}
       >
         <MessageSquare className="w-6 h-6" />
       </button>
@@ -151,7 +151,7 @@ export const AiChatWidget: React.FC = () => {
         <div className="flex items-center justify-between p-5 pb-3 border-b border-[#111916]">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-full bg-[#111916] flex items-center justify-center border border-[#6E7C75]/20">
-              <Bot className="w-5 h-5 text-[#20EFA0]" />
+              <img src="/favicon.png" alt="mIQ" className="w-5 h-5 object-contain" />
             </div>
             <h2 className="text-[18px] font-medium text-[#F2F7F4] tracking-tight">MoneyIQ AI</h2>
           </div>
@@ -175,7 +175,7 @@ export const AiChatWidget: React.FC = () => {
           {messages.length === 0 && (
             <div className="flex gap-3 max-w-[90%]">
               <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-[#20EFA0]" />
+                <img src="/favicon.png" alt="mIQ" className="w-4 h-4 object-contain" />
               </div>
               <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20">
                 <p className="text-[15px] text-[#F2F7F4] leading-snug font-['Hedvig_Letters_Sans']">
@@ -183,8 +183,8 @@ export const AiChatWidget: React.FC = () => {
                 </p>
                 <div className="flex justify-end items-center gap-1 mt-2">
                   <span className="text-[10px] font-medium text-[#6E7C75]">{getFormattedTime()}</span>
-                  <div className="w-3.5 h-3.5 rounded-full bg-[#20EFA0]/20 flex items-center justify-center">
-                    <CheckCheck className="w-2.5 h-2.5 text-[#20EFA0]" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#E4E4E7]/20 flex items-center justify-center">
+                    <CheckCheck className="w-2.5 h-2.5 text-[#E4E4E7]" />
                   </div>
                 </div>
               </div>
@@ -203,7 +203,7 @@ export const AiChatWidget: React.FC = () => {
                 // AI Bubble
                 <div className="flex gap-3 max-w-[95%]">
                   <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-[#20EFA0]" />
+                    <img src="/favicon.png" alt="mIQ" className="w-4 h-4 object-contain" />
                   </div>
                   <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20 font-['Hedvig_Letters_Sans'] overflow-hidden">
                     <div className="text-[15px] text-[#F2F7F4] leading-relaxed">
@@ -214,10 +214,10 @@ export const AiChatWidget: React.FC = () => {
                           ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
                           ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
                           li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                          h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-2 text-[#20EFA0]" {...props} />,
-                          h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 text-[#20EFA0]" {...props} />,
-                          h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 text-[#20EFA0]" {...props} />,
-                          a: ({node, ...props}) => <a className="text-[#20EFA0] hover:underline" {...props} />
+                          h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-2 text-[#E4E4E7]" {...props} />,
+                          h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 text-[#E4E4E7]" {...props} />,
+                          h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 text-[#E4E4E7]" {...props} />,
+                          a: ({node, ...props}) => <a className="text-[#E4E4E7] hover:underline" {...props} />
                         }}
                       >
                         {msg.content}
@@ -225,8 +225,8 @@ export const AiChatWidget: React.FC = () => {
                     </div>
                     <div className="flex justify-end items-center gap-1 mt-2">
                       <span className="text-[10px] font-medium text-[#6E7C75]">{msg.timestamp}</span>
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#20EFA0]/20 flex items-center justify-center">
-                        <CheckCheck className="w-2.5 h-2.5 text-[#20EFA0]" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#E4E4E7]/20 flex items-center justify-center">
+                        <CheckCheck className="w-2.5 h-2.5 text-[#E4E4E7]" />
                       </div>
                     </div>
                   </div>
@@ -239,7 +239,7 @@ export const AiChatWidget: React.FC = () => {
           {isTyping && (
             <div className="flex gap-3 max-w-[85%]">
               <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-[#20EFA0]" />
+                <img src="/favicon.png" alt="mIQ" className="w-4 h-4 object-contain" />
               </div>
               <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20 flex items-center gap-1.5 h-[48px]">
                 <div className="w-2 h-2 rounded-full bg-[#6E7C75] animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -264,12 +264,12 @@ export const AiChatWidget: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask MoneyIQ AI..."
-              className="w-full bg-[#111916] border border-[#6E7C75]/30 text-[#F2F7F4] placeholder-[#6E7C75] rounded-full py-2.5 pl-4 pr-10 text-[15px] outline-none focus:border-[#20EFA0]/50 transition-colors"
+              className="w-full bg-[#111916] border border-[#6E7C75]/30 text-[#F2F7F4] placeholder-[#6E7C75] rounded-full py-2.5 pl-4 pr-10 text-[15px] outline-none focus:border-[#E4E4E7]/50 transition-colors"
             />
             <button 
               onClick={() => handleSend(input)}
               disabled={!input.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#20EFA0] hover:text-[#1bc785] disabled:text-[#6E7C75] disabled:cursor-not-allowed transition-colors p-1"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E4E4E7] hover:text-[#D4D4D8] disabled:text-[#6E7C75] disabled:cursor-not-allowed transition-colors p-1"
             >
               <Send className="w-4 h-4" />
             </button>
