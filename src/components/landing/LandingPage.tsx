@@ -34,10 +34,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               </div>
               
               <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-black/70">
-                <button onClick={() => onStart('overview')} className="hover:text-black transition-colors">Services</button>
-                <button onClick={() => onStart('overview')} className="hover:text-black transition-colors">How it Works</button>
-                <button onClick={() => onStart('overview')} className="hover:text-black transition-colors">About Us</button>
-                <button onClick={() => onStart('overview')} className="hover:text-black transition-colors">Pricing</button>
+                <button onClick={() => onStart('portfolio')} className="hover:text-black transition-colors">Portfolio</button>
+                <button onClick={() => onStart('quant_risk')} className="hover:text-black transition-colors">Risk Profiler</button>
+                <button onClick={() => onStart('marketsim')} className="hover:text-black transition-colors">Simulator</button>
+                <button onClick={() => onStart('learning')} className="hover:text-black transition-colors">Learning</button>
               </div>
 
               <button 
@@ -53,13 +53,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           <div className="flex-1 flex flex-col items-center mt-12 md:mt-20 px-4 text-center pb-24">
             
             <h1 className="text-[48px] md:text-[72px] lg:text-[84px] leading-[1.05] tracking-[-0.03em] font-medium mb-6 text-black">
-              <span className="text-black/30 block mb-1">A New Way</span>
-              to Manage Your<br/>
-              Indian Portfolio
+              Investing,<br/>
+              Without the Guesswork
             </h1>
             
             <p className="text-[15px] md:text-[17px] text-black/70 max-w-2xl mx-auto leading-relaxed font-medium mb-12">
-              Financial literacy in India is growing, but financial confidence is not. MoneyIQ transforms complex market data into clear, actionable insights. Stop relying on social media hype—consolidate your portfolio, understand your risk, and make data-driven decisions with confidence.
+              Financial literacy is growing. Financial confidence isn't. Students SIP blind. Professionals juggle five apps. First-timers trust Instagram over data. MoneyIQ fixes that — consolidate, understand your risk, decide with confidence.
             </p>
 
             <button 
