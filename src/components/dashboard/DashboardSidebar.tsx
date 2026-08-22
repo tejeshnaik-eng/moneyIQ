@@ -109,11 +109,10 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           <div className="space-y-1">
             {!collapsed && (
               <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2">
-                Observe
+                Learn
               </h3>
             )}
-            {renderNavButton('learning', 'App Guides', Smartphone)}
-            {renderNavButton('hypedetector', 'Hype Detector', Flame)}
+            {renderNavButton('learning', 'Learning', GraduationCap)}
           </div>
 
           {/* SECTION 4: Utilities */}
@@ -126,34 +125,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             {renderNavButton('tools', 'Tools', Wrench)}
           </div>
 
-          <div className="pt-4">
-            <button className="flex items-center gap-2 px-3 py-2 text-[#A1A1AA] hover:text-[#E4E4E7] font-heading text-sm font-medium transition-colors">
-              {!collapsed && <span>Changelog</span>}
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-          </div>
         </nav>
       </div>
 
       {/* Bottom Section */}
       <div className="p-4 flex flex-col gap-3">
-        {/* 4 Icon Buttons Row */}
-        {!collapsed && (
-          <div className="flex items-center justify-between gap-2">
-            <button className="flex-1 flex justify-center py-2 rounded-xl border border-[#333333] text-[#A1A1AA] hover:text-white hover:bg-[#2A2A2A] transition-colors">
-              <Bell className="w-4 h-4" />
-            </button>
-            <button className="flex-1 flex justify-center py-2 rounded-xl border border-[#333333] text-[#A1A1AA] hover:text-white hover:bg-[#2A2A2A] transition-colors">
-              <Settings className="w-4 h-4" />
-            </button>
-            <button className="flex-1 flex justify-center py-2 rounded-xl border border-[#333333] text-[#A1A1AA] hover:text-white hover:bg-[#2A2A2A] transition-colors">
-              <Search className="w-4 h-4" />
-            </button>
-            <button className="flex-1 flex justify-center py-2 rounded-xl border border-[#333333] text-[#A1A1AA] hover:text-white hover:bg-[#2A2A2A] transition-colors">
-              <Key className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+
 
         {/* User Profile Pill */}
         <div className={`flex items-center justify-between p-2 rounded-xl border border-[#333333] bg-[#161616] ${collapsed ? 'justify-center' : ''}`}>
@@ -176,13 +153,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           )}
         </div>
       </div>
-      {/* Collapse Toggle */}
-      <button
-        onClick={onToggleCollapse}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-[#2A2A2A] text-[#A1A1AA] hover:text-white rounded-full p-1.5 shadow-md z-30"
-      >
-        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-      </button>
     </aside>
   );
 };

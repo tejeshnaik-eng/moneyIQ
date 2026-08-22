@@ -9,7 +9,6 @@ import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
 import { LearningModule } from '../modules/LearningModule';
 import { ToolsModule } from '../modules/ToolsModule';
-import { HypeDetectorModule } from '../modules/HypeDetectorModule';
 import { AiChatWidget } from '../chat/AiChatWidget';
 import { ModuleId, UserProfile } from '../../types';
 
@@ -43,8 +42,6 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         return <MarketSimModule />;
       case 'learning':
         return <LearningModule />;
-      case 'hypedetector':
-        return <HypeDetectorModule />;
       case 'tools':
         return <ToolsModule />;
       default:
@@ -53,7 +50,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-background flex font-body-md">
+    <div className="min-h-screen bg-[#1E1E1E] text-on-background flex font-body-md">
       <DashboardSidebar
         activeModule={activeModule}
         onSelectModule={(mod) => setActiveModule(mod)}
@@ -62,7 +59,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto h-screen ${['overview', 'tools'].includes(activeModule) ? 'bg-[#1E1E1E]' : ''}`}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen bg-[#1E1E1E]">
         <DashboardTopBar
           activeModule={activeModule}
           user={user}
@@ -70,7 +67,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           onLogout={onLogout}
         />
 
-        <main className={`flex-1 w-full mx-auto ${['overview', 'tools'].includes(activeModule) ? 'p-0 max-w-none' : 'p-6 sm:p-8 max-w-[1280px]'}`}>
+        <main className="flex-1 w-full mx-auto p-0 max-w-none">
           {renderActiveModule()}
         </main>
       </div>

@@ -6,7 +6,7 @@ import {
   Send,
   Calendar,
   CheckCheck,
-  MoreHorizontal
+  Bot
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -91,30 +91,35 @@ export const AiChatWidget: React.FC = () => {
 
   return (
     <>
-      {/* Floating Action Button (scales down when chat is open) */}
+      {/* Floating Action Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-40 bg-[#0F9D65] hover:bg-[#0C7D51] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 hover:scale-105'}`}
+        className={`fixed bottom-6 right-6 z-40 bg-[#20EFA0] hover:bg-[#1bc785] text-[#080B0A] w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100 hover:scale-105'}`}
       >
         <MessageSquare className="w-6 h-6" />
       </button>
 
       {/* Slide-out Mobile-style Chat Panel */}
       <div 
-        className={`fixed bottom-6 right-6 z-50 w-[380px] h-[650px] max-h-[85vh] bg-white rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col overflow-hidden transition-all duration-400 cubic-bezier(0.16, 1, 0.3, 1) transform ${
+        className={`fixed bottom-6 right-6 z-50 w-[380px] h-[650px] max-h-[85vh] bg-[#0D1311] rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[#111916] flex flex-col overflow-hidden transition-all duration-400 cubic-bezier(0.16, 1, 0.3, 1) transform font-['Outfit'] ${
           isOpen ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0 pointer-events-none'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 pb-3">
-          <h2 className="text-[22px] font-heading font-medium text-gray-900 tracking-tight">AI assistant</h2>
+        <div className="flex items-center justify-between p-5 pb-3 border-b border-[#111916]">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-[#111916] flex items-center justify-center border border-[#6E7C75]/20">
+              <Bot className="w-5 h-5 text-[#20EFA0]" />
+            </div>
+            <h2 className="text-[18px] font-medium text-[#F2F7F4] tracking-tight">FinSight AI</h2>
+          </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#111916] rounded-full text-xs font-medium text-[#A7B5AE] border border-[#6E7C75]/20">
               <Calendar className="w-3.5 h-3.5" /> Today
             </div>
             <button 
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition-colors"
+              className="w-8 h-8 flex items-center justify-center bg-[#111916] hover:bg-[#1a2521] rounded-full text-[#A7B5AE] hover:text-[#F2F7F4] transition-colors border border-[#6E7C75]/20"
             >
               <X className="w-4 h-4" />
             </button>
@@ -122,25 +127,22 @@ export const AiChatWidget: React.FC = () => {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6 custom-scrollbar bg-[#080B0A]">
           
-          {/* Welcome Message (shows if empty) */}
+          {/* Welcome Message */}
           {messages.length === 0 && (
             <div className="flex gap-3 max-w-[90%]">
-              <div className="w-[42px] h-[42px] rounded-full shrink-0 bg-gradient-to-br from-[#8E8BFF] via-[#5D57FF] to-[#362DD9] shadow-inner flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-white/20 blur-md rounded-full scale-50"></div>
+              <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-[#20EFA0]" />
               </div>
-              <div 
-                className="bg-[#F8F9FA] rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100/50 relative overflow-hidden"
-              >
-                <div className="absolute inset-0 z-0" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #F3F4F6, #F3F4F6 2px, transparent 2px, transparent 8px)' }}></div>
-                <p className="text-[16px] text-gray-800 leading-snug font-body relative z-10">
+              <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20">
+                <p className="text-[15px] text-[#F2F7F4] leading-snug font-['Hedvig_Letters_Sans']">
                   Good morning, are you ready to review your finances?
                 </p>
-                <div className="flex justify-end items-center gap-1 mt-2 relative z-10">
-                  <span className="text-[10px] font-medium text-gray-400">{getFormattedTime()}</span>
-                  <div className="w-3.5 h-3.5 rounded-full bg-[#7C3AED] flex items-center justify-center">
-                    <CheckCheck className="w-2.5 h-2.5 text-white" />
+                <div className="flex justify-end items-center gap-1 mt-2">
+                  <span className="text-[10px] font-medium text-[#6E7C75]">{getFormattedTime()}</span>
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#20EFA0]/20 flex items-center justify-center">
+                    <CheckCheck className="w-2.5 h-2.5 text-[#20EFA0]" />
                   </div>
                 </div>
               </div>
@@ -152,24 +154,37 @@ export const AiChatWidget: React.FC = () => {
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'user' ? (
                 // User Bubble
-                <div className="bg-[#7C3AED] text-white rounded-[20px] rounded-tr-[4px] px-4 py-3 shadow-sm max-w-[85%] font-body">
+                <div className="bg-[#2A2A2A] text-[#F2F7F4] rounded-[20px] rounded-tr-[4px] px-4 py-3 max-w-[85%] font-['Hedvig_Letters_Sans']">
                   <p className="text-[15px] leading-relaxed">{msg.content}</p>
                 </div>
               ) : (
                 // AI Bubble
-                <div className="flex gap-3 max-w-[90%]">
-                  <div className="w-[42px] h-[42px] rounded-full shrink-0 bg-gradient-to-br from-[#8E8BFF] via-[#5D57FF] to-[#362DD9] shadow-inner flex items-center justify-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-white/20 blur-md rounded-full scale-50"></div>
+                <div className="flex gap-3 max-w-[95%]">
+                  <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
+                    <Bot className="w-4 h-4 text-[#20EFA0]" />
                   </div>
-                  <div className="bg-[#F8F9FA] rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100/50 relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #fff 25%, #fff 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}></div>
-                    <div className="text-[15px] text-gray-800 leading-relaxed font-body relative z-10 prose prose-sm prose-p:my-1 prose-headings:my-2 prose-a:text-[#7C3AED]">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20 font-['Hedvig_Letters_Sans'] overflow-hidden">
+                    <div className="text-[15px] text-[#F2F7F4] leading-relaxed">
+                      <ReactMarkdown 
+                        components={{
+                          p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                          strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
+                          ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                          ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                          li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                          h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-2 text-[#20EFA0]" {...props} />,
+                          h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 text-[#20EFA0]" {...props} />,
+                          h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 text-[#20EFA0]" {...props} />,
+                          a: ({node, ...props}) => <a className="text-[#20EFA0] hover:underline" {...props} />
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
-                    <div className="flex justify-end items-center gap-1 mt-2 relative z-10">
-                      <span className="text-[10px] font-medium text-gray-400">{msg.timestamp}</span>
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#7C3AED] flex items-center justify-center">
-                        <CheckCheck className="w-2.5 h-2.5 text-white" />
+                    <div className="flex justify-end items-center gap-1 mt-2">
+                      <span className="text-[10px] font-medium text-[#6E7C75]">{msg.timestamp}</span>
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#20EFA0]/20 flex items-center justify-center">
+                        <CheckCheck className="w-2.5 h-2.5 text-[#20EFA0]" />
                       </div>
                     </div>
                   </div>
@@ -181,13 +196,13 @@ export const AiChatWidget: React.FC = () => {
           {/* Typing Indicator */}
           {isTyping && (
             <div className="flex gap-3 max-w-[85%]">
-              <div className="w-[42px] h-[42px] rounded-full shrink-0 bg-gradient-to-br from-[#8E8BFF] via-[#5D57FF] to-[#362DD9] shadow-inner flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-white/20 blur-md rounded-full scale-50"></div>
+              <div className="w-8 h-8 rounded-full shrink-0 bg-[#111916] border border-[#6E7C75]/20 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-[#20EFA0]" />
               </div>
-              <div className="bg-[#F8F9FA] rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100 flex items-center gap-1.5 h-[52px]">
-                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="bg-[#111916] rounded-2xl rounded-tl-sm p-4 border border-[#6E7C75]/20 flex items-center gap-1.5 h-[48px]">
+                <div className="w-2 h-2 rounded-full bg-[#6E7C75] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-[#6E7C75] animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-[#6E7C75] animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           )}
@@ -195,37 +210,30 @@ export const AiChatWidget: React.FC = () => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white flex items-center gap-3">
-          <button className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-            <Paperclip className="w-[22px] h-[22px]" />
+        <div className="p-4 bg-[#0D1311] border-t border-[#111916] flex items-center gap-3">
+          <button className="text-[#A7B5AE] hover:text-[#F2F7F4] transition-colors shrink-0">
+            <Paperclip className="w-5 h-5" />
           </button>
-          <div className="flex-1 relative group">
+          
+          <div className="flex-1 relative">
             <input
+              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full pl-4 pr-12 py-3.5 rounded-2xl border-[1.5px] border-[#D8B4FE] focus:border-[#A855F7] bg-white outline-none text-[15px] font-body text-gray-800 placeholder-gray-400 transition-colors shadow-[0_2px_10px_rgba(216,180,254,0.15)] focus:shadow-[0_2px_15px_rgba(168,85,247,0.2)]"
-              placeholder="I'm prepared and eager to start..."
+              placeholder="Ask FinSight AI..."
+              className="w-full bg-[#111916] border border-[#6E7C75]/30 text-[#F2F7F4] placeholder-[#6E7C75] rounded-full py-2.5 pl-4 pr-10 text-[15px] outline-none focus:border-[#20EFA0]/50 transition-colors"
             />
             <button 
               onClick={() => handleSend(input)}
-              disabled={!input.trim() || isTyping}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#84CC16] hover:text-[#65A30D] transition-colors disabled:opacity-50 disabled:hover:text-[#84CC16]"
+              disabled={!input.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#20EFA0] hover:text-[#1bc785] disabled:text-[#6E7C75] disabled:cursor-not-allowed transition-colors p-1"
             >
-              <Send className="w-5 h-5 -rotate-12 translate-y-[-1px] translate-x-[1px]" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
         </div>
-
       </div>
-      
-      {/* Scrollbar & transition styling */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E5EA; border-radius: 10px; }
-        .duration-400 { transition-duration: 400ms; }
-      `}</style>
     </>
   );
 };
