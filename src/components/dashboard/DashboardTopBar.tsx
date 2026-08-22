@@ -41,20 +41,20 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   const meta = getModuleMeta(activeModule);
 
   return (
-    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-20 px-8 w-full`}>
+    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-[100px] px-10 w-full`}>
       <div className="flex items-center gap-sm">
-        <span className={`font-headline-sm text-[22px] font-bold tracking-tight ${activeModule === 'overview' ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
+        <span className={`font-headline-sm text-[26px] font-bold tracking-tight ${activeModule === 'overview' ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
       </div>
       {/* Search & Actions */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-8">
         <div className="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
-          <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`} />
-          <input className={`${activeModule === 'overview' ? 'bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-gray-700' : 'bg-surface-variant/30 text-body-sm placeholder-on-surface-variant/60 focus:ring-primary'} border-none py-2.5 pl-12 pr-6 w-72 rounded-full focus:outline-none focus:ring-1`} placeholder="Search ticker or asset..." type="text"/>
+          <Search className={`w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`} />
+          <input className={`${activeModule === 'overview' ? 'bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-gray-700' : 'bg-surface-variant/30 text-body-sm placeholder-on-surface-variant/60 focus:ring-primary'} border-none py-3.5 pl-14 pr-6 w-80 rounded-full focus:outline-none focus:ring-1 text-[15px]`} placeholder="Search ticker or asset..." type="text"/>
         </div>
-        <div className={`flex items-center gap-2 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`}>
-          <button className={`hover:text-primary transition-colors w-11 h-11 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><Bell className="w-5 h-5" /></button>
-          <button className={`hover:text-primary transition-colors w-11 h-11 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><History className="w-5 h-5" /></button>
-          <button className={`hover:text-primary transition-colors ml-2 w-11 h-11 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><UserCircle className="w-6 h-6" /></button>
+        <div className={`flex items-center gap-3 ${activeModule === 'overview' ? 'text-gray-400' : 'text-on-surface-variant'}`}>
+          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><Bell className="w-6 h-6" /></button>
+          <button className={`hover:text-primary transition-colors w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><History className="w-6 h-6" /></button>
+          <button className={`hover:text-primary transition-colors ml-2 w-12 h-12 flex items-center justify-center rounded-full ${activeModule === 'overview' ? 'hover:bg-[#2A2A2A] hover:text-white' : 'hover:bg-surface-variant/50'}`}><UserCircle className="w-7 h-7" /></button>
         </div>
       </div>
     </header>
