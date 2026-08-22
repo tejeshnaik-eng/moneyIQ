@@ -45,11 +45,10 @@ const TipWidget = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className={`fixed bottom-6 left-6 z-50 transition-all duration-500 max-w-sm ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-      <div className="bg-[#1C1C1C] border-none shadow-2xl rounded-2xl px-5 py-4 flex items-start gap-3 relative overflow-hidden group cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('ai-chat-prompt', { detail: { prompt: "Can you help me?", autoSend: false } }))}>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#00D09C]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <p className="text-[13px] text-[#A1A1AA] font-medium leading-relaxed relative z-10">{TIPS[tipIndex]}</p>
+    return (
+    <div className={`fixed bottom-3 left-6 z-50 transition-all duration-500 ${visible ? 'opacity-60 hover:opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+      <div className="cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('ai-chat-prompt', { detail: { prompt: "Can you help me?", autoSend: false } }))}>
+        <p className="text-[10px] text-[#8A8F98] font-medium tracking-wide">{TIPS[tipIndex]}</p>
       </div>
     </div>
   );
