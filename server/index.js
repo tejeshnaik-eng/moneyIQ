@@ -236,21 +236,46 @@ app.post('/api/audit-claim', verifyToken, async (req, res) => {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-3.5-flash-lite',
-      systemInstruction: SYSTEM_PROMPT,
-      generationConfig: {
-        responseMimeType: 'application/json',
-        responseSchema: auditSchema,
-        temperature: 0.3, // Low temperature for factual, consistent outputs
-        maxOutputTokens: 1024,
-      },
-    });
-
+    
+    const fallbackModels = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3-flash',
+      'gemini-2.5-flash'
+    ];
+    
+    let responseText = "";
+    let success = false;
     const userPrompt = `Analyze this financial claim and return a structured audit: "${claim.trim()}"`;
-
-    const result = await model.generateContent(userPrompt);
-    const responseText = result.response.text();
+    
+    for (const modelName of fallbackModels) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction: SYSTEM_PROMPT,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: auditSchema,
+            temperature: 0.3,
+            maxOutputTokens: 1024,
+          },
+        });
+        
+        const result = await model.generateContent(userPrompt);
+        if (result.response.text()) {
+           responseText = result.response.text();
+           success = true;
+           break;
+        }
+      } catch (e) {
+        console.warn('Model ' + modelName + ' failed, trying next...');
+        continue;
+      }
+    }
+    
+    if (!success || !responseText) throw new Error("All fallback models exhausted or rate limited.");
 
     // Parse and validate the JSON response
     const auditResult = JSON.parse(responseText);

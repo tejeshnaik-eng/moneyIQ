@@ -25,44 +25,68 @@ Note: The sum of equity, debt, gold, and cash percentages must equal exactly 100
 `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            capacityScore: { type: Type.INTEGER },
-            toleranceScore: { type: Type.INTEGER },
-            profileClass: { type: Type.STRING },
-            personaName: { type: Type.STRING },
-            coreStrategy: { type: Type.STRING },
-            primaryConsideration: { type: Type.STRING },
-            equityPct: { type: Type.INTEGER },
-            debtPct: { type: Type.INTEGER },
-            goldPct: { type: Type.INTEGER },
-            cashPct: { type: Type.INTEGER },
-          },
-          required: [
-            "capacityScore",
-            "toleranceScore",
-            "profileClass",
-            "personaName",
-            "coreStrategy",
-            "primaryConsideration",
-            "equityPct",
-            "debtPct",
-            "goldPct",
-            "cashPct"
-          ],
-        },
+    
+    const fallbackModels = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3-flash',
+      'gemini-2.5-flash'
+    ];
+    
+    let aiResponseText = "";
+    let success = false;
+    
+    for (const modelName of fallbackModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                capacityScore: { type: Type.INTEGER },
+                toleranceScore: { type: Type.INTEGER },
+                profileClass: { type: Type.STRING },
+                personaName: { type: Type.STRING },
+                coreStrategy: { type: Type.STRING },
+                primaryConsideration: { type: Type.STRING },
+                equityPct: { type: Type.INTEGER },
+                debtPct: { type: Type.INTEGER },
+                goldPct: { type: Type.INTEGER },
+                cashPct: { type: Type.INTEGER },
+              },
+              required: [
+                "capacityScore",
+                "toleranceScore",
+                "profileClass",
+                "personaName",
+                "coreStrategy",
+                "primaryConsideration",
+                "equityPct",
+                "debtPct",
+                "goldPct",
+                "cashPct"
+              ],
+            },
+          }
+        });
+        if (response.text) {
+           aiResponseText = response.text;
+           success = true;
+           break;
+        }
+      } catch (e) {
+        console.warn(`Model ${modelName} failed, trying next...`);
+        continue;
       }
-    });
+    }
     
-    if (!response.text) throw new Error("Empty response from AI");
-    
-    return JSON.parse(response.text);
+    if (!success || !aiResponseText) throw new Error("All fallback models exhausted or rate limited.");
+    return JSON.parse(aiResponseText);
   } catch (error) {
     console.error("AI Evaluation failed:", error);
     throw error;

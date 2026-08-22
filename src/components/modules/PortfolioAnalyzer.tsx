@@ -70,92 +70,53 @@ Input Data:
 ${JSON.stringify(inputPayload, null, 2)}
 `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              allocation_breakdown: {
-                type: Type.ARRAY,
-                items: {
+      
+        const fallbackModels = [
+          'gemini-3.5-flash-lite',
+          'gemini-3.1-flash-lite',
+          'gemini-2.5-flash-lite',
+          'gemini-3.5-flash',
+          'gemini-3-flash',
+          'gemini-2.5-flash'
+        ];
+        
+        let aiResponseText = "";
+        let success = false;
+        
+        for (const modelName of fallbackModels) {
+          try {
+            const response = await ai.models.generateContent({
+              model: modelName,
+              contents: prompt,
+              config: {
+                responseMimeType: "application/json",
+                responseSchema: {
                   type: Type.OBJECT,
                   properties: {
-                    category: { type: Type.STRING },
-                    value_pct: { type: Type.NUMBER },
-                    amount: { type: Type.NUMBER }
+                    allocation_breakdown: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { category: { type: Type.STRING }, value_pct: { type: Type.NUMBER }, amount: { type: Type.NUMBER } } } },
+                    sector_concentration: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { sector: { type: Type.STRING }, value_pct: { type: Type.NUMBER } } } },
+                    risk_alignment: { type: Type.OBJECT, properties: { user_risk_category: { type: Type.STRING }, portfolio_risk_score: { type: Type.NUMBER }, alignment_status: { type: Type.STRING }, explanation: { type: Type.STRING } } },
+                    diversification_score: { type: Type.OBJECT, properties: { score: { type: Type.NUMBER }, components: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { factor: { type: Type.STRING }, status: { type: Type.STRING }, impact: { type: Type.STRING } } } } } },
+                    warnings: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { severity: { type: Type.STRING }, message: { type: Type.STRING } } } },
+                    summary: { type: Type.STRING }
                   },
-                  required: ["category", "value_pct", "amount"]
+                  required: ["allocation_breakdown", "sector_concentration", "risk_alignment", "diversification_score", "warnings", "summary"]
                 }
-              },
-              sector_concentration: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    sector: { type: Type.STRING },
-                    value_pct: { type: Type.NUMBER }
-                  },
-                  required: ["sector", "value_pct"]
-                }
-              },
-              risk_alignment: {
-                type: Type.OBJECT,
-                properties: {
-                  user_risk_category: { type: Type.STRING },
-                  portfolio_risk_score: { type: Type.NUMBER },
-                  alignment_status: { type: Type.STRING },
-                  explanation: { type: Type.STRING }
-                },
-                required: ["user_risk_category", "portfolio_risk_score", "alignment_status", "explanation"]
-              },
-              diversification_score: {
-                type: Type.OBJECT,
-                properties: {
-                  score: { type: Type.NUMBER },
-                  components: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        label: { type: Type.STRING },
-                        score: { type: Type.NUMBER }
-                      },
-                      required: ["label", "score"]
-                    }
-                  }
-                },
-                required: ["score", "components"]
-              },
-              warnings: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    severity: { type: Type.STRING },
-                    message: { type: Type.STRING }
-                  },
-                  required: ["severity", "message"]
-                }
-              },
-              summary: { type: Type.STRING }
-            },
-            required: [
-              "allocation_breakdown",
-              "sector_concentration",
-              "risk_alignment",
-              "diversification_score",
-              "warnings",
-              "summary"
-            ]
+              }
+            });
+            if (response.text) {
+               aiResponseText = response.text;
+               success = true;
+               break;
+            }
+          } catch (e) {
+            console.warn('Model ' + modelName + ' failed, trying next...');
+            continue;
           }
         }
-      });
-
-      if (!response.text) throw new Error("Empty response from AI");
-      const parsed = JSON.parse(response.text);
+        
+        if (!success || !aiResponseText) throw new Error("All fallback models exhausted or rate limited.");
+        const parsed = JSON.parse(aiResponseText);
       
       setAnalysisResult(parsed); localStorage.setItem('finsight_ai_analysis', JSON.stringify(parsed));
     } catch (err: any) {
