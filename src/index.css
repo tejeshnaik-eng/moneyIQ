@@ -4,40 +4,21 @@
 
 @layer base {
   :root {
-    --app-bg: #F8FAFC;
-    --app-surface: #FFFFFF;
-    --app-surface-alt: #f7f9fb;
-    --app-surface-hover: #eceef0;
-    --app-text: #191c1e;
-    --app-text-muted: #565e74;
-    --app-border: #E2E8F0;
+    --app-bg: #080B0A;
+    --app-surface: #0D1311;
+    --app-surface-alt: #111916;
+    --app-surface-hover: #16201C;
+    --app-text: #F2F7F4;
+    --app-text-muted: #A7B5AE;
+    --app-border: #111916;
     
-    --primary: #0F9D65;
-    --primary-dim: #0C7D51;
-    --primary-soft: rgba(15, 157, 101, 0.12);
+    --primary: #20EFA0;
+    --primary-dim: #0B9E6A;
+    --primary-soft: #0D2B21;
     
-    /* Institutional Amethyst Purple */
-    --secondary: #7e57c2;
-    --secondary-dim: #512da8;
-    --secondary-soft: rgba(126, 87, 194, 0.12);
-  }
-
-  .dark {
-    --app-bg: #0B0E14;
-    --app-surface: #141820; 
-    --app-surface-alt: #1a1e28;
-    --app-surface-hover: #222733;
-    --app-text: #F5F1E8;
-    --app-text-muted: #94A3B8;
-    --app-border: #2A3143;
-    
-    --primary: #0F9D65;
-    --primary-dim: #13b677;
-    --primary-soft: rgba(15, 157, 101, 0.2);
-    
-    --secondary: #b39ddb;
-    --secondary-dim: #d1c4e9;
-    --secondary-soft: rgba(179, 157, 219, 0.2);
+    --secondary: #9A7CFF;
+    --secondary-dim: #7C3AED;
+    --secondary-soft: rgba(154, 124, 255, 0.12);
   }
 
   body {
@@ -74,7 +55,7 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: var(--primary);
-  color: #ffffff;
+  color: #080B0A;
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 0.875rem;

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { GoogleGenAI } from '@google/genai';
+
 import { 
   MessageSquare, 
   X, 
@@ -25,6 +27,19 @@ export const AiChatWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const handlePromptEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt: string; autoSend?: boolean }>;
+      setIsOpen(true);
+      setInput(customEvent.detail.prompt);
+      if (customEvent.detail.autoSend) {
+        handleSend(customEvent.detail.prompt);
+      }
+    };
+    window.addEventListener('ai-chat-prompt', handlePromptEvent as EventListener);
+    return () => window.removeEventListener('ai-chat-prompt', handlePromptEvent as EventListener);
+  }, []);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
@@ -49,26 +64,30 @@ export const AiChatWidget: React.FC = () => {
         return;
       }
 
+
+
+// ... (in the component) ...
+// (inside handleSend, replacing the fetch block)
+      const ai = new GoogleGenAI({ apiKey });
+      
       const contents = messages.map(msg => ({
         role: msg.role === 'ai' ? 'model' : 'user',
         parts: [{ text: msg.content }]
       }));
       contents.push({ role: 'user', parts: [{ text: trimmed }] });
 
-      const promptSystemContext = "You are FinSight AI assistant. Keep responses concise, helpful, and friendly. Use plain text or simple markdown.";
+      const promptSystemContext = "You are FinSight AI assistant. Provide extremely detailed, comprehensive, and robust answers. Do not cut off mid-sentence. Provide full context.";
       
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: promptSystemContext }] },
-          contents,
-          generationConfig: { temperature: 0.3, maxOutputTokens: 800 }
-        })
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents,
+        config: {
+          systemInstruction: promptSystemContext,
+          temperature: 0.3,
+        }
       });
 
-      const data = await res.json();
-      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const aiResponse = response.text;
       
       if (aiResponse) {
         setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: aiResponse, timestamp: getFormattedTime() }]);

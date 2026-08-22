@@ -18,15 +18,40 @@ interface DashboardShellProps {
   onLogout?: () => void;
 }
 
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
+
 export const DashboardShell: React.FC<DashboardShellProps> = ({
   user,
   initialModule = 'overview',
   onLogout,
 }) => {
+  const { user: authUser } = useAuth();
   const [activeModule, setActiveModule] = useState<ModuleId>(initialModule);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
+
+  React.useEffect(() => {
+    const checkProfile = async () => {
+      if (!authUser?.id) return;
+      const { data } = await supabase.from('risk_profiles').select('id').eq('user_id', authUser.id).maybeSingle();
+      if (!data) {
+        setActiveModule('risk');
+      }
+      setIsCheckingProfile(false);
+    };
+    checkProfile();
+  }, [authUser?.id]);
 
   const renderActiveModule = () => {
+    if (isCheckingProfile) {
+      return (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
+
     switch (activeModule) {
       case 'overview':
         return <OverviewModule onNavigateModule={(m) => setActiveModule(m)} />;

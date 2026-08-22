@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle2, Circle, ArrowRight, BookOpen } from 'lucide-react';
+import { GrowwInteractiveModule2 } from './GrowwInteractiveModule2';
+import { SIPMechanicsModule3 } from './SIPMechanicsModule3';
 
 /* ═══════════════════════════════════════════════════
    PHASE 1 COURSE DATA
@@ -475,9 +477,45 @@ const LESSONS: Lesson[] = [
       </>
     ),
   },
+
+  {
+    id: 'decoding-groww',
+    title: 'Module 2: Decoding the Groww Interface',
+    subtitle: 'When you open a fund page on Groww, every metric tells a specific story.',
+    content: (
+      <>
+        <div className="space-y-4 mb-6">
+          <p className="text-[15px] text-[#C4C4C4] font-body leading-[1.75]">
+            Before investing, you need to know how to read the data presented to you on platforms like Groww. We've broken down every UI element so you know exactly what to look for.
+          </p>
+        </div>
+        <GrowwInteractiveModule2 />
+      </>
+    ),
+  },{
+    id: 'sip-mechanics',
+    title: 'Module 3: Mechanics of SIP & Compounding',
+    subtitle: 'Master Rupee Cost Averaging and the Groww execution lifecycle.',
+    content: (
+      <SIPMechanicsModule3 />
+    )
+  }
 ];
 
 const QUIZ_QUESTIONS: QuizQuestion[] = [
+
+    {
+      question: 'What does the "Expense Ratio" of a mutual fund represent?',
+      options: [
+        'The amount of money the fund holds (AUM)',
+        'The annual fee deducted directly from the NAV to cover operational fees',
+        'A penalty for withdrawing early',
+        'The expected yearly return of the fund',
+      ],
+      correctIndex: 1,
+      explanation: 'Expense Ratio is the annual maintenance charge levied by mutual funds to finance its expenses. A lower expense ratio means more of your money is actually invested.',
+    },
+
   {
     question: 'What is the main advantage of a Mutual Fund over a single stock?',
     options: [
@@ -517,13 +555,12 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
    MAIN LEARNING MODULE
    ═══════════════════════════════════════════════════ */
 
+
 export const LearningModule: React.FC = () => {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
-  const [expandedLesson, setExpandedLesson] = useState<string | null>(LESSONS[0].id);
+  const [activeLessonId, setActiveLessonId] = useState<string>(LESSONS[0].id);
 
-  const toggleLesson = (id: string) => {
-    setExpandedLesson(prev => prev === id ? null : id);
-  };
+  const activeLesson = LESSONS.find(l => l.id === activeLessonId) || LESSONS[0];
 
   const markComplete = (id: string) => {
     setCompletedLessons(prev => {
@@ -536,95 +573,98 @@ export const LearningModule: React.FC = () => {
   const progress = (completedLessons.size / LESSONS.length) * 100;
 
   return (
-    <div className="w-full h-full bg-[#1E1E1E] text-white overflow-y-auto custom-scrollbar">
-      <div className="max-w-[900px] mx-auto p-8 lg:p-10 pb-20">
-
-        {/* Page Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="bg-[#00B386]/15 text-[#00B386] text-[11px] font-heading font-bold uppercase tracking-widest px-3 py-1 rounded-[8px]">
-              Phase 1
-            </div>
-            <span className="text-[12px] text-[#71717A] font-body">{completedLessons.size} of {LESSONS.length} lessons complete</span>
+    <div className="w-full h-full bg-[#121212] text-white overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="shrink-0 p-6 lg:px-10 border-b border-[#333] bg-[#1E1E1E]">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="bg-[#00D09C]/15 text-[#00D09C] text-[11px] font-heading font-bold uppercase tracking-widest px-3 py-1 rounded-[8px]">
+            Learning Center
           </div>
-          <h1 className="text-[32px] font-bold tracking-[-0.03em] text-white mb-2 font-heading">
-            Foundations of Markets & Mutual Funds
-          </h1>
-          <p className="text-[16px] text-[#8A8F98] font-body">
-            Understand the building blocks: stocks vs. mutual funds, plan types, and how your money compounds.
-          </p>
+          <span className="text-[12px] text-[#A1A1AA] font-body">{completedLessons.size} of {LESSONS.length} modules complete</span>
+        </div>
+        <h1 className="text-[28px] font-bold tracking-[-0.03em] text-white font-heading">
+          Foundations of Markets & Mutual Funds
+        </h1>
+        <div className="mt-4">
+          <div className="h-1.5 w-64 bg-[#262626] rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-[#00D09C] transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+      </div>
 
-          {/* Progress bar */}
-          <div className="mt-5">
-            <div className="h-2 bg-[#262626] rounded-full overflow-hidden">
-              <div className="h-full rounded-full bg-[#00B386] transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+      {/* Split Layout */}
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+        
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 pb-32">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-8 border-b border-[#333] pb-6">
+              <h2 className="text-[32px] font-heading font-bold text-white mb-2">{activeLesson.title}</h2>
+              <p className="text-[16px] text-[#A1A1AA] font-body">{activeLesson.subtitle}</p>
             </div>
+            
+            <div className="text-white">
+              {activeLesson.content}
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-[#333] flex justify-between items-center">
+              {!completedLessons.has(activeLesson.id) ? (
+                <button
+                  onClick={() => markComplete(activeLesson.id)}
+                  className="inline-flex items-center gap-2 bg-[#00D09C] hover:bg-[#00D09C]/80 text-[#0D1117] px-6 py-3 rounded-[14px] text-[14px] font-heading font-semibold transition-all duration-[180ms]"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  Mark as Complete
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 text-[#00D09C]">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="text-[14px] font-heading font-semibold">Completed</span>
+                </div>
+              )}
+            </div>
+
+            {/* If it's the last lesson, show quiz at the bottom */}
+            {activeLessonId === LESSONS[LESSONS.length - 1].id && (
+              <div className="mt-16 pt-8 border-t border-[#333]">
+                <h2 className="text-[20px] font-heading font-bold text-white mb-5">Test Your Understanding</h2>
+                <KnowledgeCheck questions={QUIZ_QUESTIONS} />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Lessons Accordion */}
-        <div className="space-y-3 mb-12">
-          {LESSONS.map((lesson, idx) => {
-            const isExpanded = expandedLesson === lesson.id;
-            const isComplete = completedLessons.has(lesson.id);
+        {/* Right Sidebar - Module Navigation */}
+        <div className="w-full lg:w-[380px] shrink-0 border-l border-[#333] bg-[#1E1E1E] overflow-y-auto custom-scrollbar p-6">
+          <h3 className="text-[14px] font-heading font-bold text-[#8A8F98] uppercase tracking-wider mb-4">Course Modules</h3>
+          <div className="space-y-3">
+            {LESSONS.map((lesson, idx) => {
+              const isActive = activeLessonId === lesson.id;
+              const isComplete = completedLessons.has(lesson.id);
 
-            return (
-              <div key={lesson.id} className="bg-[#222222] rounded-[20px] overflow-hidden">
-                {/* Lesson Header */}
+              return (
                 <button
-                  onClick={() => toggleLesson(lesson.id)}
-                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-[#262626] transition-colors"
+                  key={lesson.id}
+                  onClick={() => setActiveLessonId(lesson.id)}
+                  className={`w-full flex items-start gap-4 p-4 rounded-[16px] text-left transition-all duration-200 ${isActive ? 'bg-[#262626] ring-1 ring-[#00D09C]/30' : 'hover:bg-[#222]'}`}
                 >
-                  <div className="shrink-0">
+                  <div className="shrink-0 mt-0.5">
                     {isComplete ? (
-                      <CheckCircle2 className="w-6 h-6 text-[#00B386]" />
+                      <CheckCircle2 className="w-5 h-5 text-[#00D09C]" />
                     ) : (
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center bg-[#333] text-[13px] font-heading font-bold text-[#8A8F98]">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] font-bold ${isActive ? 'border-[#00D09C] text-[#00D09C]' : 'border-[#444] text-[#8A8F98]'}`}>
                         {idx + 1}
                       </div>
                     )}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-[16px] font-heading font-bold text-white">{lesson.title}</h3>
-                    <p className="text-[13px] text-[#71717A] font-body mt-0.5">{lesson.subtitle}</p>
+                  <div>
+                    <h4 className={`text-[14px] font-heading font-bold mb-1 ${isActive ? 'text-white' : 'text-[#C4C4C4]'}`}>{lesson.title}</h4>
+                    <p className="text-[12px] text-[#71717A] line-clamp-2 leading-relaxed">{lesson.subtitle}</p>
                   </div>
-                  {isExpanded ? <ChevronUp className="w-5 h-5 text-[#71717A] shrink-0" /> : <ChevronDown className="w-5 h-5 text-[#71717A] shrink-0" />}
                 </button>
-
-                {/* Lesson Content */}
-                {isExpanded && (
-                  <div className="px-5 pb-6 pt-0">
-                    <div className="border-t border-[#333] pt-5">
-                      {lesson.content}
-
-                      {/* Mark Complete */}
-                      {!isComplete && (
-                        <button
-                          onClick={() => markComplete(lesson.id)}
-                          className="mt-6 inline-flex items-center gap-2 bg-[#00B386] hover:bg-[#00B386]/80 text-[#0D1117] px-6 py-3 rounded-[14px] text-[14px] font-heading font-semibold transition-all duration-[180ms]"
-                        >
-                          <CheckCircle2 className="w-5 h-5" />
-                          Mark as Complete
-                        </button>
-                      )}
-                      {isComplete && (
-                        <div className="mt-6 flex items-center gap-2 text-[#00B386]">
-                          <CheckCircle2 className="w-5 h-5" />
-                          <span className="text-[14px] font-heading font-semibold">Completed</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Knowledge Check */}
-        <div className="mb-6">
-          <h2 className="text-[20px] font-heading font-bold text-white mb-5">Test Your Understanding</h2>
-          <KnowledgeCheck questions={QUIZ_QUESTIONS} />
+              )
+            })}
+          </div>
         </div>
 
       </div>

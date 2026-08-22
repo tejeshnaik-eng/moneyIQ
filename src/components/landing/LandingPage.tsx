@@ -10,12 +10,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
     <>
       <style>{`
         :root {
-            --bg-color: #0B0E14;
-            --text-color: #F5F1E8;
-            --muted-color: #B8AF9E;
-            --primary: #0F9D65;
-            --primary-dim: #0C7D51;
-            --primary-soft: rgba(15, 157, 101, 0.12);
+            --bg-color: #080B0A;
+            --text-color: #F2F7F4;
+            --muted-color: #A7B5AE;
+            --primary: #20EFA0;
+            --primary-dim: #0B9E6A;
+            --primary-soft: #0D2B21;
         }
 
         body, html {
@@ -60,7 +60,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         .scrim {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(11, 14, 20, 0.95) 0%, rgba(11, 14, 20, 0.6) 40%, rgba(11, 14, 20, 0.2) 100%);
+            background: linear-gradient(to top, rgba(8, 11, 10, 1) 0%, rgba(8, 11, 10, 0.7) 40%, rgba(8, 11, 10, 0.4) 100%);
             z-index: 1;
         }
 
@@ -82,7 +82,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
         .stitch-btn--solid {
             background-color: var(--primary);
-            color: #ffffff;
+            color: #080B0A;
         }
         .stitch-btn--solid:hover {
             background-color: var(--primary-dim);
@@ -253,9 +253,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         {/* Background Asset */}
         <div className="bg-container">
           <img 
-            alt="Mumbai skyline at first light" 
-            className="bg-image" 
-            src="https://lh3.googleusercontent.com/aida/AEtjO1Xx6ViZZ_8zEx0_9PCxSYf0fn_QmlF3SH8-6Rz6U28WQxxHGcx02xhMNvbjHWXn1h4JbqQGu5Gy3hEWESzOSGhnNnGX84pUxq_pXLnRgAhY0b2UrtpYs0_widJMbn-hxYAU52EVgvSWUlqoYCqpJm_b7YV96_-cJsoisLHuFAOxbrZT05UVyUW3Ndmt38teL-k1i8CWt1FInd9yJJwLftbMUT0nVF7zA2ZqhHySMoVkNMesQ3caxWEX2qi6" 
+            alt="Institutional trading terminal in dark mode" 
+            className="bg-image opacity-30" 
+            src="/hero_bg.jpg" 
           />
           <div className="scrim"></div>
         </div>

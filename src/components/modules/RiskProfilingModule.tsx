@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, 
   ArrowRight, 
@@ -14,7 +14,8 @@ import {
   Sparkles, 
   RotateCcw,
   AlertTriangle,
-  PieChart as PieIcon
+  PieChart as PieIcon,
+  Loader2
 } from 'lucide-react';
 import { 
   InvestorProfileForm, 
@@ -31,19 +32,70 @@ import {
   VolatilityComfort,
   ComprehensiveProfileResult
 } from '../../types';
-import { RiskProfileEngine } from '../../services/riskProfileEngine';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { generateRiskProfile } from '../../services/aiService';
+
+const DEFAULT_INVESTOR_FORM: InvestorProfileForm = {
+  age: 0,
+  workType: 'Salaried employee',
+  incomeStability: 'Fairly stable',
+  incomeChange3Years: 'Stay approximately the same',
+  monthlyIncome: 0,
+  totalSavingsInvestments: 0,
+  monthlyInvestmentCapacity: 0,
+  emergencySavings: 0,
+  currentInvestmentPct: 0,
+  emergencyWithdrawalNeed: 0,
+  hasDebt: false,
+  outstandingDebt: 0,
+  monthlyEmi: 0,
+  timeHorizon: '3–5 years',
+  primaryGoal: 'Wealth creation',
+  investmentExperience: 'None',
+  currentInvestments: [],
+  decisionStyle: 'Combination of these',
+  crashReaction20: 'Hold and wait',
+  outcomePreference: '₹1.7 lakh with moderate risk',
+  lossProtectionPriority: 'Moderately important',
+  volatilityComfort: 'Neutral',
+};
 
 export const RiskProfilingModule: React.FC = () => {
-  const hasProfile = RiskProfileEngine.hasCompletedProfile();
-  const [formData, setFormData] = useState<InvestorProfileForm>(RiskProfileEngine.getStoredProfile());
+  const { user } = useAuth();
+  const [formData, setFormData] = useState<InvestorProfileForm>(DEFAULT_INVESTOR_FORM);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  // Start in questionnaire if user has never filled it, otherwise show result
-  const [viewState, setViewState] = useState<'questionnaire' | 'review' | 'result'>(
-    hasProfile ? 'result' : 'questionnaire'
-  );
-  const [result, setResult] = useState<ComprehensiveProfileResult | null>(
-    hasProfile ? RiskProfileEngine.evaluateProfile(RiskProfileEngine.getStoredProfile()) : null
-  );
+  const [viewState, setViewState] = useState<'questionnaire' | 'review' | 'result'>('questionnaire');
+  const [result, setResult] = useState<ComprehensiveProfileResult | null>(null);
+  
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('risk_profiles')
+          .select('profile_data')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data && data.profile_data) {
+          setResult(data.profile_data);
+          setViewState('result');
+        }
+      } catch (err) {
+        console.error('Error fetching risk profile:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [user]);
 
   const handleUpdate = <K extends keyof InvestorProfileForm>(field: K, value: InvestorProfileForm[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -58,12 +110,53 @@ export const RiskProfilingModule: React.FC = () => {
     }
   };
 
-  const handleCalculateProfile = () => {
-    // Save structured JSON internally (without disclosing raw JSON to user)
-    RiskProfileEngine.saveProfile(formData);
-    const evaluated = RiskProfileEngine.evaluateProfile(formData);
-    setResult(evaluated);
-    setViewState('result');
+  const handleCalculateProfile = async () => {
+    if (!user) return;
+    setIsCalculating(true);
+    try {
+      const evaluated = await generateRiskProfile(formData);
+      
+      const mappedResult: ComprehensiveProfileResult = {
+        riskCapacityScore: evaluated.capacityScore,
+        riskToleranceScore: evaluated.toleranceScore,
+        overallScore: Math.round((evaluated.capacityScore + evaluated.toleranceScore) / 2),
+        suggestedApproach: evaluated.coreStrategy,
+        mainConsideration: evaluated.primaryConsideration,
+        description: evaluated.personaName,
+        keyTrait: evaluated.profileClass,
+        persona: evaluated.personaName,
+        recommendedMix: { 
+          equity: evaluated.equityPct, 
+          debt: evaluated.debtPct, 
+          gold: evaluated.goldPct, 
+          liquid: evaluated.cashPct 
+        },
+        monthlyCapacity: formData.monthlyInvestmentCapacity,
+        investmentHorizonYears: parseInt(formData.timeHorizon) || 5,
+        emergencyRunwayMonths: 0,
+        debtToIncomeRatio: 0,
+        savingsRatePct: 0,
+        behavioralWarning: "",
+        aiPromptContext: {
+          summary: "",
+          investorPersona: evaluated.personaName,
+          capacityConstraints: "",
+          psychologicalProfile: "",
+          suggestedNextEducationalTopics: [],
+        }
+      };
+
+      await supabase
+        .from('risk_profiles')
+        .upsert({ user_id: user.id, profile_data: { ...mappedResult, raw_answers: formData } });
+        
+      setResult(mappedResult);
+      setViewState('result');
+    } catch (err) {
+      console.error('Failed to calculate risk profile', err);
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
   const handleJumpToQuestion = (qIndex: number) => {
@@ -72,6 +165,15 @@ export const RiskProfilingModule: React.FC = () => {
   };
 
   const totalQuestions = 20;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] flex-col gap-4">
+        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+        <p className="text-[var(--app-text-muted)] text-sm font-heading font-medium">Loading your profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-12">
@@ -864,10 +966,20 @@ export const RiskProfilingModule: React.FC = () => {
           <div className="flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
             <button
               onClick={handleCalculateProfile}
-              className="btn-primary w-full py-3.5 px-6 font-heading font-bold text-sm flex items-center justify-center gap-2 shadow-sm"
+              disabled={isCalculating}
+              className="btn-primary w-full py-3.5 px-6 font-heading font-bold text-sm flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Calculate My Risk Profile</span>
+              {isCalculating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>AI is generating profile...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Calculate My Risk Profile</span>
+                </>
+              )}
             </button>
             <button 
               onClick={() => handleJumpToQuestion(0)}
@@ -904,7 +1016,7 @@ export const RiskProfilingModule: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
               <div>
                 <h1 className="text-[32px] sm:text-[40px] font-bold text-white flex items-center gap-3 font-heading tracking-tight">
-                  {result.persona.includes('-') || result.persona.includes('—') ? (
+                  {result.persona?.includes('-') || result.persona?.includes('—') ? (
                     <>
                       {result.persona.split(/[-—]/)[0].trim()} <span className="text-[#555]">—</span> {result.persona.split(/[-—]/)[1].trim()}
                     </>
@@ -917,11 +1029,24 @@ export const RiskProfilingModule: React.FC = () => {
                 </p>
               </div>
               <div className="flex gap-3 shrink-0">
-                <div className="bg-[#161616] border border-[#222] rounded-[10px] px-5 py-3 flex flex-col min-w-[110px]">
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('ai-chat-prompt', {
+                      detail: {
+                        prompt: `I just received my AI Risk Assessment.\n\nMy Profile: ${result.keyTrait} (${result.persona})\nCapacity Score: ${result.riskCapacityScore}/100\nTolerance Score: ${result.riskToleranceScore}/100\nTarget Allocation: ${result.recommendedMix.equity}% Equity, ${result.recommendedMix.debt}% Debt, ${result.recommendedMix.gold}% Gold, ${result.recommendedMix.liquid}% Liquid.\n\nBased on this, what are the top 3 mutual funds or ETFs I should research in India to build this portfolio?`,
+                        autoSend: false
+                      }
+                    }));
+                  }}
+                  className="bg-[#20EFA0] hover:bg-[#1bc785] text-[#080B0A] border border-[#20EFA0] rounded-[10px] px-4 py-3 flex flex-col items-center justify-center transition-colors font-bold text-sm tracking-tight"
+                >
+                  Ask AI About Profile
+                </button>
+                <div className="bg-[#161616] border border-[#222] rounded-[10px] px-5 py-3 flex flex-col min-w-[110px] hidden sm:flex">
                   <span className="text-[10px] text-[#71717A] uppercase tracking-wider font-bold mb-1">Inv. Horizon</span>
                   <span className="text-[22px] text-white font-bold leading-none">{result.investmentHorizonYears * 12} <span className="text-[13px] text-[#71717A] font-normal">Mo</span></span>
                 </div>
-                <div className="bg-[#161616] border border-[#222] rounded-[10px] px-5 py-3 flex flex-col min-w-[110px]">
+                <div className="bg-[#161616] border border-[#222] rounded-[10px] px-5 py-3 flex flex-col min-w-[110px] hidden sm:flex">
                   <span className="text-[10px] text-[#71717A] uppercase tracking-wider font-bold mb-1">Mo. Capacity</span>
                   <span className="text-[22px] text-white font-bold leading-none">₹{(result.monthlyCapacity / 1000).toFixed(1)}k</span>
                 </div>

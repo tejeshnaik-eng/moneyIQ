@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Landmark, Search, ShieldCheck, Moon, Sun } from 'lucide-react';
+import { Landmark, Search, ShieldCheck } from 'lucide-react';
 import { UserProfile, ModuleId } from '../../types';
 
 interface HeaderProps {
@@ -19,24 +19,6 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   onStartModule,
 }) => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    // Check initial
-    if (document.documentElement.classList.contains('dark')) {
-      setIsDark(true);
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      setIsDark(true);
-    }
-  };
   return (
     <header className="bg-[var(--app-surface-alt)] border-b border-[var(--app-border)] sticky top-0 z-30">
       <div className="flex items-center justify-between px-6 max-w-[1400px] mx-auto w-full h-16">
@@ -111,14 +93,6 @@ export const Header: React.FC<HeaderProps> = ({
             <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
             <span>INR Base (₹)</span>
           </div>
-
-          <button
-            onClick={toggleDarkMode}
-            className="p-1.5 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors focus:outline-none shrink-0"
-            aria-label="Toggle Dark Mode"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
 
           {user ? (
             <div className="flex items-center gap-3 shrink-0">

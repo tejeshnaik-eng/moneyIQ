@@ -22,6 +22,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
+import { UserProfileModal } from './UserProfileModal';
 
 interface DashboardSidebarProps {
   activeModule: ModuleId;
@@ -38,6 +39,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   collapsed,
   onToggleCollapse,
 }) => {
+  const [showProfileModal, setShowProfileModal] = React.useState(false);
   // If collapsed, we just show a minimized version (or we can hide it, but standard is icon-only)
   // The provided design doesn't show a collapsed state, but we'll adapt it.
 
@@ -133,26 +135,34 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
 
         {/* User Profile Pill */}
-        <div className={`flex items-center justify-between p-2 rounded-xl border border-[#333333] bg-[#161616] ${collapsed ? 'justify-center' : ''}`}>
-          <div className="flex items-center gap-2 overflow-hidden">
+        <button 
+          onClick={() => setShowProfileModal(true)}
+          className={`w-full flex items-center justify-between p-2 rounded-xl border border-[#333333] bg-[#161616] hover:bg-[#222] transition-colors cursor-pointer ${collapsed ? 'justify-center' : ''}`} 
+          title={user.email}
+        >
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
             <div className="rounded-full p-[2px] bg-gradient-to-tr from-red-500 via-green-500 to-blue-500 shrink-0">
               <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white bg-[#A855F7]">
                 {user.name ? user.name[0].toUpperCase() : 'U'}
               </div>
             </div>
             {!collapsed && (
-              <span className="text-sm font-medium text-[#A1A1AA] truncate w-24">
+              <span className="text-sm font-medium text-[#A1A1AA] truncate">
                 {user.email || 'user@finsight.app'}
               </span>
             )}
           </div>
           {!collapsed && (
-            <span className="text-[10px] font-bold bg-[#333333] text-[#A1A1AA] px-2 py-1 rounded-md shrink-0 tracking-wider">
+            <span className="text-[10px] font-bold bg-[#333333] text-[#A1A1AA] px-2 py-1 rounded-md shrink-0 tracking-wider ml-2">
               PRO
             </span>
           )}
-        </div>
+        </button>
       </div>
+
+      {showProfileModal && (
+        <UserProfileModal onClose={() => setShowProfileModal(false)} />
+      )}
     </aside>
   );
 };

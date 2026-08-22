@@ -1,617 +1,736 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  ShieldCheck, 
-  Home, 
-  Plane, 
-  X,
-  Sparkles,
-  Link2,
-  RefreshCw,
-  Loader2
-} from 'lucide-react';
-import { FinancialGoal } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { Plus, ArrowRight, Settings2, Loader2, ArrowLeft, Check, Edit2, Trash2, Maximize2, Minimize2 } from 'lucide-react';
+
+
+const PASTEL_THEMES = [
+  { bg: 'bg-[#DDF7EF]', text: 'text-[#101413]', sub: 'text-[#008F6B]', border: 'border-[#008F6B]/20', accent: '#008F6B' },
+  { bg: 'bg-[#E6F0FF]', text: 'text-[#101413]', sub: 'text-[#2775E8]', border: 'border-[#2775E8]/20', accent: '#2775E8' },
+  { bg: 'bg-[#EEE8FF]', text: 'text-[#101413]', sub: 'text-[#7757D9]', border: 'border-[#7757D9]/20', accent: '#7757D9' },
+  { bg: 'bg-[#FFE5E3]', text: 'text-[#101413]', sub: 'text-[#D64545]', border: 'border-[#D64545]/20', accent: '#D64545' },
+  { bg: 'bg-[#FFF8E8]', text: 'text-[#101413]', sub: 'text-[#D99A00]', border: 'border-[#D99A00]/20', accent: '#D99A00' },
+];
+
+const GOAL_OPTIONS = [
+  'Buying a house',
+  'Buying a vehicle',
+  'Education',
+  'Marriage',
+  'Travel',
+  'Retirement',
+  'Building wealth',
+  'Starting a business',
+  'Other'
+];
+
+const INVEST_TYPES = [
+  'Mutual funds',
+  'Stocks',
+  'Fixed deposits',
+  'Bonds',
+  'Gold',
+  'Combination',
+  'Not decided'
+];
+
+const STEP_UPS = [
+  { label: 'No increase', value: 0 },
+  { label: '5% annually', value: 5 },
+  { label: '10% annually', value: 10 },
+  { label: '15% annually', value: 15 }
+];
 
 export const GoalsModule: React.FC = () => {
   const { user } = useAuth();
-  const [goals, setGoals] = useState<FinancialGoal[]>([]);
-  const [isLoadingGoals, setIsLoadingGoals] = useState(true);
-  
-  // We keep holdings as empty array since localStorage is removed and no new DB table was specified.
-  const [holdings, setHoldings] = useState<any[]>([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
-  
-  const [newTitle, setNewTitle] = useState('');
-  const [newTarget, setNewTarget] = useState(1000000);
-  const [newCategory, setNewCategory] = useState<'Security' | 'Milestone' | 'Retirement' | 'Discretionary'>('Milestone');
-  const [newTargetYear, setNewTargetYear] = useState(new Date().getFullYear() + 5);
-  const [selectedHoldings, setSelectedHoldings] = useState<string[]>([]);
-  
-  // AI State
-  const [aiLoading, setAiLoading] = useState<string | null>(null);
-  const [aiInsights, setAiInsights] = useState<Record<string, string>>({});
+  const [viewState, setViewState] = useState<'dashboard' | 'wizard' | 'result'>('dashboard');
+  const [goals, setGoals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Wizard State
+  const [step, setStep] = useState(1);
+  const [wGoal, setWGoal] = useState('');
+  const [wCustomGoal, setWCustomGoal] = useState('');
+  const [wCostToday, setWCostToday] = useState(5000000);
+  const [wTargetYear, setWTargetYear] = useState(new Date().getFullYear() + 5);
+  const [wCurrentSavings, setWCurrentSavings] = useState(0);
+  const [wMonthlyInvest, setWMonthlyInvest] = useState(10000);
+  const [wInvestType, setWInvestType] = useState('Mutual funds');
+  const [wStepUp, setWStepUp] = useState(0);
+
+  // Result State
+  const [assumedReturn, setAssumedReturn] = useState(10);
+  const [isEditingReturn, setIsEditingReturn] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [resultId, setResultId] = useState<string | null>(null);
+  const [expandedGoalId, setExpandedGoalId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchGoals = async () => {
-      if (!user) {
-        setIsLoadingGoals(false);
-        return;
-      }
-      setIsLoadingGoals(true);
-      try {
-        const { data, error } = await supabase
-          .from('goals')
-          .select('*')
-          .eq('user_id', user.id);
-          
-        if (data && !error) {
-          const mapped: FinancialGoal[] = data.map(dbGoal => {
-            const targetYear = new Date().getFullYear() + dbGoal.timeline_years;
-            return {
-              id: dbGoal.id,
-              title: dbGoal.title,
-              category: dbGoal.risk_profile,
-              targetAmount: dbGoal.target,
-              currentSaved: dbGoal.current,
-              targetYear: targetYear,
-              expectedInflation: 6.5,
-              expectedCagr: 10,
-              requiredMonthlySip: 0,
-              currentMonthlySip: 0,
-              status: 'On Track',
-              linkedAssets: []
-            };
-          });
-          setGoals(mapped);
-        }
-      } catch (error) {
-        console.error('Error fetching goals:', error);
-      } finally {
-        setIsLoadingGoals(false);
-      }
-    };
-    
     fetchGoals();
   }, [user]);
 
-  const calculateCurrentSaved = (goal: FinancialGoal) => {
-    return goal.currentSaved;
-  };
-
-  // Smart required SIP calculation based on time horizon
-  const calculateRequiredSip = (target: number, current: number, targetYear: number) => {
-    const years = Math.max(0.5, targetYear - new Date().getFullYear());
-    
-    // Smart Expected CAGR based on horizon
-    let annualRate = 7; // < 3 years (Debt)
-    if (years >= 3 && years <= 7) annualRate = 10; // Hybrid
-    if (years > 7) annualRate = 12; // Equity
-
-    const months = years * 12;
-    const monthlyRate = (annualRate / 100) / 12;
-    
-    // Future value of current savings
-    const fvCurrent = current * Math.pow(1 + (annualRate / 100), years);
-    const shortfall = target - fvCurrent;
-
-    if (shortfall <= 0) return { sip: 0, cagr: annualRate };
-
-    const sip = (shortfall * monthlyRate) / ((Math.pow(1 + monthlyRate, months) - 1) * (1 + monthlyRate));
-    return { sip: Math.round(sip), cagr: annualRate };
-  };
-
-  const handleCreateGoal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !user) return;
-
-    setIsAdding(true);
-    
-    const timelineYears = Math.max(1, newTargetYear - new Date().getFullYear());
-    const currentSaved = 0;
-
-    const newGoalRow = {
-      user_id: user.id,
-      title: newTitle,
-      target: newTarget,
-      current: currentSaved,
-      timeline_years: timelineYears,
-      risk_profile: newCategory
-    };
-
+  const fetchGoals = async () => {
+    if (!user) return;
     try {
-      const { data, error } = await supabase
-        .from('goals')
-        .insert(newGoalRow)
-        .select()
-        .single();
+      setIsLoading(true);
+      const { data } = await supabase.from('goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (data) {
+        const mapped = data.map(dbGoal => {
+          let extra = { type: 'Milestone', cagr: 10, stepUp: 0, monthlyInvest: 0 };
+          try {
+            if (dbGoal.risk_profile && dbGoal.risk_profile.startsWith('{')) {
+              extra = JSON.parse(dbGoal.risk_profile);
+            }
+          } catch (e) {}
 
-      if (data && !error) {
-        const addedGoal: FinancialGoal = {
-          id: data.id,
-          title: data.title,
-          category: data.risk_profile,
-          targetAmount: data.target,
-          currentSaved: data.current,
-          targetYear: new Date().getFullYear() + data.timeline_years,
-          expectedInflation: 6.5,
-          expectedCagr: 10,
-          requiredMonthlySip: 0,
-          currentMonthlySip: 0,
-          status: 'On Track',
-          linkedAssets: []
-        };
-        
-        setGoals([...goals, addedGoal]);
-        setShowAddModal(false);
-        
-        // Reset
-        setNewTitle('');
-        setSelectedHoldings([]);
-        setNewTarget(1000000);
-        setNewTargetYear(new Date().getFullYear() + 5);
-        setNewCategory('Milestone');
-      }
-    } catch (err) {
-      console.error('Error creating goal:', err);
-    } finally {
-      setIsAdding(false);
-    }
-  };
+          const targetYear = new Date().getFullYear() + (dbGoal.timeline_years || 5);
+          const years = Math.max(1, dbGoal.timeline_years || 5);
+          const reqSip = calculateRequiredSip(dbGoal.target, dbGoal.current, extra.cagr, years, extra.stepUp);
 
-  const deleteGoal = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('goals')
-        .delete()
-        .eq('id', id);
-        
-      if (!error) {
-        setGoals(goals.filter(g => g.id !== id));
-      }
-    } catch (err) {
-      console.error('Error deleting goal:', err);
-    }
-  };
-
-  const handleAiAnalysis = async (goal: FinancialGoal) => {
-    setAiLoading(goal.id);
-    const currentSaved = calculateCurrentSaved(goal);
-    const linkedHoldingsData = holdings.filter(h => goal.linkedAssets?.includes(h.id));
-    
-    const promptData = {
-      goal_name: goal.title,
-      target_amount: goal.targetAmount,
-      current_saved: currentSaved,
-      years_remaining: Math.max(0.5, goal.targetYear - new Date().getFullYear()),
-      linked_assets: linkedHoldingsData.map(h => ({ name: h.name, type: h.category, value: h.currentValue }))
-    };
-
-    const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      setAiInsights(prev => ({ ...prev, [goal.id]: "Gemini API key missing. Cannot generate strategy." }));
-      setAiLoading(null);
-      return;
-    }
-
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `You are a strict SEBI-registered financial planner. Analyze this specific goal data: ${JSON.stringify(promptData)}. In exactly 2-3 short sentences, tell the user if their asset allocation matches their time horizon (e.g. equity is bad for <3 years), and give a specific recommendation on where to allocate their required monthly SIP.` }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 250 }
-        })
-      });
-      
-      const data = await res.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        setAiInsights(prev => ({ ...prev, [goal.id]: text }));
+          return {
+            id: dbGoal.id,
+            title: dbGoal.title,
+            target_amount: dbGoal.target,
+            current_saved: dbGoal.current,
+            target_year: targetYear,
+            expected_cagr: extra.cagr,
+            required_monthly_sip: reqSip,
+            current_monthly_sip: extra.monthlyInvest,
+            status: reqSip > extra.monthlyInvest ? 'Attention Needed' : 'On Track'
+          };
+        });
+        setGoals(mapped);
       }
     } catch (e) {
-      setAiInsights(prev => ({ ...prev, [goal.id]: "Failed to generate AI strategy. Please try again." }));
-    }
-    setAiLoading(null);
-  };
-
-  const getCategoryIcon = (cat: string) => {
-    switch (cat) {
-      case 'Security': return <ShieldCheck className="w-6 h-6" />;
-      case 'Retirement': return <Home className="w-6 h-6" />;
-      case 'Discretionary': return <Plane className="w-6 h-6" />;
-      default: return <Home className="w-6 h-6" />;
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const activeGoalsCount = goals.length;
-  const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0);
-  const totalFunded = goals.reduce((sum, g) => sum + calculateCurrentSaved(g), 0);
-  const totalRequiredSip = goals.reduce((sum, g) => sum + calculateRequiredSip(g.targetAmount, calculateCurrentSaved(g), g.targetYear).sip, 0);
+  const getBaseReturnForType = (type: string) => {
+    switch (type) {
+      case 'Stocks': return 12;
+      case 'Mutual funds': return 10;
+      case 'Combination': return 10;
+      case 'Gold': return 8;
+      case 'Bonds': return 7;
+      case 'Fixed deposits': return 6;
+      default: return 8;
+    }
+  };
 
-  if (isLoadingGoals) {
+  const handleStartWizard = () => {
+    setStep(1);
+    setViewState('wizard');
+    // reset
+    setWGoal('');
+    setWCustomGoal('');
+    setWCostToday(5000000);
+    setWTargetYear(new Date().getFullYear() + 5);
+    setWCurrentSavings(0);
+    setWMonthlyInvest(10000);
+    setWInvestType('Mutual funds');
+    setWStepUp(0);
+  };
+
+  const handleFinishWizard = () => {
+    setAssumedReturn(getBaseReturnForType(wInvestType));
+    setViewState('result');
+  };
+
+  const calculateRequiredSip = (targetFV: number, currentPV: number, cagr: number, years: number, annualStepUp: number) => {
+    const r = cagr / 100;
+    const g = annualStepUp / 100;
+    const fvOfPv = currentPV * Math.pow(1 + r, years);
+    const shortfall = targetFV - fvOfPv;
+    
+    if (shortfall <= 0) return 0;
+
+    let low = 0;
+    let high = shortfall;
+    let startingSip = 0;
+
+    for (let iter = 0; iter < 100; iter++) {
+      const mid = (low + high) / 2;
+      let simulatedFv = 0;
+      let currentMonthly = mid;
+
+      for (let y = 0; y < years; y++) {
+        for (let m = 0; m < 12; m++) {
+          simulatedFv += currentMonthly;
+          simulatedFv *= Math.pow(1 + r, 1/12);
+        }
+        currentMonthly *= (1 + g);
+      }
+
+      if (simulatedFv < shortfall) {
+        low = mid;
+      } else {
+        high = mid;
+        startingSip = mid;
+      }
+    }
+    return Math.round(startingSip);
+  };
+
+  const inflationRate = 0.06;
+  const years = Math.max(1, wTargetYear - new Date().getFullYear());
+  const inflatedTarget = Math.round(wCostToday * Math.pow(1 + inflationRate, years));
+  const requiredSip = calculateRequiredSip(inflatedTarget, wCurrentSavings, assumedReturn, years, wStepUp);
+  
+  const finalTitle = wGoal === 'Other' ? wCustomGoal : wGoal;
+
+  const handleDeleteGoal = async (id: string) => {
+    if (!user) return;
+    try {
+      await supabase.from('goals').delete().eq('id', id);
+      await fetchGoals();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveGoal = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const extraData = JSON.stringify({
+        type: wInvestType,
+        cagr: assumedReturn,
+        stepUp: wStepUp,
+        monthlyInvest: wMonthlyInvest
+      });
+
+      const newGoal = {
+        user_id: user.id,
+        title: finalTitle,
+        target: inflatedTarget,
+        current: wCurrentSavings,
+        timeline_years: years,
+        risk_profile: extraData
+      };
+      
+      const { error } = await supabase.from('goals').insert([newGoal]);
+      if (error) {
+        console.error("Supabase Insert Error:", error);
+      }
+      await fetchGoals();
+      setViewState('dashboard');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // --- Renders ---
+
+  if (viewState === 'dashboard') {
     return (
-      <div className="w-full h-full bg-[#1E1E1E] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#20EFA0] animate-spin" />
+      <div className="max-w-7xl mx-auto space-y-6 pt-6">
+        <div className="flex justify-between items-end mb-8">
+          <div>
+            
+            
+          </div>
+          <button 
+            onClick={handleStartWizard}
+            className="bg-[#A855F7] text-white font-bold py-3 px-6 rounded-full flex items-center gap-2 hover:bg-[#9333EA] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Create Goal
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="h-64 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-[#A855F7] animate-spin" />
+          </div>
+        ) : goals.length === 0 ? (
+          <div className="bg-[#161616] rounded-2xl p-6 text-center flex flex-col items-center justify-center border border-[#222]">
+            <div className="w-12 h-12 bg-[#A855F7]/10 rounded-full flex items-center justify-center mb-3">
+              <Plus className="w-6 h-6 text-[#A855F7]" />
+            </div>
+            <h2 className="text-lg font-heading font-bold text-white mb-1">No Active Goals</h2>
+            <p className="text-[#8A8F98] text-sm max-w-sm mb-4">Create a goal to see how much you need to save and invest to reach it.</p>
+            <button 
+              onClick={handleStartWizard}
+              className="bg-[#A855F7] text-white font-bold py-2 px-6 rounded-full text-sm transition-colors hover:bg-[#9333EA]"
+            >
+              Start Planning
+            </button>
+          </div>
+        ) : (
+          <div className="w-full">
+            {expandedGoalId ? (() => {
+              const g = goals.find(x => x.id === expandedGoalId);
+              if (!g) return null;
+              
+              const PASTEL_THEMES = [
+                { bg: 'bg-[#DDF7EF]', text: 'text-[#101413]', sub: 'text-[#008F6B]', border: 'border-[#008F6B]/20', accent: '#008F6B' },
+                { bg: 'bg-[#E6F0FF]', text: 'text-[#101413]', sub: 'text-[#2775E8]', border: 'border-[#2775E8]/20', accent: '#2775E8' },
+                { bg: 'bg-[#EEE8FF]', text: 'text-[#101413]', sub: 'text-[#7757D9]', border: 'border-[#7757D9]/20', accent: '#7757D9' },
+                { bg: 'bg-[#FFE5E3]', text: 'text-[#101413]', sub: 'text-[#D64545]', border: 'border-[#D64545]/20', accent: '#D64545' },
+                { bg: 'bg-[#FFF8E8]', text: 'text-[#101413]', sub: 'text-[#D99A00]', border: 'border-[#D99A00]/20', accent: '#D99A00' },
+              ];
+              const theme = PASTEL_THEMES[goals.findIndex(x => x.id === expandedGoalId) % PASTEL_THEMES.length];
+              
+              return (
+                <div className="w-full max-w-4xl mx-auto space-y-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <button onClick={() => setExpandedGoalId(null)} className="text-[#8A8F98] hover:text-white flex items-center gap-2 text-sm font-bold">
+                      <ArrowLeft className="w-4 h-4" /> Back to Goals
+                    </button>
+                    <button onClick={() => handleDeleteGoal(g.id)} className="text-[#8A8F98] hover:text-red-500 flex items-center gap-2 text-sm font-bold">
+                      <Trash2 className="w-4 h-4" /> Delete Goal
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <div className={`${theme.bg} p-8 rounded-[32px]`}>
+                        <h3 className={`${theme.sub} font-bold uppercase tracking-widest text-xs mb-1`}>Goal</h3>
+                        <h2 className={`text-2xl font-heading font-extrabold ${theme.text} mb-8`}>{g.title}</h2>
+                        <div className="space-y-6">
+                          <div className={`flex justify-between items-end border-b ${theme.border} pb-4`}>
+                            <div>
+                              <p className={`${theme.sub} text-sm mb-1`}>Target Amount</p>
+                              <p className={`${theme.text} font-heading font-extrabold text-xl`}>₹{Number(g.target_amount).toLocaleString('en-IN')}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className={`${theme.sub} text-sm mb-1`}>Target Year</p>
+                              <p className={`${theme.text} font-heading font-extrabold text-xl`}>{g.target_year}</p>
+                            </div>
+                          </div>
+                          <div className={`flex justify-between items-end border-b ${theme.border} pb-4`}>
+                            <div>
+                              <p className={`${theme.sub} text-sm mb-1`}>Current Savings</p>
+                              <p className={`${theme.text} font-heading font-extrabold text-xl`}>₹{Number(g.current_saved).toLocaleString('en-IN')}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`${theme.bg} p-8 rounded-[32px]`}>
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <span className={`text-4xl font-heading font-extrabold ${theme.sub}`}>{g.expected_cagr}%</span>
+                        </div>
+                        <p className={`${theme.sub} text-sm font-medium mb-2`}>Expected annual return</p>
+                      </div>
+                    </div>
+                    <div className={`${theme.bg} p-8 rounded-[32px] flex flex-col justify-between relative overflow-hidden`}>
+                      <div>
+                        <h3 className={`text-xl font-heading font-bold ${theme.text} mb-8`}>Required monthly investment</h3>
+                        <div className={`text-5xl font-heading font-extrabold ${theme.text} mb-2`}>
+                          ₹{Number(g.required_monthly_sip).toLocaleString('en-IN')}<span className="text-2xl opacity-50">/mo</span>
+                        </div>
+                        <div className={`mt-8 p-4 rounded-xl flex items-start gap-3 bg-white/40 ${theme.text}`}>
+                          <div className="mt-0.5">
+                            {g.status === 'On Track' ? <Check className="w-5 h-5" /> : <Settings2 className="w-5 h-5" />}
+                          </div>
+                          <div className="text-sm font-bold">
+                            {g.status === 'On Track'
+                              ? "You are on track! Your available monthly investment meets or exceeds the requirement."
+                              : `You're short by ₹${(Number(g.required_monthly_sip) - Number(g.current_monthly_sip)).toLocaleString('en-IN')}/mo. Consider extending your timeline or increasing your savings.`
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })() : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {goals.map((g, i) => {
+                  const PASTEL_THEMES = [
+                    { bg: 'bg-[#DDF7EF]', text: 'text-[#101413]', sub: 'text-[#008F6B]', bar: 'bg-[#008F6B]', badgeBg: 'bg-[#008F6B]/10' },
+                    { bg: 'bg-[#E6F0FF]', text: 'text-[#101413]', sub: 'text-[#2775E8]', bar: 'bg-[#2775E8]', badgeBg: 'bg-[#2775E8]/10' },
+                    { bg: 'bg-[#EEE8FF]', text: 'text-[#101413]', sub: 'text-[#7757D9]', bar: 'bg-[#7757D9]', badgeBg: 'bg-[#7757D9]/10' },
+                    { bg: 'bg-[#FFE5E3]', text: 'text-[#101413]', sub: 'text-[#D64545]', bar: 'bg-[#D64545]', badgeBg: 'bg-[#D64545]/10' },
+                    { bg: 'bg-[#FFF8E8]', text: 'text-[#101413]', sub: 'text-[#D99A00]', bar: 'bg-[#D99A00]', badgeBg: 'bg-[#D99A00]/10' },
+                  ];
+                  const theme = PASTEL_THEMES[i % PASTEL_THEMES.length];
+                  
+                  return (
+                    <div key={g.id} className={`${theme.bg} p-6 rounded-[24px] flex flex-col relative group cursor-pointer hover:-translate-y-1 transition-transform`} onClick={() => setExpandedGoalId(g.id)}>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDeleteGoal(g.id); }} 
+                        className={`absolute top-6 right-16 ${theme.sub} hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all bg-white/40 hover:bg-white p-2 rounded-full`}
+                        title="Delete Goal"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setExpandedGoalId(g.id); }} 
+                        className={`absolute top-6 right-6 ${theme.sub} opacity-0 group-hover:opacity-100 transition-all bg-white/40 hover:bg-white p-2 rounded-full`}
+                        title="Expand Goal"
+                      >
+                        <Maximize2 className="w-4 h-4" />
+                      </button>
+                      <h3 className={`text-lg font-heading font-bold ${theme.text} mb-1 pr-20`}>{g.title}</h3>
+                      <p className={`text-sm ${theme.sub} mb-6`}>Target: {g.target_year}</p>
+                      
+                      <div className="mb-6">
+                        <p className={`text-xs ${theme.sub} uppercase tracking-wider font-bold mb-1`}>Target Amount</p>
+                        <p className={`text-2xl font-heading font-extrabold ${theme.text}`}>₹{Number(g.target_amount).toLocaleString('en-IN')}</p>
+                      </div>
+
+                      <div className="space-y-4 mb-6 flex-1">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1.5">
+                            <span className={theme.sub}>Saved</span>
+                            <span className={`${theme.text} font-bold`}>₹{Number(g.current_saved).toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="w-full bg-black/5 h-2 rounded-full overflow-hidden">
+                            <div className={`${theme.bar} h-full rounded-full`} style={{ width: `${Math.min(100, (Number(g.current_saved) / Number(g.target_amount)) * 100)}%` }}></div>
+                          </div>
+                        </div>
+                        <div className={`pt-2 border-t border-black/10`}>
+                          <div className="flex justify-between text-sm">
+                            <span className={theme.sub}>Monthly SIP Req.</span>
+                            <span className={`${theme.text} font-bold`}>₹{Number(g.required_monthly_sip).toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={`p-3 rounded-xl text-center text-sm font-bold ${theme.badgeBg} ${theme.sub}`}>
+                        {g.status}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
 
+  if (viewState === 'wizard') {
+    return (
+      <div className="max-w-2xl mx-auto pt-12 pb-24">
+        <div className="mb-8 flex items-center justify-between">
+          <button onClick={() => setViewState('dashboard')} className="text-[#8A8F98] hover:text-white flex items-center gap-2 text-sm font-bold">
+            <ArrowLeft className="w-4 h-4" /> Cancel
+          </button>
+          <span className="text-xs font-bold text-[#A855F7] tracking-widest uppercase">Step {step} of 7</span>
+        </div>
+
+        <div className="bg-[#161616] rounded-[24px] p-8 md:p-12 min-h-[400px] flex flex-col">
+          {step === 1 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-6">What are you planning for?</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {GOAL_OPTIONS.map(opt => (
+                  <button 
+                    key={opt}
+                    onClick={() => {
+                      setWGoal(opt);
+                      if (opt !== 'Other') setStep(2);
+                    }}
+                    className={`p-4 rounded-xl text-left font-bold transition-colors ${wGoal === opt ? 'bg-[#A855F7] text-white' : 'bg-[#111111] text-[#8A8F98] hover:bg-[#222] hover:text-white'}`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              {wGoal === 'Other' && (
+                <div className="mt-6 flex gap-3">
+                  <input 
+                    type="text" 
+                    placeholder="Custom goal name"
+                    value={wCustomGoal}
+                    onChange={e => setWCustomGoal(e.target.value)}
+                    className="flex-1 bg-[#111111] text-white border border-[#333] rounded-xl px-4 py-3 focus:outline-none focus:border-[#A855F7] font-bold"
+                    autoFocus
+                  />
+                  <button onClick={() => { if (wCustomGoal.trim()) setStep(2); }} className="bg-[#A855F7] text-white px-6 rounded-xl font-bold">Next</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Target Amount</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">What would this goal cost today?</p>
+              
+              <div className="relative">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-[#8A8F98]">₹</span>
+                <input 
+                  type="number"
+                  value={wCostToday || ''}
+                  onChange={e => setWCostToday(Number(e.target.value))}
+                  className="w-full bg-[#111111] text-white text-3xl font-heading font-extrabold rounded-2xl py-6 pl-14 pr-6 focus:outline-none focus:ring-2 focus:ring-[#A855F7]"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(1)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={() => setStep(3)} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">Next</button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Target Date</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">When do you want to achieve this goal?</p>
+              
+              <input 
+                type="number"
+                value={wTargetYear || ''}
+                onChange={e => setWTargetYear(Number(e.target.value))}
+                className="w-full bg-[#111111] text-white text-3xl font-heading font-extrabold rounded-2xl py-6 px-6 focus:outline-none focus:ring-2 focus:ring-[#A855F7] text-center"
+              />
+              
+              <div className="text-center mt-6">
+                <span className="inline-block bg-[#A855F7]/10 text-[#A855F7] font-bold px-6 py-2 rounded-full">
+                  {Math.max(0, wTargetYear - new Date().getFullYear())} years from now
+                </span>
+              </div>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(2)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={() => setStep(4)} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">Next</button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Current Savings</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">How much have you already invested or saved for this?</p>
+              
+              <div className="relative mb-6">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-[#8A8F98]">₹</span>
+                <input 
+                  type="number"
+                  value={wCurrentSavings === 0 ? '' : wCurrentSavings}
+                  onChange={e => setWCurrentSavings(Number(e.target.value))}
+                  placeholder="0"
+                  className="w-full bg-[#111111] text-white text-3xl font-heading font-extrabold rounded-2xl py-6 pl-14 pr-6 focus:outline-none focus:ring-2 focus:ring-[#A855F7]"
+                  autoFocus
+                />
+              </div>
+
+              <button 
+                onClick={() => { setWCurrentSavings(0); setStep(5); }}
+                className="w-full p-4 bg-[#111111] text-[#8A8F98] hover:text-white rounded-xl font-bold transition-colors"
+              >
+                I haven't started saving yet
+              </button>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(3)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={() => setStep(5)} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">Next</button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Monthly Investment</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">How much can you invest every month toward this goal?</p>
+              
+              <div className="relative mb-8">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-[#8A8F98]">₹</span>
+                <input 
+                  type="number"
+                  value={wMonthlyInvest || ''}
+                  onChange={e => setWMonthlyInvest(Number(e.target.value))}
+                  className="w-full bg-[#111111] text-white text-3xl font-heading font-extrabold rounded-2xl py-6 pl-14 pr-6 focus:outline-none focus:ring-2 focus:ring-[#A855F7]"
+                />
+              </div>
+
+              <input 
+                type="range" 
+                min="0" max="100000" step="1000"
+                value={wMonthlyInvest}
+                onChange={e => setWMonthlyInvest(Number(e.target.value))}
+                className="w-full accent-[#A855F7]"
+              />
+              <div className="flex justify-between mt-2 text-xs text-[#8A8F98] font-bold">
+                <span>₹0</span>
+                <span>₹1,00,000+</span>
+              </div>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(4)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={() => setStep(6)} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">Next</button>
+              </div>
+            </div>
+          )}
+
+          {step === 6 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Investment Type</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">How do you plan to invest for this goal?</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {INVEST_TYPES.map(opt => (
+                  <button 
+                    key={opt}
+                    onClick={() => {
+                      setWInvestType(opt);
+                      setStep(7);
+                    }}
+                    className={`p-4 rounded-xl text-left font-bold transition-colors ${wInvestType === opt ? 'bg-[#A855F7] text-white' : 'bg-[#111111] text-[#8A8F98] hover:bg-[#222] hover:text-white'}`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(5)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={() => setStep(7)} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">Next</button>
+              </div>
+            </div>
+          )}
+
+          {step === 7 && (
+            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-heading font-extrabold text-white mb-2">Annual Increase</h2>
+              <p className="text-[#8A8F98] mb-8 font-medium">Can you increase your monthly investment every year?</p>
+              
+              <div className="grid grid-cols-1 gap-3">
+                {STEP_UPS.map(opt => (
+                  <button 
+                    key={opt.label}
+                    onClick={() => {
+                      setWStepUp(opt.value);
+                      handleFinishWizard();
+                    }}
+                    className={`p-5 rounded-xl text-left font-bold transition-colors flex justify-between items-center ${wStepUp === opt.value ? 'bg-[#A855F7] text-white' : 'bg-[#111111] text-[#8A8F98] hover:bg-[#222] hover:text-white'}`}
+                  >
+                    <span>{opt.label}</span>
+                    {wStepUp === opt.value && <Check className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="mt-12 flex justify-between">
+                <button onClick={() => setStep(6)} className="text-[#8A8F98] font-bold px-4 py-2 hover:text-white">Back</button>
+                <button onClick={handleFinishWizard} className="bg-[#A855F7] text-white font-bold px-8 py-3 rounded-full hover:bg-[#9333EA]">View Plan</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Result State
   return (
-    <div className="w-full h-full bg-[#1E1E1E] text-[#F2F7F4] p-8 lg:p-12 pb-20 overflow-y-auto custom-scrollbar">
-      <div className="max-w-[1200px] mx-auto space-y-12">
+    <div className="max-w-4xl mx-auto pt-8 pb-24">
+      <div className="flex justify-between items-center mb-10">
+        <h1 className="text-3xl font-heading font-extrabold text-white">Your Goal Plan</h1>
+        <button onClick={() => setViewState('dashboard')} className="text-[#8A8F98] hover:text-white font-bold text-sm">
+          Cancel
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* 1. Page Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h1 className="text-[32px] sm:text-[40px] font-bold text-white font-heading tracking-tight">Goal Planning</h1>
-            <p className="text-[#A7B5AE] text-[14px] mt-2 font-body">Turn your financial goals into measurable investment plans.</p>
+        {/* Left Col: Details */}
+        <div className="space-y-6">
+          <div className="bg-[#161616] p-8 rounded-[32px]">
+            <h3 className="text-[#8A8F98] font-bold uppercase tracking-widest text-xs mb-1">Goal</h3>
+            <h2 className="text-2xl font-heading font-extrabold text-white mb-8">{finalTitle}</h2>
+            
+            <div className="space-y-6">
+              <div className="flex justify-between items-end border-b border-[#222] pb-4">
+                <div>
+                  <p className="text-[#8A8F98] text-sm mb-1">Target (Adjusted for 6% inflation)</p>
+                  <p className="text-white font-heading font-extrabold text-xl">₹{inflatedTarget.toLocaleString('en-IN')}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[#8A8F98] text-sm mb-1">Year</p>
+                  <p className="text-white font-heading font-extrabold text-xl">{wTargetYear}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-end border-b border-[#222] pb-4">
+                <div>
+                  <p className="text-[#8A8F98] text-sm mb-1">Current Savings</p>
+                  <p className="text-white font-heading font-extrabold text-xl">₹{wCurrentSavings.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-[#20EFA0] text-[#04100B] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#1bd18a] transition-colors flex items-center gap-2 shrink-0 border-none"
+
+          <div className="bg-[#161616] p-8 rounded-[32px]">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-white font-heading font-bold text-lg">Expected annual return</h3>
+              <button 
+                onClick={() => setIsEditingReturn(!isEditingReturn)}
+                className="text-[#A855F7] p-2 hover:bg-[#A855F7]/10 rounded-full transition-colors"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-4xl font-heading font-extrabold text-[#A855F7]">{assumedReturn}%</span>
+            </div>
+            <p className="text-[#8A8F98] text-sm font-medium mb-6">ⓘ This is an illustrative assumption, not a guaranteed return.</p>
+
+            {isEditingReturn && (
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222]">
+                <button onClick={() => { setAssumedReturn(8); setIsEditingReturn(false); }} className={`py-2 rounded-xl text-sm font-bold ${assumedReturn === 8 ? 'bg-[#A855F7] text-white' : 'bg-[#111] text-[#8A8F98] hover:bg-[#222]'}`}>
+                  Conservative (8%)
+                </button>
+                <button onClick={() => { setAssumedReturn(10); setIsEditingReturn(false); }} className={`py-2 rounded-xl text-sm font-bold ${assumedReturn === 10 ? 'bg-[#A855F7] text-white' : 'bg-[#111] text-[#8A8F98] hover:bg-[#222]'}`}>
+                  Moderate (10%)
+                </button>
+                <button onClick={() => { setAssumedReturn(12); setIsEditingReturn(false); }} className={`py-2 rounded-xl text-sm font-bold ${assumedReturn === 12 ? 'bg-[#A855F7] text-white' : 'bg-[#111] text-[#8A8F98] hover:bg-[#222]'}`}>
+                  Aggressive (12%)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Col: Result */}
+        <div className="bg-[#161616] p-8 rounded-[32px] flex flex-col justify-between border-2 border-[#A855F7]/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#A855F7]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+          
+          <div>
+            <h3 className="text-xl font-heading font-bold text-white mb-8">Required monthly investment</h3>
+            
+            <div className="text-5xl font-heading font-extrabold text-white mb-2">
+              ₹{requiredSip.toLocaleString('en-IN')}<span className="text-2xl text-[#8A8F98]">/mo</span>
+            </div>
+            
+            <p className="text-[#8A8F98] text-sm mt-8 leading-relaxed border-l-2 border-[#333] pl-4 py-1">
+              Based on an assumed annual return of <strong className="text-white">{assumedReturn}%</strong> and a <strong className="text-white">{wStepUp}%</strong> annual SIP increase.
+            </p>
+
+            <div className={`mt-8 p-4 rounded-xl flex items-start gap-3 ${wMonthlyInvest >= requiredSip ? 'bg-[#20EFA0]/10 text-[#20EFA0]' : 'bg-red-500/10 text-red-500'}`}>
+              <div className="mt-0.5">
+                {wMonthlyInvest >= requiredSip ? <Check className="w-5 h-5" /> : <Settings2 className="w-5 h-5" />}
+              </div>
+              <div className="text-sm font-bold">
+                {wMonthlyInvest >= requiredSip 
+                  ? "You are on track! Your available monthly investment meets or exceeds the requirement."
+                  : `You're short by ₹${(requiredSip - wMonthlyInvest).toLocaleString('en-IN')}/mo. Consider extending your timeline or increasing your savings.`
+                }
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={handleSaveGoal}
+            disabled={isSaving}
+            className="w-full mt-10 bg-[#A855F7] text-white font-bold py-4 rounded-full text-lg hover:bg-[#9333EA] transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
           >
-            <Plus className="w-4 h-4" /> Create Goal
+            {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Goal"}
           </button>
         </div>
 
-        {/* 2. Goal Overview Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Active Goals', value: activeGoalsCount.toString() },
-            { label: 'Total Target', value: `₹${(totalTarget/100000).toFixed(2)}L` },
-            { label: 'Total Funded', value: `₹${totalFunded > 10000 ? (totalFunded/100000).toFixed(2) + 'L' : totalFunded.toLocaleString('en-IN')}` },
-            { label: 'Required Monthly SIP', value: `₹${totalRequiredSip.toLocaleString('en-IN')}` }
-          ].map((metric, i) => (
-            <div key={i} className="bg-[#111916] rounded-2xl p-5 flex flex-col justify-center border-none">
-              <span className="text-[11px] text-[#A7B5AE] uppercase tracking-wider font-bold mb-1.5">{metric.label}</span>
-              <span className="text-[22px] font-bold text-white font-mono">{metric.value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* 3. Goal Cards */}
-        {goals.length === 0 ? (
-          <div className="bg-[#0D1311] rounded-[22px] p-12 flex flex-col items-center justify-center text-center shadow-[0_10px_35px_rgba(0,0,0,0.20)]">
-            <div className="p-4 bg-[#111916] rounded-full mb-4">
-              <Home className="w-8 h-8 text-[#6E7C75]" />
-            </div>
-            <h4 className="font-heading font-bold text-lg text-white mb-2">
-              No goals yet. Set your first financial milestone.
-            </h4>
-            <p className="text-sm text-[#A7B5AE] max-w-md mb-6">
-              Link your live portfolio assets to specific goals and let the engine calculate exactly how much you need to invest monthly to succeed.
-            </p>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-[#20EFA0] text-[#04100B] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#1bd18a] transition-colors flex items-center gap-2 border-none"
-            >
-              <Plus className="w-4 h-4" /> Create Goal
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {goals.map(goal => {
-              const currentSaved = calculateCurrentSaved(goal);
-              const { sip, cagr } = calculateRequiredSip(goal.targetAmount, currentSaved, goal.targetYear);
-              const pct = Math.min(100, Math.max(0, Math.round((currentSaved / goal.targetAmount) * 100)));
-              const isHealthy = pct >= 100 || (goal.currentMonthlySip >= sip && sip > 0);
-              const isBehind = !isHealthy && currentSaved === 0 && sip > 0;
-              
-              let statusBadge = null;
-              if (isHealthy) {
-                statusBadge = <div className="bg-[#0D2B21] text-[#20EFA0] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block">On Track</div>;
-              } else if (isBehind) {
-                statusBadge = <div className="bg-[#2B1313] text-[#FF5B5B] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block">Behind Target</div>;
-              } else {
-                statusBadge = <div className="bg-[#2B2113] text-[#FFB454] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block">Attention Needed</div>;
-              }
-              
-              return (
-                <div key={goal.id} className="bg-[#0D1311] rounded-[22px] p-7 shadow-[0_10px_35px_rgba(0,0,0,0.20)] flex flex-col relative border-none">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex gap-4 items-center">
-                      <div className="text-[#20EFA0]">
-                        {getCategoryIcon(goal.category)}
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white leading-tight">{goal.title}</h3>
-                        <p className="text-[13px] text-[#A7B5AE] mt-1 font-mono">Target Year {goal.targetYear} · Assumed CAGR {cagr}%</p>
-                      </div>
-                    </div>
-                    <button onClick={() => deleteGoal(goal.id)} className="text-[#6E7C75] hover:text-[#FF5B5B] transition-colors p-1">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Progress & Target */}
-                  <div className="flex flex-col mb-4">
-                    <div className="flex justify-between items-end mb-3">
-                      <div className="text-[36px] font-mono font-bold text-white leading-none">₹{currentSaved.toLocaleString('en-IN')}</div>
-                      <div className="text-[15px] text-[#A7B5AE] font-mono">₹{(goal.targetAmount/100000).toFixed(2)}L target</div>
-                    </div>
-                    <div className="h-[8px] bg-[#1B2621] rounded-full overflow-hidden mb-2">
-                      <div className="h-full bg-[#20EFA0]" style={{ width: `${pct}%` }}></div>
-                    </div>
-                    <div className="flex justify-between text-[12px] text-[#6E7C75]">
-                      <span>{pct}% Funded</span>
-                      {goal.linkedAssets?.length ? (
-                        <span>{goal.linkedAssets.length} Assets Linked</span>
-                      ) : (
-                        <span>No assets linked</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Projection Chart */}
-                  <div className="h-16 w-full mb-6">
-                    <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none">
-                      <path d={`M0,40 C30,35 60,${40 - (pct/100)*35} 100,5`} fill="none" stroke="#20EFA0" strokeWidth="2" strokeDasharray="4 2" />
-                      <circle cx="100" cy="5" r="3" fill="#20EFA0" />
-                      <circle cx="0" cy="40" r="3" fill="#0D2B21" stroke="#20EFA0" strokeWidth="1" />
-                    </svg>
-                  </div>
-
-                  {/* Monthly Action Required */}
-                  <div className="bg-[#111916] rounded-[14px] p-4 mb-4 flex justify-between items-center">
-                    <div className="space-y-1">
-                      <span className="text-[11px] text-[#A7B5AE] uppercase tracking-wider font-bold block mb-1.5">Active SIP</span>
-                      <span className="text-[16px] text-white font-mono font-bold">₹{goal.currentMonthlySip.toLocaleString('en-IN')} <span className="text-[#6E7C75] text-[12px]">/ mo</span></span>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="mb-1.5">{statusBadge}</div>
-                      <div className="text-[16px] text-white font-mono font-bold">₹{sip.toLocaleString('en-IN')} <span className="text-[#6E7C75] text-[12px]">/ mo</span></div>
-                    </div>
-                  </div>
-
-                  {/* Linked Assets */}
-                  {goal.linkedAssets && goal.linkedAssets.length > 0 ? (
-                    <div className="bg-[#111916] rounded-[14px] p-4 mb-4">
-                      <div className="flex items-center gap-2 mb-2 text-[#20EFA0]">
-                        <Link2 className="w-3.5 h-3.5" />
-                        <span className="text-[11px] font-bold uppercase tracking-wider">{goal.linkedAssets.length} Asset Linked</span>
-                      </div>
-                      <div className="space-y-2">
-                        {goal.linkedAssets.map(assetId => {
-                          const asset = holdings.find(h => h.id === assetId);
-                          if (!asset) return null;
-                          return (
-                            <div key={assetId} className="flex justify-between items-center border-t border-[#16201C] pt-2 mt-2 first:border-0 first:pt-0 first:mt-0">
-                              <span className="text-[12px] text-[#A7B5AE] font-mono">{asset.ticker || asset.name}</span>
-                              <span className="text-[12px] text-white font-mono">₹{Number(asset.currentValue).toLocaleString('en-IN')}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-[#111916] rounded-[14px] p-4 mb-4 flex justify-between items-center">
-                      <div>
-                        <div className="text-[13px] font-bold text-white mb-0.5">No assets linked</div>
-                        <div className="text-[11px] text-[#6E7C75]">Connect investments contributing toward this goal.</div>
-                      </div>
-                      <button 
-                        onClick={() => setShowAddModal(true)}
-                        className="text-[11px] font-bold text-[#20EFA0] hover:text-white transition-colors flex items-center gap-1 bg-[#0D2B21] px-3 py-2 rounded-full border-none"
-                      >
-                        Link assets <Sparkles className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* AI Strategy Button */}
-                  <div className="mt-auto">
-                    <button 
-                      onClick={() => handleAiAnalysis(goal)}
-                      disabled={aiLoading === goal.id}
-                      className="w-full bg-[#0D2B21] hover:bg-[#15392D] text-[#20EFA0] rounded-full py-3.5 text-[13px] font-bold transition-colors flex items-center justify-center gap-2 border-none mt-2"
-                    >
-                      {aiLoading === goal.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                      ✦ Generate AI Goal Strategy
-                    </button>
-                    {aiInsights[goal.id] && (
-                      <div className="mt-4 p-4 bg-[#111916] rounded-[14px] text-[13px] text-[#A7B5AE] border border-[#20EFA0]/20 leading-relaxed">
-                        {aiInsights[goal.id]}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Bottom Dashboard Sections (Only show if there are goals) */}
-        {goals.length > 0 && (
-          <>
-            {/* Goal Insights Panel */}
-            <div className="bg-[#111916] rounded-[22px] p-6 lg:p-8 flex flex-col md:flex-row justify-between items-center gap-6 mt-12 border border-[#16201C] shadow-[0_10px_35px_rgba(0,0,0,0.20)]">
-              <div>
-                <h4 className="text-[#20EFA0] text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> Goal Insights
-                </h4>
-                <p className="text-[16px] text-white font-medium">Your current SIP contribution is below the amount required for your targets.</p>
-                <p className="text-[14px] text-[#A7B5AE] mt-1">Increase monthly SIP by ₹{totalRequiredSip.toLocaleString('en-IN')} across all goals to stay on track.</p>
-              </div>
-              <button className="bg-[#20EFA0] text-[#04100B] px-6 py-3 rounded-full text-[13px] font-bold whitespace-nowrap hover:bg-[#1bd18a] transition-colors border-none">
-                Adjust SIP →
-              </button>
-            </div>
-
-            {/* Goal Comparison & Timeline */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-              {/* Goal Progress Bars */}
-              <div className="bg-[#0D1311] rounded-[22px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.20)] border-none">
-                <h3 className="text-[18px] font-bold text-white mb-8">Goal Progress</h3>
-                <div className="space-y-6">
-                  {goals.map(g => {
-                    const pct = Math.min(100, Math.round((calculateCurrentSaved(g) / g.targetAmount) * 100));
-                    return (
-                      <div key={g.id}>
-                        <div className="flex justify-between text-[13px] mb-2 font-medium">
-                          <span className="text-white">{g.title}</span>
-                          <span className="text-[#A7B5AE] font-mono">{pct}%</span>
-                        </div>
-                        <div className="h-[8px] bg-[#16201C] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#20EFA0]" style={{ width: `${pct}%` }}></div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="bg-[#0D1311] rounded-[22px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.20)] border-none">
-                <h3 className="text-[18px] font-bold text-white mb-8">Goal Timeline</h3>
-                <div className="relative pt-6 pb-2 min-h-[160px]">
-                  {/* Horizontal line */}
-                  <div className="absolute top-[35px] left-0 w-full h-[2px] bg-[#16201C]"></div>
-                  
-                  <div className="flex justify-between relative z-10 w-full">
-                    {[2026, 2027, 2028, 2029, 2030].map((year) => (
-                      <div key={year} className="flex flex-col items-center flex-1">
-                        <span className="text-[11px] text-[#6E7C75] font-mono mb-3">{year}</span>
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#20EFA0] border-2 border-[#0D1311] shadow-[0_0_10px_rgba(32,239,160,0.4)]"></div>
-                        
-                        {/* Draw goals for this year */}
-                        <div className="mt-4 flex flex-col items-center space-y-2 relative -left-4">
-                          {goals.filter(g => g.targetYear === year).map(g => (
-                            <div key={g.id} className="flex items-center gap-2 whitespace-nowrap bg-[#111916] px-2 py-1 rounded-md border border-[#16201C]">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#20EFA0]"></div>
-                              <span className="text-[11px] text-[#A7B5AE] font-medium">{g.title}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Add Goal Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080B0A]/80 backdrop-blur-sm">
-            <div className="bg-[#0D1311] rounded-[22px] max-w-md w-full p-8 shadow-[0_20px_60px_rgba(0,0,0,0.40)] max-h-[90vh] overflow-y-auto custom-scrollbar border-none">
-              <div className="flex items-center justify-between mb-8">
-                <h4 className="text-[22px] font-heading font-bold text-white">Create Goal</h4>
-                <button onClick={() => setShowAddModal(false)} className="text-[#6E7C75] hover:text-white transition-colors p-2 bg-[#111916] rounded-full">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateGoal} className="space-y-6 text-sm">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-2">Goal Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Downpayment 2028"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-2">Category / Risk Profile</label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value as any)}
-                    className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors"
-                  >
-                    <option value="Milestone">Milestone (Medium Term)</option>
-                    <option value="Security">Security (Short Term)</option>
-                    <option value="Retirement">Retirement (Long Term)</option>
-                    <option value="Discretionary">Discretionary (Flexible)</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-2">Target Corpus (₹)</label>
-                    <input
-                      type="number"
-                      min="50000"
-                      step="50000"
-                      value={newTarget}
-                      onChange={(e) => setNewTarget(Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-2">Target Year</label>
-                    <input
-                      type="number"
-                      min={new Date().getFullYear()}
-                      max={2060}
-                      value={newTargetYear}
-                      onChange={(e) => setNewTargetYear(Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors font-mono"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-3 flex items-center justify-between">
-                    <span>Link Existing Portfolio Assets</span>
-                    <span className="font-normal text-[9px] text-[#20EFA0] bg-[#0D2B21] px-2 py-0.5 rounded-full">Optional</span>
-                  </label>
-                  {holdings.length === 0 ? (
-                    <div className="text-[12px] text-[#6E7C75] bg-[#111916] p-4 rounded-[14px] border border-[#16201C]">
-                      You have no assets in your portfolio to link.
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
-                      {holdings.map(h => (
-                        <label key={h.id} className="flex items-center gap-3 p-3 rounded-[14px] border border-[#16201C] hover:bg-[#111916] cursor-pointer transition-colors bg-[#0D1311]">
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded text-[#20EFA0] border-[#6E7C75] focus:ring-0 focus:ring-offset-0 bg-[#16201C] accent-[#20EFA0]"
-                            checked={selectedHoldings.includes(h.id)}
-                            onChange={(e) => {
-                              if (e.target.checked) setSelectedHoldings([...selectedHoldings, h.id]);
-                              else setSelectedHoldings(selectedHoldings.filter(id => id !== h.id));
-                            }}
-                          />
-                          <div className="flex-1 flex justify-between items-center">
-                            <div className="font-medium text-white text-[13px]">{h.ticker || h.name}</div>
-                            <div className="text-[12px] text-[#A7B5AE] font-mono">₹{(Number(h.currentValue)||0).toLocaleString('en-IN')}</div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-6 flex justify-end gap-3 mt-8">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    disabled={isAdding}
-                    className="bg-[#111916] text-[#A7B5AE] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#16201C] hover:text-white transition-colors border-none disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isAdding}
-                    className="bg-[#20EFA0] text-[#04100B] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#1bd18a] transition-colors border-none disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {isAdding && <RefreshCw className="w-4 h-4 animate-spin" />}
-                    Create Goal
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

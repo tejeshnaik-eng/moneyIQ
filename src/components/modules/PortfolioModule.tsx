@@ -469,11 +469,11 @@ export const PortfolioModule: React.FC = () => {
                 }
               }
             }}
-            className="font-label-md text-label-md uppercase tracking-wider text-error hover:underline flex items-center gap-1"
+            className="text-[12px] font-bold uppercase tracking-wider text-[#D64545] hover:underline flex items-center gap-1"
           >
             Clear Data
           </button>
-          <button onClick={() => setShowAddModal(true)} className="font-label-md text-label-md uppercase tracking-wider text-primary hover:underline flex items-center gap-1">
+          <button onClick={() => setShowAddModal(true)} className="text-[12px] font-bold uppercase tracking-wider text-[#20EFA0] hover:underline flex items-center gap-1">
             <Plus className="w-4 h-4" /> Add Asset
           </button>
         </div>
@@ -481,9 +481,9 @@ export const PortfolioModule: React.FC = () => {
 
       {/* Main Ledger */}
       <section className="flex-1 mb-12">
-        <div className="w-full bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden">
+        <div className="w-full bg-[#161616] rounded-2xl shadow-sm border border-[#333] overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-6 border-b border-outline-variant/40 bg-surface-container-lowest/50 px-6 py-4 text-label-md font-label-md text-tertiary uppercase tracking-widest">
+          <div className="grid grid-cols-6 border-b border-[#333] bg-[#111] px-4 py-3 text-[11px] font-heading font-bold text-[#8A8F98] uppercase tracking-widest">
             <div className="col-span-2">Asset / Scheme</div>
             <div className="text-right">Platform</div>
             <div className="text-right">Avg Cost</div>
@@ -498,23 +498,23 @@ export const PortfolioModule: React.FC = () => {
               const gain = item.unrealizedGain;
               const isPositive = gain >= 0;
               return (
-                <div key={h.id} className="grid grid-cols-6 px-6 py-5 hover:bg-surface-variant/20 transition-colors group relative cursor-default">
+                <div key={h.id} className="grid grid-cols-6 px-4 py-2.5 hover:bg-[#222] border-b border-[#333]/50 transition-colors group relative cursor-default">
                   <div className="col-span-2 flex flex-col justify-center">
-                    <span className="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">
+                    <span className="text-[13px] font-heading font-bold text-white">
                       {h.ticker || h.name.split(' ')[0]}
                     </span>
-                    <span className="font-label-md text-label-md text-tertiary mt-0.5">{h.name}</span>
+                    <span className="text-[11px] text-[#8A8F98] mt-0.5">{h.name}</span>
                   </div>
-                  <div className="text-right font-body-md text-body-md flex items-center justify-end text-on-surface-variant">
+                  <div className="text-right text-[12px] font-body flex items-center justify-end text-[#C4C4C4]">
                     {h.platform}
                   </div>
-                  <div className="text-right font-body-md text-body-md flex items-center justify-end text-on-surface-variant">
+                  <div className="text-right text-[12px] font-body flex items-center justify-end text-[#C4C4C4]">
                     ₹{h.investedValue.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-right font-body-md text-body-md flex items-center justify-end font-medium text-on-surface">
+                  <div className="text-right text-[12px] font-body flex items-center justify-end font-medium text-white">
                     ₹{item.currentValue.toLocaleString('en-IN')}
                   </div>
-                  <div className={`text-right font-body-md text-body-md flex flex-col items-end justify-center font-medium ${isPositive ? 'text-status-positive' : 'text-status-risk'}`}>
+                  <div className={`text-right text-[12px] flex flex-col items-end justify-center font-bold ${isPositive ? "text-[#00B386]" : "text-[#D64545]"}`}>
                     <span>{isPositive ? '+' : '-'}₹{Math.abs(gain).toLocaleString('en-IN')}</span>
                     <span className="text-sm opacity-80">({isPositive ? '+' : ''}{item.unrealizedReturnPct.toFixed(1)}%)</span>
                   </div>
@@ -543,7 +543,7 @@ export const PortfolioModule: React.FC = () => {
       </section>
 
       {/* Analysis Grid (Replaces old PortfolioAnalyzer location, but we inject PortfolioAnalyzer here for AI) */}
-      <section className="mb-xl bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 p-8">
+      <section className="mb-12 bg-[#161616] rounded-2xl shadow-sm border border-[#222] p-8">
         <div className="mb-6">
           <h3 className="font-label-md text-label-md text-tertiary uppercase tracking-widest mb-1">AI Insights</h3>
           <p className="font-body-sm text-body-sm text-on-surface-variant">Generate automated insights based on your portfolio constraints and market reality.</p>
