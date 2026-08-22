@@ -235,6 +235,7 @@ export interface FinancialGoal {
   requiredMonthlySip: number;
   currentMonthlySip: number;
   status: 'On Track' | 'Attention Needed' | 'Critical Gap';
+  linkedAssets?: string[]; // IDs of portfolio holdings linked to this goal
 }
 
 export interface SpendCategory {
