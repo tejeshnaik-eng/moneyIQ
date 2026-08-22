@@ -390,7 +390,7 @@ app.get('/api/health', (_req, res) => {
 if (process.env.NODE_ENV === 'production') {
   console.log('Serving production build from /dist...');
   app.use(express.static(join(__dirname, '../dist')));
-  app.get('*', (req, res) => {
+  app.use((req, res) => {
     // Exclude API routes from falling through to React's index.html
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ error: 'API route not found' });
