@@ -9,7 +9,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
-import { createServer as createViteServer } from 'vite';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -385,13 +384,11 @@ app.get('/api/historical/:symbol/:startDate/:endDate', async (req, res) => {
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'FinSight Audit API', model: 'gemini-3.5-flash-lite' });
 });
-
-// --- Vite Middleware (MUST be after API routes) ---
+// --- Static / Vite Middleware (MUST be after API routes) ---
 if (process.env.NODE_ENV === 'production') {
   console.log('Serving production build from /dist...');
   app.use(express.static(join(__dirname, '../dist')));
   app.use((req, res) => {
-    // Exclude API routes from falling through to React's index.html
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ error: 'API route not found' });
     }
@@ -399,6 +396,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 } else {
   console.log('Running Vite in dev middleware mode...');
+  const { createServer: createViteServer } = await import('vite');
   const vite = await createViteServer({
     server: { middlewareMode: true },
     appType: 'spa',
