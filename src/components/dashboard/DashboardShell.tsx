@@ -9,6 +9,7 @@ import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
 import { LearningModule } from '../modules/LearningModule';
 import { HypeDetectorModule } from '../modules/HypeDetectorModule';
+import { AiChatWidget } from '../chat/AiChatWidget';
 import { ModuleId, UserProfile } from '../../types';
 
 interface DashboardShellProps {
@@ -70,6 +71,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           {renderActiveModule()}
         </main>
       </div>
+      
+      {/* Floating Global AI Chatbot */}
+      <AiChatWidget />
     </div>
   );
 };

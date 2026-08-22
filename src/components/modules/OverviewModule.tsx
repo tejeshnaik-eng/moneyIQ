@@ -111,7 +111,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
   // ── Run analysis whenever data is ready ──────────────────────────
   useEffect(() => {
     if (!mounted) return;
-    runAnalysis();
+    // runAnalysis(); // Disabled to save Gemini API credits; user must click manually
   }, [mounted, assets, liabilities, leakage, hasProfile]);
 
   const runAnalysis = async () => {
