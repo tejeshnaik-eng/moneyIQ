@@ -1,20 +1,21 @@
-import { getStorageKey } from '../../utils';
 import React, { useState, useEffect } from 'react';
 import { 
   Receipt, 
-  ArrowRight, 
   TrendingUp, 
   AlertCircle, 
-  Sparkles,
   Search,
   Plus,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 type Category = 'Income' | 'Needs' | 'Goals' | 'Discretionary/Leaks';
 
 interface Transaction {
   id: string;
+  user_id: string;
   date: string;
   merchant: string;
   category: Category;
@@ -22,18 +23,9 @@ interface Transaction {
 }
 
 export const SpendAnalysisModule: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem(getStorageKey('finsight_spend_transactions'));
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
-
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filterQuery, setFilterQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTx, setNewTx] = useState({
@@ -44,8 +36,33 @@ export const SpendAnalysisModule: React.FC = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem(getStorageKey('finsight_spend_transactions'), JSON.stringify(transactions));
-  }, [transactions]);
+    const fetchTransactions = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('date', { ascending: false });
+          
+        if (error) throw error;
+        if (data) {
+          setTransactions(data as Transaction[]);
+        }
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [user]);
 
   const totalMonthlyInflow = transactions
     .filter(t => t.category === 'Income')
@@ -81,19 +98,21 @@ export const SpendAnalysisModule: React.FC = () => {
     tx.category.toLowerCase().includes(filterQuery.toLowerCase())
   );
 
-  const handleAddTransaction = (e: React.FormEvent) => {
+  const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTx.amount || !newTx.merchant || !newTx.date) return;
+    if (!newTx.amount || !newTx.merchant || !newTx.date || !user) return;
 
-    const transaction: Transaction = {
+    const transaction = {
       id: crypto.randomUUID(),
+      user_id: user.id,
       date: newTx.date,
       merchant: newTx.merchant,
       category: newTx.category,
       amount: parseFloat(newTx.amount)
     };
 
-    setTransactions(prev => [transaction, ...prev]);
+    // Optimistic UI update
+    setTransactions(prev => [transaction as Transaction, ...prev]);
     setIsModalOpen(false);
     setNewTx({
       amount: '',
@@ -101,6 +120,17 @@ export const SpendAnalysisModule: React.FC = () => {
       merchant: '',
       category: 'Needs'
     });
+
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .insert([transaction]);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+      // Revert on error can be handled here if needed
+    }
   };
 
   const needsTotal = transactions.filter(t => t.category === 'Needs').reduce((sum, t) => sum + t.amount, 0);
@@ -244,7 +274,12 @@ export const SpendAnalysisModule: React.FC = () => {
               </div>
             </div>
             
-            {transactions.length === 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center bg-[#161616]">
+                <Loader2 className="w-8 h-8 text-[#00E599] animate-spin mb-4" />
+                <p className="text-sm font-heading font-bold text-white">Loading transactions...</p>
+              </div>
+            ) : transactions.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center bg-[#161616]">
                 <Receipt className="w-12 h-12 text-[#333] mb-4" />
                 <p className="text-sm font-heading font-bold text-white">No transactions found</p>

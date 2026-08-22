@@ -1,4 +1,3 @@
-import { getStorageKey } from '../../utils';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
@@ -8,15 +7,22 @@ import {
   X,
   Sparkles,
   Link2,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { FinancialGoal } from '../../types';
-import { analyzeWithGemini } from '../../services/financialAnalysisService';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 export const GoalsModule: React.FC = () => {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
+  const [isLoadingGoals, setIsLoadingGoals] = useState(true);
+  
+  // We keep holdings as empty array since localStorage is removed and no new DB table was specified.
   const [holdings, setHoldings] = useState<any[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   
   const [newTitle, setNewTitle] = useState('');
   const [newTarget, setNewTarget] = useState(1000000);
@@ -29,30 +35,50 @@ export const GoalsModule: React.FC = () => {
   const [aiInsights, setAiInsights] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    try {
-      const savedGoals = localStorage.getItem(getStorageKey('finsight_goals'));
-      if (savedGoals) setGoals(JSON.parse(savedGoals));
+    const fetchGoals = async () => {
+      if (!user) {
+        setIsLoadingGoals(false);
+        return;
+      }
+      setIsLoadingGoals(true);
+      try {
+        const { data, error } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('user_id', user.id);
+          
+        if (data && !error) {
+          const mapped: FinancialGoal[] = data.map(dbGoal => {
+            const targetYear = new Date().getFullYear() + dbGoal.timeline_years;
+            return {
+              id: dbGoal.id,
+              title: dbGoal.title,
+              category: dbGoal.risk_profile,
+              targetAmount: dbGoal.target,
+              currentSaved: dbGoal.current,
+              targetYear: targetYear,
+              expectedInflation: 6.5,
+              expectedCagr: 10,
+              requiredMonthlySip: 0,
+              currentMonthlySip: 0,
+              status: 'On Track',
+              linkedAssets: []
+            };
+          });
+          setGoals(mapped);
+        }
+      } catch (error) {
+        console.error('Error fetching goals:', error);
+      } finally {
+        setIsLoadingGoals(false);
+      }
+    };
+    
+    fetchGoals();
+  }, [user]);
 
-      const savedHoldings = localStorage.getItem(getStorageKey('finsight_portfolio_holdings'));
-      if (savedHoldings) setHoldings(JSON.parse(savedHoldings));
-    } catch {
-      //
-    }
-  }, []);
-
-  useEffect(() => {
-    // Whenever goals change, save to localStorage
-    if (goals.length > 0) {
-      localStorage.setItem(getStorageKey('finsight_goals'), JSON.stringify(goals));
-    }
-  }, [goals]);
-
-  // Dynamically calculate current saved based on linked assets
-  const calculateCurrentSaved = (linkedAssets: string[] = []) => {
-    if (!linkedAssets || linkedAssets.length === 0) return 0;
-    return holdings
-      .filter(h => linkedAssets.includes(h.id))
-      .reduce((sum, h) => sum + (Number(h.currentValue) || 0), 0);
+  const calculateCurrentSaved = (goal: FinancialGoal) => {
+    return goal.currentSaved;
   };
 
   // Smart required SIP calculation based on time horizon
@@ -77,47 +103,82 @@ export const GoalsModule: React.FC = () => {
     return { sip: Math.round(sip), cagr: annualRate };
   };
 
-  const handleCreateGoal = (e: React.FormEvent) => {
+  const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || !user) return;
 
-    const currentSaved = calculateCurrentSaved(selectedHoldings);
-    const { sip, cagr } = calculateRequiredSip(newTarget, currentSaved, newTargetYear);
+    setIsAdding(true);
+    
+    const timelineYears = Math.max(1, newTargetYear - new Date().getFullYear());
+    const currentSaved = 0;
 
-    const newGoal: FinancialGoal = {
-      id: `goal-${Date.now()}`,
+    const newGoalRow = {
+      user_id: user.id,
       title: newTitle,
-      category: newCategory,
-      targetAmount: newTarget,
-      currentSaved: currentSaved,
-      targetYear: newTargetYear,
-      expectedInflation: 6.5,
-      expectedCagr: cagr,
-      requiredMonthlySip: sip,
-      currentMonthlySip: 0,
-      status: sip > 0 ? 'Attention Needed' : 'On Track',
-      linkedAssets: selectedHoldings
+      target: newTarget,
+      current: currentSaved,
+      timeline_years: timelineYears,
+      risk_profile: newCategory
     };
 
-    setGoals([...goals, newGoal]);
-    setShowAddModal(false);
-    
-    // Reset
-    setNewTitle('');
-    setSelectedHoldings([]);
-    setNewTarget(1000000);
-    setNewTargetYear(new Date().getFullYear() + 5);
+    try {
+      const { data, error } = await supabase
+        .from('goals')
+        .insert(newGoalRow)
+        .select()
+        .single();
+
+      if (data && !error) {
+        const addedGoal: FinancialGoal = {
+          id: data.id,
+          title: data.title,
+          category: data.risk_profile,
+          targetAmount: data.target,
+          currentSaved: data.current,
+          targetYear: new Date().getFullYear() + data.timeline_years,
+          expectedInflation: 6.5,
+          expectedCagr: 10,
+          requiredMonthlySip: 0,
+          currentMonthlySip: 0,
+          status: 'On Track',
+          linkedAssets: []
+        };
+        
+        setGoals([...goals, addedGoal]);
+        setShowAddModal(false);
+        
+        // Reset
+        setNewTitle('');
+        setSelectedHoldings([]);
+        setNewTarget(1000000);
+        setNewTargetYear(new Date().getFullYear() + 5);
+        setNewCategory('Milestone');
+      }
+    } catch (err) {
+      console.error('Error creating goal:', err);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
-  const deleteGoal = (id: string) => {
-    const updated = goals.filter(g => g.id !== id);
-    setGoals(updated);
-    if (updated.length === 0) localStorage.removeItem(getStorageKey('finsight_goals'));
+  const deleteGoal = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('goals')
+        .delete()
+        .eq('id', id);
+        
+      if (!error) {
+        setGoals(goals.filter(g => g.id !== id));
+      }
+    } catch (err) {
+      console.error('Error deleting goal:', err);
+    }
   };
 
   const handleAiAnalysis = async (goal: FinancialGoal) => {
     setAiLoading(goal.id);
-    const currentSaved = calculateCurrentSaved(goal.linkedAssets);
+    const currentSaved = calculateCurrentSaved(goal);
     const linkedHoldingsData = holdings.filter(h => goal.linkedAssets?.includes(h.id));
     
     const promptData = {
@@ -167,8 +228,16 @@ export const GoalsModule: React.FC = () => {
 
   const activeGoalsCount = goals.length;
   const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0);
-  const totalFunded = goals.reduce((sum, g) => sum + calculateCurrentSaved(g.linkedAssets), 0);
-  const totalRequiredSip = goals.reduce((sum, g) => sum + calculateRequiredSip(g.targetAmount, calculateCurrentSaved(g.linkedAssets), g.targetYear).sip, 0);
+  const totalFunded = goals.reduce((sum, g) => sum + calculateCurrentSaved(g), 0);
+  const totalRequiredSip = goals.reduce((sum, g) => sum + calculateRequiredSip(g.targetAmount, calculateCurrentSaved(g), g.targetYear).sip, 0);
+
+  if (isLoadingGoals) {
+    return (
+      <div className="w-full h-full bg-[#1E1E1E] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#20EFA0] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full bg-[#1E1E1E] text-[#F2F7F4] p-8 lg:p-12 pb-20 overflow-y-auto custom-scrollbar">
@@ -225,7 +294,7 @@ export const GoalsModule: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {goals.map(goal => {
-              const currentSaved = calculateCurrentSaved(goal.linkedAssets);
+              const currentSaved = calculateCurrentSaved(goal);
               const { sip, cagr } = calculateRequiredSip(goal.targetAmount, currentSaved, goal.targetYear);
               const pct = Math.min(100, Math.max(0, Math.round((currentSaved / goal.targetAmount) * 100)));
               const isHealthy = pct >= 100 || (goal.currentMonthlySip >= sip && sip > 0);
@@ -379,7 +448,7 @@ export const GoalsModule: React.FC = () => {
                 <h3 className="text-[18px] font-bold text-white mb-8">Goal Progress</h3>
                 <div className="space-y-6">
                   {goals.map(g => {
-                    const pct = Math.min(100, Math.round((calculateCurrentSaved(g.linkedAssets) / g.targetAmount) * 100));
+                    const pct = Math.min(100, Math.round((calculateCurrentSaved(g) / g.targetAmount) * 100));
                     return (
                       <div key={g.id}>
                         <div className="flex justify-between text-[13px] mb-2 font-medium">
@@ -449,6 +518,20 @@ export const GoalsModule: React.FC = () => {
                     className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors"
                   />
                 </div>
+                
+                <div>
+                  <label className="block text-[11px] font-bold text-[#A7B5AE] uppercase tracking-wider mb-2">Category / Risk Profile</label>
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value as any)}
+                    className="w-full px-4 py-3 bg-[#111916] border border-[#16201C] rounded-[14px] text-white outline-none focus:border-[#20EFA0] transition-colors"
+                  >
+                    <option value="Milestone">Milestone (Medium Term)</option>
+                    <option value="Security">Security (Short Term)</option>
+                    <option value="Retirement">Retirement (Long Term)</option>
+                    <option value="Discretionary">Discretionary (Flexible)</option>
+                  </select>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -511,14 +594,17 @@ export const GoalsModule: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="bg-[#111916] text-[#A7B5AE] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#16201C] hover:text-white transition-colors border-none"
+                    disabled={isAdding}
+                    className="bg-[#111916] text-[#A7B5AE] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#16201C] hover:text-white transition-colors border-none disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#20EFA0] text-[#04100B] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#1bd18a] transition-colors border-none"
+                    disabled={isAdding}
+                    className="bg-[#20EFA0] text-[#04100B] text-[13px] font-bold py-3 px-6 rounded-full hover:bg-[#1bd18a] transition-colors border-none disabled:opacity-50 flex items-center gap-2"
                   >
+                    {isAdding && <RefreshCw className="w-4 h-4 animate-spin" />}
                     Create Goal
                   </button>
                 </div>
