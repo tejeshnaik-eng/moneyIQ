@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Shield, 
-  PieChart, 
-  Flag, 
-  Receipt, 
-  Activity, 
-  GitFork, 
-  Flame, 
+import {
+  LayoutDashboard,
+  Shield,
+  PieChart,
+  Flag,
+  Receipt,
+  Activity,
+  Flame,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  GraduationCap,
+  Bell,
+  Search,
+  Key,
+  Folder,
+  Gauge,
+  Database,
+  ArrowUpRight,
+  Smartphone,
+  Wrench,
+  GitFork
 } from 'lucide-react';
 import { ModuleId, UserProfile } from '../../types';
 import { SettingsModal } from '../modules/SettingsModal';
@@ -34,117 +44,125 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  const renderNavButton = (id: ModuleId, label: string, Icon: React.ElementType) => {
+    const isActive = activeModule === id;
+    return (
+      <button
+        onClick={() => onSelectModule(id)}
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative ${isActive
+            ? 'bg-[#27272A] text-[#E4E4E7]'
+            : 'text-[#A1A1AA] hover:text-[#E4E4E7] hover:bg-[#27272A]/50'
+          }`}
+      >
+        <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-[#10B981]' : 'text-[#71717A] group-hover:text-[#A1A1AA]'}`} />
+        {!collapsed && (
+          <span className="font-heading text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+            {label}
+          </span>
+        )}
+        {isActive && !collapsed && (
+          <div className="absolute right-2 w-1.5 h-1.5 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+        )}
+      </button>
+    );
+  };
+
   const navItems: Array<{
     id: ModuleId;
     label: string;
     icon: React.ReactNode;
     badge?: string;
   }> = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { id: 'risk', label: 'Risk Profiling', icon: <Shield className="w-5 h-5" /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <PieChart className="w-5 h-5" /> },
-    { id: 'goals', label: 'Goals', icon: <Flag className="w-5 h-5" /> },
-    { id: 'spend', label: 'Spend Analysis', icon: <Receipt className="w-5 h-5" /> },
-    { id: 'marketsim', label: 'Market Simulator', icon: <Activity className="w-5 h-5" /> },
-    { id: 'decisionsim', label: 'Decision Simulator', icon: <GitFork className="w-5 h-5" /> },
-    { id: 'hypedetector', label: 'Hype Detector', icon: <Flame className="w-5 h-5" /> },
-  ];
+      { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" /> },
+      { id: 'risk', label: 'Risk Profiling', icon: <Shield className="w-5 h-5" /> },
+      { id: 'portfolio', label: 'Portfolio', icon: <PieChart className="w-5 h-5" /> },
+      { id: 'goals', label: 'Goals', icon: <Flag className="w-5 h-5" /> },
+      { id: 'spend', label: 'Spend Analysis', icon: <Receipt className="w-5 h-5" /> },
+      { id: 'marketsim', label: 'Market Simulator', icon: <Activity className="w-5 h-5" /> },
+      { id: 'decisionsim', label: 'Decision Simulator', icon: <GitFork className="w-5 h-5" /> },
+      { id: 'hypedetector', label: 'Hype Detector', icon: <Flame className="w-5 h-5" /> },
+    ];
 
   return (
     <aside
-      className={`bg-white border-r border-[#E2E8F0] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 ${
-        collapsed ? 'w-20' : 'w-64'
-      }`}
+      className={`bg-[#161616] text-[#E4E4E7] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 relative ${collapsed ? 'w-20' : 'w-64'
+        }`}
     >
-      <div>
-        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between">
-          {!collapsed ? (
-            <div>
-              <h1 className="font-heading font-bold text-xl text-[#006b57]">FinSight</h1>
-              <p className="font-heading font-semibold text-[10px] text-[#565e74] uppercase tracking-wider mt-0.5">
-                Institutional Ledger
-              </p>
-            </div>
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-[#00b090] text-white flex items-center justify-center font-bold text-sm mx-auto">
-              F
-            </div>
-          )}
-
+      <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col">
+        {/* Top Header / Back Button */}
+        <div className="p-4 pt-6">
           <button
-            onClick={onToggleCollapse}
-            className="p-1 rounded-lg text-[#565e74] hover:bg-[#f2f4f6] hover:text-[#191c1e] transition-colors"
-            title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            onClick={() => onSelectModule('overview')}
+            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#E4E4E7] transition-colors font-heading text-sm font-medium"
           >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <ChevronLeft className="w-4 h-4" />
+            {!collapsed && <span>Dashboard</span>}
           </button>
         </div>
 
-        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)]">
-          {navItems.map((item) => {
-            const isActive = activeModule === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSelectModule(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-heading transition-all ${
-                  isActive
-                    ? 'bg-[#00b090]/10 text-[#006b57] font-bold border-r-4 border-[#006b57]'
-                    : 'text-[#565e74] hover:bg-[#f2f4f6] hover:text-[#191c1e] font-medium'
-                }`}
-                title={collapsed ? item.label : undefined}
-              >
-                <div className={`shrink-0 ${isActive ? 'text-[#006b57]' : 'text-[#565e74]'}`}>
-                  {item.icon}
-                </div>
+        {/* Navigation Sections */}
+        <nav className="px-3 pb-4 space-y-6 flex-1">
 
-                {!collapsed && (
-                  <div className="flex items-center justify-between flex-1 text-left">
-                    <span>{item.label}</span>
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          item.badge.includes('Alert') || item.badge.includes('Leak')
-                            ? 'bg-[#ffdad6] text-[#ba1a1a]'
-                            : 'bg-[#dae2fd] text-[#006b57]'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </button>
-            );
-          })}
+          {/* SECTION 1 */}
+          <div className="space-y-1">
+            {!collapsed && (
+              <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2">
+                Portfolio
+              </h3>
+            )}
+            {renderNavButton('overview', 'Overview', Key)}
+            {renderNavButton('portfolio', 'Holdings', Folder)}
+            {renderNavButton('goals', 'Goals', Flag)}
+            {renderNavButton('spend', 'Spend Analysis', Receipt)}
+          </div>
+
+          {/* SECTION 2 */}
+          <div className="space-y-1">
+            {!collapsed && (
+              <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2">
+                Analysis & Risk
+              </h3>
+            )}
+            {renderNavButton('risk', 'Risk Profiling', Shield)}
+            {renderNavButton('marketsim', 'Market Simulator', Gauge)}
+          </div>
+
+          {/* SECTION 3 */}
+          <div className="space-y-1">
+            {!collapsed && (
+              <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2">
+                Learn
+              </h3>
+            )}
+            {renderNavButton('learning', 'Learning', GraduationCap)}
+          </div>
+
+          {/* SECTION 4: Utilities */}
+          <div className="space-y-1">
+            {!collapsed && (
+              <h3 className="px-3 text-[11px] font-heading font-semibold text-[#71717A] uppercase tracking-wider mb-2 mt-4">
+                Utilities
+              </h3>
+            )}
+            {renderNavButton('tools', 'Tools', Wrench)}
+          </div>
+
         </nav>
       </div>
 
       <div className="p-4 border-t border-[#E2E8F0] flex items-center justify-between bg-[#f7f9fb]">
-        <div 
-          onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-          title="Open Settings"
-        >
-          <div className="w-9 h-9 rounded-full bg-[#00b090] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-9 h-9 rounded-full bg-[#00b090] text-white flex items-center justify-center font-bold text-xs shrink-0">
             {user.name.charAt(0)}
           </div>
           {!collapsed && (
-            <div className="truncate">
-              <p className="font-heading font-bold text-xs text-[#191c1e] truncate">{user.name}</p>
-              <p className="text-[11px] text-[#565e74] truncate">{user.riskCategory}</p>
-            </div>
+            <span className="text-[10px] font-bold bg-[#333333] text-[#A1A1AA] px-2 py-1 rounded-md shrink-0 tracking-wider">
+              PRO
+            </span>
           )}
         </div>
-
         {!collapsed && (
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="p-1.5 rounded-lg text-[#565e74] hover:text-[#006b57] hover:bg-[#eceef0] transition-colors"
-            title="Ledger Settings"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
+          <Settings className="w-4 h-4 text-[#565e74] hover:text-[#006b57] cursor-pointer" />
         )}
       </div>
 

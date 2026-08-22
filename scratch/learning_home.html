@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinSight Learning - Learning Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Hedvig+Letters+Sans&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "hairline": "rgba(15, 23, 42, 0.06)",
+                      "on-primary-fixed": "#002111",
+                      "primary-fixed-dim": "#65dd9e",
+                      "surface-bright": "#f8f9ff",
+                      "outline": "#6d7a70",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-fixed-variant": "#82252b",
+                      "on-secondary-fixed": "#131b2e",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#fffbff",
+                      "tertiary-container": "#be5255",
+                      "tertiary-fixed": "#ffdad9",
+                      "tertiary": "#9e3a3e",
+                      "secondary": "#565e74",
+                      "on-secondary-container": "#5c647a",
+                      "on-primary-fixed-variant": "#005232",
+                      "surface-dim": "#E2E8F0",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "surface-tint": "#006d44",
+                      "primary": "#006a42",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-container": "#f6fff5",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#410008",
+                      "error": "#ba1a1a",
+                      "on-background": "#0b1c30",
+                      "surface-variant": "#d3e4fe",
+                      "surface": "#FFFFFF",
+                      "secondary-fixed": "#dae2fd",
+                      "on-primary": "#ffffff",
+                      "background": "#F7F8FA",
+                      "primary-fixed": "#82fab9",
+                      "on-surface-variant": "#3d4a41",
+                      "inverse-surface": "#213145",
+                      "surface-container-high": "#dce9ff",
+                      "primary-container": "#008654",
+                      "surface-container": "#e5eeff",
+                      "outline-variant": "#bccabf",
+                      "muted": "#64748B",
+                      "secondary-container": "#dae2fd",
+                      "tertiary-fixed-dim": "#ffb3b2",
+                      "ink": "#0F172A",
+                      "surface-container-highest": "#d3e4fe",
+                      "inverse-primary": "#65dd9e",
+                      "on-surface": "#0b1c30",
+                      "status-risk": "#B3402E",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "status-positive": "#0F9D65"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "unit": "4px",
+                      "section-gap": "48px",
+                      "internal-card": "24px",
+                      "gutter-desktop": "24px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Outfit"
+                      ],
+                      "headline-lg": [
+                              "Outfit"
+                      ],
+                      "display-hero": [
+                              "Outfit"
+                      ],
+                      "body-lg": [
+                              "Hedvig Letters Sans"
+                      ],
+                      "body-md": [
+                              "Hedvig Letters Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Outfit"
+                      ],
+                      "headline-md": [
+                              "Outfit"
+                      ],
+                      "label-sm": [
+                              "Outfit"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "64px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "21px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "26px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .shadow-multi {
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px rgba(15, 23, 42, 0.06);
+        }
+        
+        .shadow-multi-hover:hover {
+            box-shadow: 0 4px 6px rgba(15, 23, 42, 0.05), 0 20px 40px rgba(15, 23, 42, 0.08);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden w-full bg-surface shadow-sm sticky top-0 z-40 px-margin-mobile h-16 flex justify-between items-center">
+<div class="font-headline-md text-headline-md font-bold text-primary">FinSight Learning</div>
+<button class="text-on-surface-variant flex items-center justify-center p-2 rounded-full hover:bg-surface-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<nav class="hidden md:flex flex-col py-8 gap-4 bg-surface h-full w-64 fixed left-0 top-0 border-r border-hairline z-40">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim overflow-hidden flex-shrink-0">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional headshot of a person looking forward, brightly lit with a clean background. High quality photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK0z7ugKysMa0VDs8V8cgEKrfimxJJbQUqa6B3_D_fakIenp7ZnmNd0WQm2T08KNeLjdNk3TBXx_htK72C5MwKZnvXvma9ZRnbHLN4M-Y1yRjVwRTfTL01o2pmiRmmv3nBPH08J7nCqYWD5pVUDIzFU0tEMOMIQja71-J63Vmu1C9dYo1bskmBvC3Axbyp1nDPN5Tsgl7c2spW4UdHHd47_0IzmsgmvaBWneEt00sBsyAFAu5GdT5v1Q"/>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Learning Path</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs">Technical Analysis 101</div>
+</div>
+</div>
+<div class="flex flex-col w-full">
+<a class="flex items-center gap-4 px-6 py-3 w-full text-primary font-bold border-r-4 border-primary bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined filled" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 w-full text-on-surface-variant hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="science">science</span>
+<span class="font-label-md text-label-md group-hover:text-primary transition-colors">Interactive Lab</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 w-full text-on-surface-variant hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="quiz">quiz</span>
+<span class="font-label-md text-label-md group-hover:text-primary transition-colors">Quizzes</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 w-full text-on-surface-variant hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="trending_up">trending_up</span>
+<span class="font-label-md text-label-md group-hover:text-primary transition-colors">My Progress</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-[1280px] mx-auto md:ml-64 px-margin-mobile md:px-margin-desktop py-8 md:py-12 pb-24 md:pb-12">
+<!-- Header Section -->
+<header class="mb-section-gap max-w-3xl">
+<h1 class="font-display-hero text-display-hero md:text-[64px] text-headline-lg-mobile md:leading-[72px] mb-4 text-ink">Learn investing.<br/>Understand the market.</h1>
+<p class="font-body-lg text-body-lg text-muted max-w-2xl">Build your market knowledge by learning with real charts and interactive examples.</p>
+</header>
+<!-- Progress & Continue Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop mb-section-gap">
+<!-- Overall Progress (Spans 4) -->
+<div class="lg:col-span-4 bg-surface rounded-[16px] p-internal-card shadow-multi relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+<div>
+<h3 class="font-label-md text-label-md text-muted mb-2 uppercase tracking-wider">Your Learning Progress</h3>
+<div class="font-headline-md text-headline-md text-ink">12 of 30 concepts completed</div>
+</div>
+<div class="mt-8 relative">
+<div class="w-full h-[6px] bg-surface-dim rounded-full overflow-hidden">
+<div class="h-full bg-status-positive rounded-full" style="width: 40%;"></div>
+</div>
+</div>
+</div>
+<!-- Continue Learning Hero Card (Spans 8) -->
+<div class="lg:col-span-8 bg-surface rounded-[16px] shadow-multi overflow-hidden relative shadow-multi-hover transition-all duration-300 flex flex-col sm:flex-row">
+<div class="absolute bottom-0 left-0 w-full h-[4px] bg-surface-dim flex">
+<div class="h-full bg-status-positive" style="width: 65%;"></div>
+</div>
+<div class="p-internal-card flex-1 flex flex-col justify-between z-10 bg-surface">
+<div>
+<div class="flex items-center gap-2 mb-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-surface-container-high text-primary tracking-wide uppercase">Technical Analysis</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-ink mb-2">Support &amp; Resistance</h2>
+<div class="flex items-center gap-4 text-sm text-muted font-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> 8 min left</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="signal_cellular_alt">signal_cellular_alt</span> Intermediate</span>
+</div>
+</div>
+<div class="mt-6 sm:mt-8">
+<button class="bg-[#0F9D65] hover:bg-surface-tint text-on-primary font-label-md px-6 py-3 rounded-[10px] transition-colors flex items-center gap-2 shadow-sm">
+                            Continue Learning
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="w-full sm:w-2/5 h-48 sm:h-auto bg-surface-container relative overflow-hidden hidden sm:block">
+<!-- Abstract chart graphic representing support/resistance -->
+<div class="absolute inset-0 bg-surface-container opacity-50" style="background-image: linear-gradient(#e5eeff 1px, transparent 1px), linear-gradient(90deg, #e5eeff 1px, transparent 1px); background-size: 20px 20px;"></div>
+<svg class="absolute inset-0 w-full h-full text-outline-variant opacity-30" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 80 Q 20 60, 40 70 T 80 40 T 100 30" fill="none" stroke="currentColor" stroke-width="2"></path>
+<line stroke="#0F9D65" stroke-dasharray="4" stroke-width="2" x1="0" x2="100" y1="75" y2="75"></line>
+<line stroke="#B3402E" stroke-dasharray="4" stroke-width="2" x1="0" x2="100" y1="35" y2="35"></line>
+</svg>
+</div>
+</div>
+</div>
+<!-- Categories Section -->
+<section>
+<h2 class="font-headline-md text-headline-md text-ink mb-6">Explore Topics</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Technical Analysis Column -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-muted uppercase tracking-wider border-b border-hairline pb-2 mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="show_chart">show_chart</span>
+                        Technical Analysis
+                    </h3>
+<a class="bg-surface p-5 rounded-[16px] shadow-multi shadow-multi-hover transition-all duration-200 border border-transparent hover:border-hairline group cursor-pointer block relative" href="#">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="candlestick_chart">candlestick_chart</span>
+</div>
+<span class="text-[10px] font-semibold text-muted bg-surface-dim px-2 py-0.5 rounded-sm">BEGINNER</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold text-ink mb-1 group-hover:text-primary transition-colors">Candlestick Patterns</h4>
+<p class="font-body-md text-body-md text-muted text-sm line-clamp-2 mb-4">Learn to read the emotional story of the market through Japanese candlesticks.</p>
+<div class="flex items-center justify-between text-xs font-label-md text-muted mt-auto pt-3 border-t border-hairline">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 12 min</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity text-primary flex items-center gap-1">Start <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span></span>
+</div>
+</a>
+</div>
+<!-- Fundamental Analysis Column -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-muted uppercase tracking-wider border-b border-hairline pb-2 mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="account_balance">account_balance</span>
+                        Fundamental Analysis
+                    </h3>
+<a class="bg-surface p-5 rounded-[16px] shadow-multi shadow-multi-hover transition-all duration-200 border border-transparent hover:border-hairline group cursor-pointer block relative" href="#">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="calculate">calculate</span>
+</div>
+<span class="text-[10px] font-semibold text-muted bg-surface-dim px-2 py-0.5 rounded-sm">INTERMEDIATE</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold text-ink mb-1 group-hover:text-primary transition-colors">P/E Ratio Explained</h4>
+<p class="font-body-md text-body-md text-muted text-sm line-clamp-2 mb-4">Understand how to value a company based on its current earnings relative to price.</p>
+<div class="flex items-center justify-between text-xs font-label-md text-muted mt-auto pt-3 border-t border-hairline">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 15 min</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity text-primary flex items-center gap-1">Start <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span></span>
+</div>
+</a>
+</div>
+<!-- Portfolio & Risk Column -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-muted uppercase tracking-wider border-b border-hairline pb-2 mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="pie_chart">pie_chart</span>
+                        Portfolio &amp; Risk
+                    </h3>
+<a class="bg-surface p-5 rounded-[16px] shadow-multi shadow-multi-hover transition-all duration-200 border border-transparent hover:border-hairline group cursor-pointer block relative" href="#">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="dashboard_customize">dashboard_customize</span>
+</div>
+<span class="text-[10px] font-semibold text-muted bg-surface-dim px-2 py-0.5 rounded-sm">BEGINNER</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold text-ink mb-1 group-hover:text-primary transition-colors">Diversification</h4>
+<p class="font-body-md text-body-md text-muted text-sm line-clamp-2 mb-4">Don't put all your eggs in one basket. Learn the basics of spreading risk.</p>
+<div class="flex items-center justify-between text-xs font-label-md text-muted mt-auto pt-3 border-t border-hairline">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 10 min</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity text-primary flex items-center gap-1">Start <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span></span>
+</div>
+</a>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden bg-surface shadow-[0_-4px_12px_rgba(15,23,42,0.04)] shadow-lg">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-2xl px-4 py-1" href="#">
+<span class="material-symbols-outlined filled" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-sm text-label-sm mt-1">Learn</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-label-sm text-label-sm mt-1">Lab</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-sm text-label-sm mt-1">Progress</span>
+</a>
+</nav>
+</body></html>

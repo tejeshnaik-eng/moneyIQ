@@ -1,6 +1,6 @@
 import { HypeClaim } from '../types';
 
-export const mockHypeClaims: HypeClaim[] = [
+export const exampleHypeClaims: HypeClaim[] = [
   {
     id: 'fno-quick-wealth',
     title: 'Option Buying & Zero-Hero Intraday Guarantees 20% Weekly Returns',

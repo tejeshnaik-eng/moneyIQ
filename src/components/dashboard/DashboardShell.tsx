@@ -7,8 +7,9 @@ import { PortfolioModule } from '../modules/PortfolioModule';
 import { GoalsModule } from '../modules/GoalsModule';
 import { SpendAnalysisModule } from '../modules/SpendAnalysisModule';
 import { MarketSimModule } from '../modules/MarketSimModule';
-import { DecisionSimModule } from '../modules/DecisionSimModule';
-import { HypeDetectorModule } from '../modules/HypeDetectorModule';
+import { LearningModule } from '../modules/LearningModule';
+import { ToolsModule } from '../modules/ToolsModule';
+import { AiChatWidget } from '../chat/AiChatWidget';
 import { ModuleId, UserProfile } from '../../types';
 
 interface DashboardShellProps {
@@ -39,17 +40,17 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         return <SpendAnalysisModule />;
       case 'marketsim':
         return <MarketSimModule />;
-      case 'decisionsim':
-        return <DecisionSimModule />;
-      case 'hypedetector':
-        return <HypeDetectorModule />;
+      case 'learning':
+        return <LearningModule />;
+      case 'tools':
+        return <ToolsModule />;
       default:
         return <OverviewModule onNavigateModule={(m) => setActiveModule(m)} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-background flex font-body-md">
+    <div className="min-h-screen bg-[#1E1E1E] text-on-background flex font-body-md">
       <DashboardSidebar
         activeModule={activeModule}
         onSelectModule={(mod) => setActiveModule(mod)}
@@ -59,7 +60,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         onLogout={onLogout}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen">
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen bg-[#1E1E1E]">
         <DashboardTopBar
           activeModule={activeModule}
           user={user}
@@ -67,10 +68,13 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           onLogout={onLogout}
         />
 
-        <main className="flex-1 p-6 sm:p-8 max-w-[1280px] w-full mx-auto">
+        <main className="flex-1 w-full mx-auto p-0 max-w-none">
           {renderActiveModule()}
         </main>
       </div>
+      
+      {/* Floating Global AI Chatbot */}
+      <AiChatWidget />
     </div>
   );
 };

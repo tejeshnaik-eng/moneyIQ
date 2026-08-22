@@ -1,13 +1,6 @@
-/**
- * AuthContext — Global authentication state for FinSight.
- * 
- * - On mount: calls GET /api/auth/me to rehydrate session from the HttpOnly cookie.
- *   This means the user stays logged in across page refreshes.
- * - Provides: user, isLoggedIn, isLoading, login(), register(), logout()
- * - All fetch calls use credentials: 'include' so the browser sends the cookie.
- */
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
+import { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
   id: string;
@@ -19,8 +12,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoggedIn: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ error?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -28,54 +20,48 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // true during initial session check
+  const [isLoading, setIsLoading] = useState(true);
 
-  // On mount — check if a valid session cookie exists
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
-      } catch {
-        // No session — stay logged out
-      } finally {
-        setIsLoading(false);
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+        });
       }
+      setIsLoading(false);
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+            email: session.user.email || '',
+          });
+        } else {
+          setUser(null);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
     };
     checkSession();
   }, []);
 
-  const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+  const signInWithGoogle = useCallback(async (): Promise<{ error?: string }> => {
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        }
       });
-      const data = await res.json();
-      if (!res.ok) return { error: data.error || 'Login failed.' };
-      setUser(data.user);
-      return {};
-    } catch {
-      return { error: 'Network error. Please check your connection.' };
-    }
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, password: string): Promise<{ error?: string }> => {
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) return { error: data.error || 'Registration failed.' };
-      setUser(data.user);
+      if (error) return { error: error.message };
       return {};
     } catch {
       return { error: 'Network error. Please check your connection.' };
@@ -84,9 +70,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      await supabase.auth.signOut();
     } catch {
-      // Ignore network errors — clear client state regardless
+      // Ignore network errors
     }
     setUser(null);
   }, []);
@@ -97,8 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isLoggedIn: user !== null,
         isLoading,
-        login,
-        register,
+        signInWithGoogle,
         logout,
       }}
     >

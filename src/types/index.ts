@@ -6,7 +6,9 @@ export type ModuleId =
   | 'spend'
   | 'marketsim'
   | 'decisionsim'
-  | 'hypedetector';
+  | 'learning'
+  | 'hypedetector'
+  | 'tools';
 
 export interface UserProfile {
   name: string;
@@ -235,6 +237,7 @@ export interface FinancialGoal {
   requiredMonthlySip: number;
   currentMonthlySip: number;
   status: 'On Track' | 'Attention Needed' | 'Critical Gap';
+  linkedAssets?: string[]; // IDs of portfolio holdings linked to this goal
 }
 
 export interface SpendCategory {

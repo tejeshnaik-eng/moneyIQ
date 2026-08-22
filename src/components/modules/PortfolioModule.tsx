@@ -1,4 +1,5 @@
-import { getStorageKey } from '../../utils';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import * as XLSX from 'xlsx';
@@ -13,14 +14,9 @@ import { MarketDataEngine, LiveHoldingValuation } from '../../services/marketDat
 import { PortfolioAnalyzer } from './PortfolioAnalyzer';
 
 export const PortfolioModule: React.FC = () => {
-  const [holdings, setHoldings] = useState<PortfolioHolding[]>(() => {
-    try {
-      const saved = localStorage.getItem(getStorageKey('finsight_portfolio_holdings'));
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { user } = useAuth();
+  const [holdings, setHoldings] = useState<PortfolioHolding[]>([]);
+  const [isLoadingDb, setIsLoadingDb] = useState(true);
 
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -38,18 +34,57 @@ export const PortfolioModule: React.FC = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem(getStorageKey('finsight_portfolio_holdings'), JSON.stringify(holdings));
+    async function fetchHoldings() {
+      if (!user) {
+        setHoldings([]);
+        setIsLoadingDb(false);
+        return;
+      }
+      setIsLoadingDb(true);
+      try {
+        const { data, error } = await supabase
+          .from('portfolios')
+          .select('*')
+          .eq('user_id', user.id);
+          
+        if (error) throw error;
+        
+        if (data) {
+          const mapped: PortfolioHolding[] = data.map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            ticker: d.ticker || '',
+            category: d.category,
+            platform: d.platform,
+            investedValue: Number(d.invested),
+            currentValue: Number(d.current),
+            returnsPercentage: d.invested ? ((Number(d.current) - Number(d.invested)) / Number(d.invested)) * 100 : 0,
+            xirr: d.invested ? ((Number(d.current) - Number(d.invested)) / Number(d.invested)) * 100 : 0,
+          }));
+          setHoldings(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching portfolios:', err);
+      } finally {
+        setIsLoadingDb(false);
+      }
+    }
+    
+    fetchHoldings();
+  }, [user]);
+
+  useEffect(() => {
     if (holdings.length > 0) {
       loadLivePortfolioData();
     }
-  }, [holdings]);
+  }, [holdings.length]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const data = event.target?.result;
       if (!data) return;
       
@@ -115,7 +150,32 @@ export const PortfolioModule: React.FC = () => {
         }
         
         if (newImports.length > 0) {
-          setHoldings(prev => [...prev, ...newImports]);
+          if (user) {
+            const rowsToInsert = newImports.map(h => ({
+              user_id: user.id,
+              name: h.name,
+              ticker: h.ticker,
+              category: h.category,
+              platform: h.platform,
+              invested: h.investedValue,
+              current: h.currentValue
+            }));
+            const { data, error } = await supabase.from('portfolios').insert(rowsToInsert).select();
+            if (!error && data) {
+              const mapped: PortfolioHolding[] = data.map((d: any) => ({
+                id: d.id,
+                name: d.name,
+                ticker: d.ticker || '',
+                category: d.category,
+                platform: d.platform,
+                investedValue: Number(d.invested),
+                currentValue: Number(d.current),
+                returnsPercentage: d.invested ? ((Number(d.current) - Number(d.invested)) / Number(d.invested)) * 100 : 0,
+                xirr: d.invested ? ((Number(d.current) - Number(d.invested)) / Number(d.invested)) * 100 : 0,
+              }));
+              setHoldings(prev => [...prev, ...mapped]);
+            }
+          }
         } else {
           alert('No valid holdings found in the file.');
         }
@@ -167,35 +227,55 @@ export const PortfolioModule: React.FC = () => {
   const netGain = totalCurrent - totalInvested;
   const returnPercent = totalInvested > 0 ? ((netGain / totalInvested) * 100).toFixed(1) : '0.0';
 
-  const handleAddHolding = (e: React.FormEvent) => {
+  const handleAddHolding = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = Date.now().toString();
+    if (!user) {
+      alert('Please log in to add holdings.');
+      return;
+    }
     const returnsPercentage = newHolding.investedValue 
       ? ((Number(newHolding.currentValue) - Number(newHolding.investedValue)) / Number(newHolding.investedValue)) * 100 
       : 0;
       
-    const holdingToAdd: PortfolioHolding = {
-      id,
-      name: newHolding.name || 'Unnamed Asset',
-      ticker: newHolding.ticker || '',
-      category: newHolding.category as any || 'Large Cap',
-      platform: newHolding.platform as any || 'Zerodha',
-      investedValue: Number(newHolding.investedValue) || 0,
-      currentValue: Number(newHolding.currentValue) || 0,
-      returnsPercentage,
-      xirr: returnsPercentage,
-    };
+    try {
+      const { data, error } = await supabase.from('portfolios').insert({
+        user_id: user.id,
+        name: newHolding.name || 'Unnamed Asset',
+        ticker: newHolding.ticker || '',
+        category: newHolding.category || 'Large Cap',
+        platform: newHolding.platform || 'Zerodha',
+        invested: Number(newHolding.investedValue) || 0,
+        current: Number(newHolding.currentValue) || 0
+      }).select().single();
 
-    setHoldings(prev => [...prev, holdingToAdd]);
-    setShowAddModal(false);
-    setNewHolding({
-      name: '',
-      ticker: '',
-      category: 'Large Cap',
-      platform: 'Zerodha',
-      investedValue: 0,
-      currentValue: 0,
-    });
+      if (error) throw error;
+
+      const holdingToAdd: PortfolioHolding = {
+        id: data.id,
+        name: data.name,
+        ticker: data.ticker || '',
+        category: data.category as any,
+        platform: data.platform as any,
+        investedValue: Number(data.invested),
+        currentValue: Number(data.current),
+        returnsPercentage,
+        xirr: returnsPercentage,
+      };
+
+      setHoldings(prev => [...prev, holdingToAdd]);
+      setShowAddModal(false);
+      setNewHolding({
+        name: '',
+        ticker: '',
+        category: 'Large Cap',
+        platform: 'Zerodha',
+        investedValue: 0,
+        currentValue: 0,
+      });
+    } catch (err) {
+      console.error('Error adding holding:', err);
+      alert('Failed to add holding.');
+    }
   };
 
   function AddHoldingModal() {
@@ -276,6 +356,17 @@ export const PortfolioModule: React.FC = () => {
     );
   }
 
+  if (isLoadingDb) {
+    return (
+      <div className="flex-1 flex items-center justify-center pt-8 pb-12">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+          <p className="text-on-surface-variant font-body-md">Loading portfolio...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (holdings.length === 0) {
     return (
       <div className="space-y-8 pb-12 w-full max-w-7xl mx-auto pt-8">
@@ -292,7 +383,11 @@ export const PortfolioModule: React.FC = () => {
           <button
             onClick={() => {
               if (window.confirm('Are you sure you want to clear all your portfolio holdings?')) {
-                setHoldings([]);
+                if (user) {
+                  supabase.from('portfolios').delete().eq('user_id', user.id).then(() => {
+                    setHoldings([]);
+                  });
+                }
               }
             }}
             className="btn-secondary py-3 px-4 flex items-center gap-2 text-[#ba1a1a] border-[#ba1a1a] hover:bg-[#ffdad6]"
@@ -367,7 +462,11 @@ export const PortfolioModule: React.FC = () => {
           <button 
             onClick={() => {
               if (window.confirm('Are you sure you want to clear all your portfolio holdings?')) {
-                setHoldings([]);
+                if (user) {
+                  supabase.from('portfolios').delete().eq('user_id', user.id).then(() => {
+                    setHoldings([]);
+                  });
+                }
               }
             }}
             className="font-label-md text-label-md uppercase tracking-wider text-error hover:underline flex items-center gap-1"
@@ -424,7 +523,7 @@ export const PortfolioModule: React.FC = () => {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-status-risk rounded-r-full opacity-0 group-hover:opacity-100 transition-opacity" title="Loss Making Asset"></div>
                   )}
                   <button 
-                    onClick={() => setHoldings(prev => prev.filter(x => x.id !== h.id))}
+                    onClick={async () => { if (user) { await supabase.from('portfolios').delete().eq('id', h.id); setHoldings(prev => prev.filter(x => x.id !== h.id)); } }}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 transition-opacity text-error hover:bg-error-container/50 rounded-full"
                     title="Remove Asset"
                   >

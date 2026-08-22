@@ -3,11 +3,49 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --app-bg: #F8FAFC;
+    --app-surface: #FFFFFF;
+    --app-surface-alt: #f7f9fb;
+    --app-surface-hover: #eceef0;
+    --app-text: #191c1e;
+    --app-text-muted: #565e74;
+    --app-border: #E2E8F0;
+    
+    --primary: #0F9D65;
+    --primary-dim: #0C7D51;
+    --primary-soft: rgba(15, 157, 101, 0.12);
+    
+    /* Institutional Amethyst Purple */
+    --secondary: #7e57c2;
+    --secondary-dim: #512da8;
+    --secondary-soft: rgba(126, 87, 194, 0.12);
+  }
+
+  .dark {
+    --app-bg: #0B0E14;
+    --app-surface: #141820; 
+    --app-surface-alt: #1a1e28;
+    --app-surface-hover: #222733;
+    --app-text: #F5F1E8;
+    --app-text-muted: #94A3B8;
+    --app-border: #2A3143;
+    
+    --primary: #0F9D65;
+    --primary-dim: #13b677;
+    --primary-soft: rgba(15, 157, 101, 0.2);
+    
+    --secondary: #b39ddb;
+    --secondary-dim: #d1c4e9;
+    --secondary-soft: rgba(179, 157, 219, 0.2);
+  }
+
   body {
-    background-color: #F8FAFC;
-    color: #191c1e;
+    background-color: var(--app-bg);
+    color: var(--app-text);
     font-family: 'Hedvig Letters Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -17,16 +55,16 @@
 
 /* Institutional Ledger custom utilities */
 .ledger-border {
-  border-color: #E2E8F0;
+  border-color: var(--app-border);
 }
 
 .ledger-line {
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .ledger-card {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 12px;
 }
 
@@ -35,21 +73,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #00b090;
+  background-color: var(--primary);
   color: #ffffff;
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
-  border: 1px solid #00967a;
+  border: 1px solid var(--primary-dim);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: #006b57;
-  border-color: #005141;
+  background-color: var(--primary-dim);
 }
 
 .btn-secondary {
@@ -57,21 +94,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #ffffff;
-  color: #191c1e;
+  background-color: var(--app-surface);
+  color: var(--app-text);
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--app-border);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .btn-secondary:hover {
-  background-color: #f2f4f6;
-  border-color: #bbcac3;
+  background-color: var(--app-surface-hover);
 }
 
 .btn-outline {
@@ -80,19 +116,19 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: transparent;
-  color: #006b57;
+  color: var(--primary);
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #00b090;
+  border: 1px solid var(--primary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .btn-outline:hover {
-  background-color: rgba(0, 176, 144, 0.08);
+  background-color: var(--primary-soft);
 }
 
 /* Custom Scrollbar for Ledger Lists */
@@ -104,9 +140,18 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
+  background: var(--app-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bbcac3;
+  background: var(--app-text-muted);
+}
+
+/* Hide scrollbar completely while keeping scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
