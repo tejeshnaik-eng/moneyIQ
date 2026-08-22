@@ -555,7 +555,7 @@ export const RiskProfilingModule: React.FC = () => {
                           type="number"
                           value={formData.outstandingDebt}
                           onChange={(e) => handleUpdate('outstandingDebt', Number(e.target.value))}
-                          className="w-full px-3 py-2 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-xs font-mono"
+                          className="w-full px-3 py-2 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-xs font-mono text-white"
                         />
                       </div>
                       <div>
@@ -566,7 +566,7 @@ export const RiskProfilingModule: React.FC = () => {
                           type="number"
                           value={formData.monthlyEmi}
                           onChange={(e) => handleUpdate('monthlyEmi', Number(e.target.value))}
-                          className="w-full px-3 py-2 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-xs font-mono"
+                          className="w-full px-3 py-2 bg-[var(--app-surface-alt)] border border-[var(--app-border)] rounded-lg text-xs font-mono text-white"
                         />
                       </div>
                     </div>
