@@ -176,14 +176,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           )}
         </div>
       </div>
-      
-      {/* Collapse Toggle */}
-      <button
-        onClick={onToggleCollapse}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-[#2A2A2A] text-[#A1A1AA] hover:text-white rounded-full p-1 border border-[#333333] shadow-md z-30"
-      >
-        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-      </button>
     </aside>
   );
 };
