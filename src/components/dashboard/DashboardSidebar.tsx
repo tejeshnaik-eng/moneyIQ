@@ -62,11 +62,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`bg-[#161616] text-[#E4E4E7] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 ${
+      className={`bg-[#161616] text-[#E4E4E7] flex flex-col justify-between transition-all duration-200 z-20 shrink-0 h-screen sticky top-0 relative ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
-      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+      <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col">
         {/* Top Header / Back Button */}
         <div className="p-4 pt-6">
           <button 
@@ -176,6 +176,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           )}
         </div>
       </div>
+      {/* Collapse Toggle */}
+      <button
+        onClick={onToggleCollapse}
+        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-[#2A2A2A] text-[#A1A1AA] hover:text-white rounded-full p-1.5 shadow-md z-30"
+      >
+        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </button>
     </aside>
   );
 };

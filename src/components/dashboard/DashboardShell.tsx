@@ -58,8 +58,8 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         activeModule={activeModule}
         onSelectModule={(mod) => setActiveModule(mod)}
         user={user}
-        collapsed={false}
-        onToggleCollapse={() => {}}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
       <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto h-screen ${['overview', 'tools'].includes(activeModule) ? 'bg-[#1E1E1E]' : ''}`}>

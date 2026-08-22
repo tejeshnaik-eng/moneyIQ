@@ -146,3 +146,12 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--app-text-muted);
 }
+
+/* Hide scrollbar completely while keeping scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
