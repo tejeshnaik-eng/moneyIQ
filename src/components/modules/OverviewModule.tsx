@@ -1,6 +1,20 @@
 import { getStorageKey } from '../../utils';
-import React, { useEffect, useState, useRef } from 'react';
-import { ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, TrendingDown, Sparkles, RefreshCw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { 
+  ChevronRight, 
+  Sparkles, 
+  Wallet, 
+  PieChart, 
+  Flag, 
+  Receipt, 
+  Shield, 
+  Scale, 
+  Lightbulb, 
+  Target, 
+  Settings2,
+  RefreshCw,
+  ExternalLink
+} from 'lucide-react';
 import { ModuleId } from '../../types';
 import {
   FinancialAnalysisResult,
@@ -11,71 +25,12 @@ interface OverviewModuleProps {
   onNavigateModule: (module: ModuleId) => void;
 }
 
-// ── Animated score counter ──────────────────────────────────────────
-function useCounter(target: number, duration = 1500) {
-  const [val, setVal] = useState(0);
-  const rafRef = useRef<number>();
-  useEffect(() => {
-    if (target === 0) { setVal(0); return; }
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      setVal(Math.round((1 - Math.pow(1 - p, 3)) * target));
-      if (p < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [target, duration]);
-  return val;
-}
+const ToggleSwitch = ({ active }: { active: boolean }) => (
+  <div className={`w-8 h-[18px] rounded-full flex items-center px-0.5 transition-colors ${active ? 'bg-[#0F9D65]' : 'bg-gray-300'}`}>
+    <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${active ? 'translate-x-[14px]' : 'translate-x-0'} shadow-sm`} />
+  </div>
+);
 
-// ── Thin progress bar ───────────────────────────────────────────────
-function Bar({ pct, delay, color }: { pct: number; delay: number; color: string }) {
-  const [w, setW] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setW(pct), delay); return () => clearTimeout(t); }, [pct, delay]);
-  return (
-    <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ backgroundColor: `${color}30` }}>
-      <div className="h-full rounded-full transition-all duration-[1300ms] ease-out" style={{ width: `${w}%`, backgroundColor: color }} />
-    </div>
-  );
-}
-
-// ── Colour palette for solid widget backgrounds ─────────────────────
-const C = {
-  surface:   '#FFFFFF',
-  blue:      '#004E9F',
-  blueLight: '#EBF1FB',
-  green:     '#006D44',
-  greenLight:'#E8F5EE',
-  amber:     '#883700',
-  amberLight:'#FEF3E2',
-  red:       '#BA1A1A',
-  redLight:  '#FBE9E7',
-  purple:    '#7E57C2',
-  purpleLight:'#F2EEFA',
-  slate:     '#F5F5F7',
-  text:      '#1D1D1F',
-  muted:     '#6E6E73',
-  border:    '#E5E5EA',
-};
-
-// ── Widget wrapper — solid bg, no border ────────────────────────────
-function Widget({ bg = C.surface, className = '', children }: { bg?: string; className?: string; children: React.ReactNode }) {
-  return (
-    <div
-      className={`rounded-xl overflow-hidden ${className}`}
-      style={{ backgroundColor: bg, boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)' }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function Label({ children }: { children: React.ReactNode }) {
-  return <div className="text-[10px] font-heading font-semibold uppercase tracking-widest mb-2" style={{ color: C.muted }}>{children}</div>;
-}
-
-// ── Main component ──────────────────────────────────────────────────
 export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule }) => {
   const [assets, setAssets]       = useState(0);
   const [liabilities, setLiabilities] = useState(0);
@@ -90,7 +45,6 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
   const [aiSource, setAiSource]   = useState<'ai' | 'failed' | null>(null);
   const [mounted, setMounted]     = useState(false);
 
-  // ── Load all data from localStorage ──────────────────────────────
   useEffect(() => {
     setMounted(true);
     try {
@@ -108,16 +62,8 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
     } catch (e) { console.error(e); }
   }, []);
 
-  // ── Run analysis whenever data is ready ──────────────────────────
-  useEffect(() => {
-    if (!mounted) return;
-    // runAnalysis(); // Disabled to save Gemini API credits; user must click manually
-  }, [mounted, assets, liabilities, leakage, hasProfile]);
-
   const runAnalysis = async () => {
     setAiLoading(true);
-
-    // Build augmented profile payload
     const payload = {
       ...(profile ?? {}),
       computed: {
@@ -130,7 +76,6 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
       },
     };
 
-    // Strict AI usage (no fakes/heuristics)
     const aiResult = await analyzeWithGemini(payload);
     if (aiResult) {
       setAnalysis(aiResult);
@@ -142,333 +87,236 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
     setAiLoading(false);
   };
 
-  // ── Derived values ────────────────────────────────────────────────
-  const score  = analysis?.healthScore ?? 0;
-  const dims   = analysis?.dimensions  ?? { assets: 0, debtControl: 0, spendControl: 0, riskProfile: 0 };
-  const band   = analysis?.healthBand  ?? 'No Data';
-  const bandColor = band === 'Excellent' ? C.green : band === 'Good' ? C.blue : band === 'Fair' ? C.amber : C.red;
-
   const netWorth = assets - liabilities;
-  const displayScore = useCounter(score);
-
-  const needs     = txns.filter((x: any) => x.category === 'Needs').reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const goalSpend = txns.filter((x: any) => x.category === 'Goals').reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
-  const totalSp   = needs + goalSpend + leakage;
-
-  const topHolding = [...holdings].sort((a, b) => (Number(b.currentValue) || 0) - (Number(a.currentValue) || 0))[0];
-  const categories = holdings.reduce((acc: Record<string, number>, h: any) => {
-    const cat = h.category || 'Other';
-    acc[cat] = (acc[cat] || 0) + (Number(h.currentValue) || 0);
-    return acc;
-  }, {});
-  const topCats = Object.entries(categories).sort(([, a], [, b]) => b - a).slice(0, 3);
-
-  const fmt  = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
-  const fmtK = (v: number) => v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : v >= 1000 ? `₹${(v / 1000).toFixed(0)}K` : v === 0 ? '₹0' : fmt(v);
 
   return (
-    <div className="h-full flex flex-col gap-3 overflow-hidden">
-
-      {/* ── ROW 0: COMPACT INTRO BAR ── */}
-      <div className="flex items-center justify-between shrink-0 px-0.5">
-        <div>
-          <h1 className="font-heading font-semibold text-[20px] leading-tight tracking-tight" style={{ color: C.text }}>
-            Your financial health, at a glance.
-          </h1>
-          <p className="text-[11px] flex items-center gap-1.5 mt-0.5" style={{ color: C.muted }}>
-            <span className={`w-[5px] h-[5px] rounded-full inline-block ${aiLoading ? 'bg-amber-500 animate-pulse' : aiSource === 'failed' ? 'bg-[#BA1A1A]' : 'bg-[#006D44]'}`} />
-            {aiLoading ? 'Analysing your data…' : aiSource === 'ai' ? 'AI-powered analysis · Gemini Flash' : aiSource === 'failed' ? 'AI analysis unavailable · Add API key' : 'Pending analysis'}
-          </p>
+    <div className="flex h-[calc(100vh-130px)] w-full gap-8 text-[#191c1e]">
+      
+      {/* Left/Main Column */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar pr-2 pb-4">
+        
+        {/* Header */}
+        <div className="flex items-end justify-between mb-8 mt-2">
+          <h1 className="text-4xl font-heading font-semibold text-gray-900 tracking-tight">Financial Overview</h1>
+          <div className="flex bg-gray-100/80 p-1 rounded-full text-sm font-medium border border-gray-200/50">
+            <button className="px-5 py-1.5 bg-white rounded-full shadow-sm text-gray-900 border border-gray-200/50">Metrics</button>
+            <button className="px-5 py-1.5 text-gray-500 hover:text-gray-900 transition-colors">Insights</button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={runAnalysis}
-            disabled={aiLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-heading font-semibold transition-opacity hover:opacity-80"
-            style={{ backgroundColor: C.purpleLight, color: C.purple }}
+
+        {/* Metric Grid (Cards) - Modeled after AI Studio */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+          
+          <div 
+            onClick={() => onNavigateModule('portfolio')}
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-pointer group flex flex-col"
           >
-            {aiLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-            {aiLoading ? 'Analysing…' : aiSource === 'ai' ? 'Re-run AI' : 'Run AI Analysis'}
-          </button>
-          <span className="text-[11px] px-2.5 py-1 rounded-full font-heading font-semibold" style={{ backgroundColor: C.slate, color: C.muted }}>
-            {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </span>
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <Wallet className="text-blue-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Net Worth</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {assets > 0 
+                ? `Total estimated net worth of ₹${netWorth.toLocaleString('en-IN')}, aggregated across your live portfolio holdings.` 
+                : 'Add holdings in the Portfolio module to calculate your live net worth.'}
+            </p>
+          </div>
+
+          <div 
+            onClick={() => onNavigateModule('portfolio')}
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-pointer group flex flex-col"
+          >
+            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <PieChart className="text-green-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Total Assets</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {holdings.length > 0 
+                ? `You have ₹${assets.toLocaleString('en-IN')} distributed across ${holdings.length} distinct financial instruments.`
+                : 'No active assets tracked. Begin tracking to measure your wealth.'}
+            </p>
+          </div>
+
+          <div 
+            onClick={() => onNavigateModule('goals')}
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-pointer group flex flex-col"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <Flag className="text-amber-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Goal Targets</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {goals.length > 0
+                ? `Tracking ${goals.length} active financial goals. Open the planner to review SIP progress and timelines.`
+                : 'No financial goals defined. Create timelines for retirement or major purchases.'}
+            </p>
+          </div>
+
+          <div 
+            onClick={() => onNavigateModule('spend')}
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-pointer group flex flex-col"
+          >
+            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <Receipt className="text-red-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Capital Leakage</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {leakage > 0
+                ? `Detected ₹${leakage.toLocaleString('en-IN')} in monthly discretionary spending that could be redirected to SIPs.`
+                : 'No significant capital leakage detected in your recent transaction history.'}
+            </p>
+          </div>
+
+          <div 
+            onClick={() => onNavigateModule('risk')}
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-pointer group flex flex-col"
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <Shield className="text-purple-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Risk Profile</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {hasProfile
+                ? `Profile registered. Your investment strategy should align with your identified risk tolerance.`
+                : 'Pending risk assessment. Complete the diagnostic to calibrate your portfolio.'}
+            </p>
+          </div>
+
+          <div 
+            className="bg-[#f7f9fb] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all rounded-[20px] p-5 cursor-default group flex flex-col"
+          >
+            <div className="w-10 h-10 rounded-xl bg-cyan-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shrink-0">
+              <Scale className="text-cyan-600 w-5 h-5" />
+            </div>
+            <h3 className="font-heading font-semibold text-gray-900 mb-1.5">Liability Burden</h3>
+            <p className="text-[13px] text-gray-500 font-body leading-relaxed line-clamp-3">
+              {liabilities > 0
+                ? `Carrying ₹${liabilities.toLocaleString('en-IN')} in outstanding debt. Prioritize high-interest reduction.`
+                : 'No outstanding liabilities registered in your financial profile.'}
+            </p>
+          </div>
+
+        </div>
+
+        {/* Bottom Prompt / Insight Banner */}
+        <div className="mt-auto pt-2">
+          {/* Warning/Info Strip */}
+          <div className="bg-[#FFF8E6] border border-[#FDE68A] rounded-t-[20px] p-4 flex items-start gap-3 text-sm">
+            <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium text-amber-900">This agent generates institutional-grade insights based on your active configuration.</p>
+              <div className="flex items-center gap-4 mt-1 text-[13px]">
+                <button className="text-blue-600 hover:underline font-medium">Learn more</button>
+                <button className="text-gray-500 hover:text-gray-700 font-medium bg-white/50 px-2 py-0.5 rounded border border-amber-200/50 transition-colors">Calibrate profile</button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Action / "Prompt" Area */}
+          <div className="bg-white border border-gray-200 border-t-0 rounded-b-[20px] p-4 shadow-sm">
+             <div className="flex items-center gap-2 mb-3">
+               <span className={`w-2 h-2 rounded-full ${aiSource === 'ai' ? 'bg-green-500' : aiSource === 'failed' ? 'bg-red-500' : 'bg-gray-300 animate-pulse'}`} />
+               <p className="text-sm font-medium text-gray-500">
+                 {aiLoading ? 'Agent is analyzing your data...' : aiSource === 'ai' ? 'Actionable Intelligence' : aiSource === 'failed' ? 'Agent unavailable' : 'Awaiting initialization'}
+               </p>
+             </div>
+             
+             <div className="flex flex-wrap items-center gap-2">
+                <button className="flex items-center gap-2 px-3 py-2 bg-[#f7f9fb] hover:bg-gray-100 border border-gray-200 transition-colors rounded-xl text-sm text-gray-700 font-medium">
+                  <Settings2 className="w-4 h-4 text-gray-500" /> Grounding Tools
+                </button>
+                
+                <div className={`flex-1 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border ${aiSource === 'ai' ? 'bg-blue-50 border-blue-100 text-blue-800' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
+                   {aiSource === 'ai' ? <Target className="w-4 h-4 shrink-0" /> : <Shield className="w-4 h-4 shrink-0 text-gray-400" />}
+                   <span className="truncate">
+                     {aiSource === 'ai' 
+                       ? analysis?.suggestedAction 
+                       : 'Run the analysis engine to generate a personalized action plan.'}
+                   </span>
+                </div>
+
+                <button 
+                  onClick={runAnalysis} 
+                  disabled={aiLoading}
+                  className="shrink-0 bg-gray-900 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4" /> Execute
+                </button>
+             </div>
+          </div>
         </div>
       </div>
 
-      {/* ── MAIN GRID ── */}
-      <div className="flex-1 grid grid-cols-12 grid-rows-2 gap-3 min-h-0">
-
-        {/* ── HEALTH SCORE (col 1-4, row 1) ── */}
-        <Widget bg={C.surface} className="col-span-4 row-span-1 p-5 flex flex-col justify-between">
-          <div className="flex items-start justify-between">
-            <Label>Financial Health</Label>
-            <span
-              className="text-[10px] font-heading font-semibold px-2 py-0.5 rounded-full"
-              style={{ color: bandColor, backgroundColor: `${bandColor}15` }}
-            >{band}</span>
-          </div>
-          <div className="flex items-baseline gap-1 my-1">
-            <span className="font-heading font-bold text-[52px] leading-none tracking-tighter" style={{ color: C.text }}>{displayScore}</span>
-            <span className="font-heading text-[18px] font-normal" style={{ color: C.muted }}>/100</span>
-            {aiSource === 'ai' && <Sparkles className="w-3.5 h-3.5 ml-2 mt-auto mb-2" style={{ color: C.purple }} />}
-          </div>
-          <div className="flex flex-col gap-2.5">
-            {([
-              { label: 'Assets',       pct: dims.assets,       color: C.blue },
-              { label: 'Debt Control', pct: dims.debtControl,  color: C.green },
-              { label: 'Spend',        pct: dims.spendControl, color: C.amber },
-              { label: 'Risk Profile', pct: dims.riskProfile,  color: C.purple },
-            ] as const).map(({ label, pct, color }, i) => (
-              <div key={label} className="flex flex-col gap-1">
-                <div className="flex justify-between">
-                  <span className="text-[11px] font-heading font-semibold" style={{ color: C.text }}>{label}</span>
-                  <span className="text-[11px]" style={{ color: C.muted }}>{pct}%</span>
-                </div>
-                <Bar pct={pct} delay={150 + i * 100} color={color} />
-              </div>
-            ))}
-          </div>
-        </Widget>
-
-        {/* ── NET WORTH + SPEND/GOALS (col 5-9, row 1) ── */}
-        <div className="col-span-5 row-span-1 grid grid-cols-2 grid-rows-2 gap-3">
-
-          {/* Net Worth */}
-          <Widget bg={C.blueLight} className="col-span-2 px-5 py-3.5 flex items-center justify-between">
-            <div>
-              <Label>Net Worth</Label>
-              <div className="font-heading font-bold text-[28px] leading-none tracking-tight" style={{ color: C.blue }}>{fmtK(netWorth)}</div>
-            </div>
-            <div className="grid grid-cols-3 divide-x" style={{ borderColor: `${C.blue}25` }}>
-              {[
-                { label: 'Assets',      value: fmtK(assets),      color: C.blue   },
-                { label: 'Liabilities', value: fmtK(liabilities),  color: liabilities > 0 ? C.red : C.muted },
-                { label: 'Leakage/mo', value: fmtK(leakage),      color: leakage  > 0 ? C.amber : C.muted },
-              ].map(({ label, value, color }) => (
-                <div key={label} className="px-4 flex flex-col">
-                  <span className="text-[10px] font-heading font-semibold uppercase tracking-wider" style={{ color: `${C.blue}99` }}>{label}</span>
-                  <span className="font-heading font-bold text-[15px] tracking-tight mt-0.5" style={{ color }}>{value}</span>
-                </div>
-              ))}
-            </div>
-          </Widget>
-
-          {/* Spend Breakdown */}
-          <Widget bg={C.amberLight} className="px-4 py-3 flex flex-col justify-between">
-            <Label>Spend Breakdown</Label>
-            {totalSp === 0 ? (
-              <span className="text-[12px]" style={{ color: C.muted }}>No transactions yet</span>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {[
-                  { label: 'Needs',         val: needs,     pct: Math.round((needs    / totalSp) * 100), color: C.blue  },
-                  { label: 'Goals',         val: goalSpend, pct: Math.round((goalSpend/ totalSp) * 100), color: C.green },
-                  { label: 'Discretionary', val: leakage,   pct: Math.round((leakage  / totalSp) * 100), color: C.red   },
-                ].map(({ label, val, pct, color }) => (
-                  <div key={label}>
-                    <div className="flex justify-between mb-0.5">
-                      <span className="text-[11px] font-heading font-semibold" style={{ color: C.text }}>{label}</span>
-                      <span className="text-[10px]" style={{ color: C.muted }}>{pct}% · {fmtK(val)}</span>
-                    </div>
-                    <Bar pct={pct} delay={500} color={color} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </Widget>
-
-          {/* Goals Summary */}
-          <Widget bg={C.greenLight} className="px-4 py-3 flex flex-col justify-between">
-            <Label>Active Goals</Label>
-            {goals.length === 0 ? (
-              <div>
-                <p className="text-[12px]" style={{ color: C.muted }}>No goals set yet</p>
-                <button onClick={() => onNavigateModule('goals')} className="mt-2 text-[11px] font-heading font-semibold hover:underline block" style={{ color: C.green }}>
-                  Set your first goal →
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {goals.slice(0, 2).map((g: any, i: number) => {
-                  const pct = Math.min(100, Math.round(((Number(g.currentAmount) || 0) / Math.max(Number(g.targetAmount) || 1, 1)) * 100));
-                  return (
-                    <div key={i}>
-                      <div className="flex justify-between mb-0.5">
-                        <span className="text-[11px] font-heading font-semibold truncate max-w-[110px]" style={{ color: C.text }}>{g.name || g.goalName}</span>
-                        <span className="text-[10px]" style={{ color: C.muted }}>{pct}%</span>
-                      </div>
-                      <Bar pct={pct} delay={400} color={C.green} />
-                    </div>
-                  );
-                })}
-                {goals.length > 2 && <span className="text-[10px]" style={{ color: C.muted }}>+{goals.length - 2} more</span>}
-              </div>
-            )}
-          </Widget>
+      {/* Right Column (Run Settings) */}
+      <div className="w-80 shrink-0 border-l border-gray-200 pl-8 py-2 flex flex-col overflow-y-auto custom-scrollbar">
+        
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-[13px] font-heading font-semibold text-gray-900">Analysis Settings</h2>
+          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+            <ExternalLink className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* ── NEXT STEPS (col 10-12, row 1) ── */}
-        <Widget bg={C.surface} className="col-span-3 row-span-1 p-4 flex flex-col gap-2">
-          <Label>Next Steps</Label>
-          {[
-            { id: 'portfolio' as ModuleId, ok: assets > 0,      title: assets > 0 ? 'Portfolio set up' : 'Add holdings',          sub: assets > 0 ? `${holdings.length} asset${holdings.length !== 1 ? 's' : ''} · ${fmtK(assets)}` : 'No assets recorded',      okColor: C.green, failColor: C.red },
-            { id: 'risk'      as ModuleId, ok: hasProfile,       title: hasProfile ? 'Risk profile done' : 'Complete risk profile', sub: hasProfile ? 'Profile assessed' : 'Needed for full analysis',                                                                okColor: C.green, failColor: C.amber },
-            { id: 'spend'     as ModuleId, ok: leakage === 0,    title: leakage > 0 ? `${fmtK(leakage)} discretionary` : 'Spend clean', sub: leakage > 0 ? 'Review and reallocate' : txns.length > 0 ? `${txns.length} txns logged` : 'No transactions yet',       okColor: C.green, failColor: C.amber },
-            { id: 'goals'     as ModuleId, ok: goals.length > 0, title: goals.length > 0 ? `${goals.length} goal${goals.length !== 1 ? 's' : ''} active` : 'Set your goals', sub: goals.length > 0 ? 'Tracking milestones' : 'No goals configured',              okColor: C.green, failColor: C.red },
-          ].map(({ id, ok, title, sub, okColor, failColor }) => (
-            <button
-              key={id}
-              onClick={() => onNavigateModule(id)}
-              className="flex items-center gap-2.5 p-2.5 rounded-xl hover:opacity-90 transition-opacity text-left group w-full"
-              style={{ backgroundColor: ok ? `${okColor}10` : `${failColor}10` }}
-            >
-              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: ok ? `${okColor}20` : `${failColor}20` }}>
-                {ok
-                  ? <CheckCircle2 className="w-3.5 h-3.5" style={{ color: okColor }} />
-                  : <AlertTriangle className="w-3.5 h-3.5" style={{ color: failColor }} />
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-heading font-semibold text-[12px] truncate" style={{ color: C.text }}>{title}</div>
-                <div className="text-[10px] truncate" style={{ color: C.muted }}>{sub}</div>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: C.muted }} />
-            </button>
-          ))}
-        </Widget>
-
-        {/* ── PORTFOLIO BREAKDOWN (col 1-4, row 2) ── */}
-        <Widget bg={C.surface} className="col-span-4 row-span-1 p-4 flex flex-col">
-          <Label>Portfolio Breakdown</Label>
-          {holdings.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-2">
-              <span className="text-[12px]" style={{ color: C.muted }}>No holdings recorded yet.</span>
-              <button onClick={() => onNavigateModule('portfolio')} className="text-[11px] font-heading font-semibold hover:underline" style={{ color: C.blue }}>
-                Add your first holding →
-              </button>
+        {/* Selected Model */}
+        <div className="mb-8">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Target Model</p>
+          <div className="flex items-center justify-between bg-white border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors rounded-xl p-3 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className={`w-[6px] h-[6px] rounded-full ${aiSource === 'ai' ? 'bg-green-500' : aiSource === 'failed' ? 'bg-red-500' : 'bg-[#0F9D65]'}`} />
+              <span className="text-sm font-medium text-gray-900">Gemini 3.6 Flash</span>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col justify-between">
-              <div className="flex flex-col gap-2.5">
-                {topCats.map(([cat, val], i) => {
-                  const pct = Math.round((val / Math.max(assets, 1)) * 100);
-                  const colors = [C.blue, C.green, C.purple];
-                  return (
-                    <div key={cat}>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-[11px] font-heading font-semibold" style={{ color: C.text }}>{cat}</span>
-                        <span className="text-[11px]" style={{ color: C.muted }}>{pct}% · {fmtK(val)}</span>
-                      </div>
-                      <Bar pct={pct} delay={300 + i * 100} color={colors[i]} />
-                    </div>
-                  );
-                })}
-              </div>
-              {topHolding && (
-                <div className="mt-2 pt-2.5 flex items-center justify-between" style={{ borderTop: `1px solid ${C.border}` }}>
-                  <div>
-                    <div className="text-[9px] font-heading font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Top Holding</div>
-                    <div className="text-[13px] font-heading font-semibold" style={{ color: C.text }}>{topHolding.ticker || topHolding.name}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[13px] font-heading font-bold" style={{ color: C.text }}>{fmtK(Number(topHolding.currentValue))}</div>
-                    {topHolding.currentValue > topHolding.investedValue ? (
-                      <div className="flex items-center gap-0.5 text-[11px] justify-end" style={{ color: C.green }}>
-                        <TrendingUp className="w-3 h-3" />
-                        +{Math.round(((topHolding.currentValue - topHolding.investedValue) / Math.max(topHolding.investedValue, 1)) * 100)}%
-                      </div>
-                    ) : topHolding.currentValue < topHolding.investedValue ? (
-                      <div className="flex items-center gap-0.5 text-[11px] justify-end" style={{ color: C.red }}>
-                        <TrendingDown className="w-3 h-3" />
-                        {Math.round(((topHolding.currentValue - topHolding.investedValue) / Math.max(topHolding.investedValue, 1)) * 100)}%
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </Widget>
-
-        {/* ── FEATURE TILES (col 5-9, row 2) ── */}
-        <div className="col-span-5 row-span-1 grid grid-cols-3 gap-3">
-          {([
-            { id: 'portfolio' as ModuleId, label: 'Portfolio',    sub: 'Asset allocation',       bg: C.blueLight,   color: C.blue,  pts: '0,60 50,45 100,50 150,30 200,35 250,20 300,5'  },
-            { id: 'goals'     as ModuleId, label: 'Goals',        sub: 'Track milestones',       bg: C.greenLight,  color: C.green, pts: '0,65 60,55 120,45 180,35 240,20 300,8'         },
-            { id: 'marketsim' as ModuleId, label: 'Crash Sim',    sub: 'Stress test positions',  bg: C.redLight,    color: C.red,   pts: '0,10 60,13 120,15 180,40 240,60 300,70'        },
-          ] as const).map(({ id, label, sub, bg, color, pts }) => (
-            <button
-              key={id}
-              onClick={() => onNavigateModule(id)}
-              className="relative overflow-hidden rounded-xl text-left p-4 flex flex-col justify-between transition-all duration-300 group hover:-translate-y-0.5"
-              style={{ backgroundColor: bg, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.10)')}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)')}
-            >
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-15 group-hover:opacity-25 transition-opacity" viewBox="0 0 300 80" preserveAspectRatio="none">
-                <polyline points={pts} fill="none" stroke={color} strokeWidth="2.5" />
-              </svg>
-              <div className="relative z-10">
-                <div className="font-heading font-bold text-[18px] tracking-tight" style={{ color }}>{label}</div>
-                <div className="text-[12px] font-body mt-0.5" style={{ color: C.muted }}>{sub}</div>
-              </div>
-              <div className="relative z-10 mt-3 flex items-center gap-1 text-[11px] font-heading font-semibold" style={{ color }}>
-                Open <ChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </button>
-          ))}
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </div>
         </div>
 
-        {/* ── AI INSIGHTS + QUICK ACCESS (col 10-12, row 2) ── */}
-        <Widget bg={C.purpleLight} className="col-span-3 row-span-1 p-4 flex flex-col gap-2.5">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <Sparkles className="w-3.5 h-3.5" style={{ color: C.purple }} />
-            <Label>AI Insights</Label>
-          </div>
+        {/* Health Score / System Instructions */}
+        <div className="mb-8">
+           <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Diagnostic Score</p>
+           <div className="bg-[#f7f9fb] border border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+             {analysis ? (
+               <>
+                 <div className="text-5xl font-heading font-bold text-gray-900 mb-2">{analysis.healthScore}</div>
+                 <div className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-green-100 text-green-800 border border-green-200">
+                   {analysis.healthBand}
+                 </div>
+               </>
+             ) : (
+               <p className="text-[13px] text-gray-500 font-medium">Pending execution.<br/>Run the agent to score.</p>
+             )}
+           </div>
+        </div>
 
-          {aiLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <RefreshCw className="w-5 h-5 animate-spin" style={{ color: C.purple }} />
-            </div>
-          ) : analysis?.insights?.length ? (
-            <div className="flex flex-col gap-2 flex-1">
-              {analysis.insights.slice(0, 2).map((ins, i) => (
-                <div key={i} className="text-[11px] leading-relaxed p-2 rounded-lg" style={{ backgroundColor: `${C.purple}12`, color: C.text }}>
-                  {ins}
-                </div>
-              ))}
-              {analysis.topRisk && (
-                <div className="text-[10px] leading-relaxed p-2 rounded-lg" style={{ backgroundColor: `${C.red}10`, color: C.red }}>
-                  <span className="font-heading font-semibold">Risk: </span>{analysis.topRisk}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-[11px]" style={{ color: C.muted }}>Run AI analysis to see personalised insights.</p>
-          )}
-
-          <div className="flex flex-col gap-1.5 pt-2" style={{ borderTop: `1px solid ${C.purple}20` }}>
-            {[
-              { id: 'learning'     as ModuleId, icon: '📚', label: 'Financial Learning', sub: '30 concepts · Interactive', color: C.purple },
-              { id: 'hypedetector' as ModuleId, icon: '🔍', label: 'Hype Detector',       sub: 'Spot manipulated stocks',  color: C.amber  },
-            ].map(({ id, icon, label, sub, color }) => (
-              <button
-                key={id}
-                onClick={() => onNavigateModule(id)}
-                className="flex items-center gap-2.5 p-2 rounded-xl hover:opacity-90 transition-opacity text-left w-full group"
-                style={{ backgroundColor: `${color}12` }}
-              >
-                <span className="text-[14px] shrink-0">{icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-heading font-semibold text-[11px] truncate" style={{ color: C.text }}>{label}</div>
-                  <div className="text-[10px] truncate" style={{ color: C.muted }}>{sub}</div>
-                </div>
-                <ChevronRight className="w-3 h-3 shrink-0" style={{ color }} />
-              </button>
-            ))}
-          </div>
-        </Widget>
+        {/* Grounding Data / Tools */}
+        <div className="mb-8">
+           <div className="flex items-center justify-between mb-4">
+             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Data Grounding</p>
+             <ChevronRight className="w-3.5 h-3.5 text-gray-400 rotate-90" />
+           </div>
+           
+           <div className="space-y-5">
+             <div className="flex items-center justify-between group">
+               <div>
+                 <p className="text-sm font-medium text-gray-900 mb-0.5 group-hover:text-black transition-colors">Portfolio Context</p>
+                 <p className="text-[11px] text-gray-500 font-medium">Source: Local Database</p>
+               </div>
+               <ToggleSwitch active={holdings.length > 0} />
+             </div>
+             <div className="flex items-center justify-between group">
+               <div>
+                 <p className="text-sm font-medium text-gray-900 mb-0.5 group-hover:text-black transition-colors">Spend Analytics</p>
+                 <p className="text-[11px] text-gray-500 font-medium">Source: Local Transactions</p>
+               </div>
+               <ToggleSwitch active={txns.length > 0} />
+             </div>
+             <div className="flex items-center justify-between group">
+               <div>
+                 <p className="text-sm font-medium text-gray-900 mb-0.5 group-hover:text-black transition-colors">Risk Profile</p>
+                 <p className="text-[11px] text-gray-500 font-medium">Source: Engine Variables</p>
+               </div>
+               <ToggleSwitch active={hasProfile} />
+             </div>
+           </div>
+        </div>
 
       </div>
     </div>
