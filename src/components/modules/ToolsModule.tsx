@@ -955,12 +955,12 @@ export const ToolsModule: React.FC = () => {
         <div className="max-w-[1100px] mx-auto p-8 lg:p-10 pb-20">
           <button
             onClick={() => setActiveTool(null)}
-            className="flex items-center gap-2 text-[#8A8F98] hover:text-white transition-colors mb-8 font-heading text-[14px] font-medium"
+            className="inline-flex items-center gap-2.5 bg-[#262626] hover:bg-[#333] text-[#A1A1AA] hover:text-white transition-all duration-[180ms] ease-out mb-10 font-heading text-[15px] font-semibold px-5 py-2.5 rounded-[14px]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
             Back to Tools
           </button>
-          <h1 className="text-[30px] font-bold tracking-[-0.03em] text-white mb-8 font-heading">
+          <h1 className="text-[32px] font-bold tracking-[-0.03em] text-white mb-10 font-heading">
             {calc.title}
           </h1>
           <CalcComponent />
