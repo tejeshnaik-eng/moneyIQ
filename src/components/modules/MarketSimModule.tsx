@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { historicalCrisisCases } from '../../data/historicalCrisisData';
 import { 
   Clock,
   Briefcase,

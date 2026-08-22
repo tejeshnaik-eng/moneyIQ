@@ -4,7 +4,6 @@ import { ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, TrendingDown, Sp
 import { ModuleId } from '../../types';
 import {
   FinancialAnalysisResult,
-  heuristicAnalysis,
   analyzeWithGemini,
 } from '../../services/financialAnalysisService';
 
@@ -88,7 +87,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
   const [profile, setProfile]     = useState<any>(null);
   const [analysis, setAnalysis]   = useState<FinancialAnalysisResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiSource, setAiSource]   = useState<'ai' | 'heuristic' | null>(null);
+  const [aiSource, setAiSource]   = useState<'ai' | 'failed' | null>(null);
   const [mounted, setMounted]     = useState(false);
 
   // ── Load all data from localStorage ──────────────────────────────
@@ -131,26 +130,14 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
       },
     };
 
-    // Try Gemini first
+    // Strict AI usage (no fakes/heuristics)
     const aiResult = await analyzeWithGemini(payload);
     if (aiResult) {
       setAnalysis(aiResult);
       setAiSource('ai');
     } else {
-      // Heuristic fallback
-      const fb = heuristicAnalysis({
-        assets,
-        liabilities,
-        leakage,
-        hasProfile,
-        monthlyIncome:    Number(profile?.monthlyIncome) || 0,
-        emergencySavings: Number(profile?.emergencySavings) || 0,
-        timeHorizon:      profile?.timeHorizon || '',
-        primaryGoal:      profile?.primaryGoal || 'Wealth creation',
-        crashReaction:    profile?.crashReaction20 || 'Hold and wait',
-      });
-      setAnalysis(fb);
-      setAiSource('heuristic');
+      setAnalysis(null);
+      setAiSource('failed');
     }
     setAiLoading(false);
   };
@@ -189,8 +176,8 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ onNavigateModule
             Your financial health, at a glance.
           </h1>
           <p className="text-[11px] flex items-center gap-1.5 mt-0.5" style={{ color: C.muted }}>
-            <span className="w-[5px] h-[5px] rounded-full bg-[#006D44] inline-block animate-pulse" />
-            {aiSource === 'ai' ? 'AI-powered analysis · Gemini 2.0 Flash' : aiSource === 'heuristic' ? 'Heuristic analysis · AI unavailable' : 'Analysing your data…'}
+            <span className={`w-[5px] h-[5px] rounded-full inline-block ${aiLoading ? 'bg-amber-500 animate-pulse' : aiSource === 'failed' ? 'bg-[#BA1A1A]' : 'bg-[#006D44]'}`} />
+            {aiLoading ? 'Analysing your data…' : aiSource === 'ai' ? 'AI-powered analysis · Gemini Flash' : aiSource === 'failed' ? 'AI analysis unavailable · Add API key' : 'Pending analysis'}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">

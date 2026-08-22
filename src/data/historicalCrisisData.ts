@@ -1,7 +1,7 @@
 import { HistoricalCrisisCase } from '../types';
 
 
-export const mockCrisisCases: HistoricalCrisisCase[] = [
+export const historicalCrisisCases: HistoricalCrisisCase[] = [
   {
     id: 'covid-2020',
     title: 'March 2020: The Global Pandemic Crash',

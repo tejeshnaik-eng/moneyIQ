@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, Sparkles, Loader2, AlertTriangle, X, ShieldAlert } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { mockHypeClaims } from '../../data/hypeClaimsReference';
+import { exampleHypeClaims } from '../../data/exampleHypeClaims';
 
 interface Message {
   id: string;
@@ -152,7 +152,7 @@ Keep it concise, strictly structured, and use standard markdown for bolding/bull
           <span className="text-[10px] font-heading font-bold text-[var(--app-text-muted)] uppercase tracking-wider block w-full">
             Quick Tests:
           </span>
-          {mockHypeClaims.slice(0, 3).map((claim) => (
+          {exampleHypeClaims.slice(0, 3).map((claim) => (
             <button
               key={claim.id}
               type="button"
