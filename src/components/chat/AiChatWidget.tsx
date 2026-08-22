@@ -72,10 +72,10 @@ export const AiChatWidget: React.FC = () => {
       if (aiResponse) {
         setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: aiResponse }]);
       } else {
-        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'Sorry, I encountered an error generating a response.' }]);
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'AI failed. Invalid API response format.' }]);
       }
     } catch (err) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'Network or API error occurred.' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'ai', content: 'AI failed. Network or API error occurred.' }]);
     } finally {
       setIsTyping(false);
     }
