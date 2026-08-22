@@ -93,7 +93,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             {renderNavButton('overview', 'Overview', Key)}
             {renderNavButton('portfolio', 'Holdings', Folder)}
             {renderNavButton('goals', 'Goals', Flag)}
-            {renderNavButton('spend', 'Spend Analysis', Receipt)}
+            {renderNavButton('tools', 'Calculators', Wrench)}
           </div>
 
           {/* SECTION 2 */}
@@ -125,7 +125,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 Utilities
               </h3>
             )}
-            {renderNavButton('tools', 'Tools', Wrench)}
+            {renderNavButton('spend', 'Spend Analysis', Receipt)}
           </div>
 
         </nav>
