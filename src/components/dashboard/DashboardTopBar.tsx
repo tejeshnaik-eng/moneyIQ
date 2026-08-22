@@ -41,7 +41,7 @@ export const DashboardTopBar: React.FC<DashboardTopBarProps> = ({
   const meta = getModuleMeta(activeModule);
 
   return (
-    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-20 px-8 pl-14 w-full`}>
+    <header className={`${activeModule === 'overview' ? 'bg-[#1E1E1E] text-white border-b border-gray-800' : 'bg-surface/80 text-primary border-b border-outline-variant/30'} backdrop-blur-md sticky top-0 z-40 flex justify-between items-center h-20 px-8 w-full`}>
       <div className="flex items-center gap-sm">
         <span className={`font-headline-sm text-[22px] font-bold tracking-tight ${activeModule === 'overview' ? 'text-white' : 'text-primary'}`}>{meta.title}</span>
       </div>

@@ -166,12 +166,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </div>
       </div>
       
-      {/* Collapse Toggle (Optional, floated or absolute if wanted, but standard keeps it clean) */}
+      {/* Collapse Toggle */}
       <button
         onClick={onToggleCollapse}
-        className="absolute -right-3 top-8 bg-[#2A2A2A] text-[#A1A1AA] hover:text-white rounded-full p-1 border border-[#333333] shadow-md z-30"
+        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-[#2A2A2A] text-[#A1A1AA] hover:text-white rounded-full p-1 border border-[#333333] shadow-md z-30"
       >
-        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
     </aside>
   );
